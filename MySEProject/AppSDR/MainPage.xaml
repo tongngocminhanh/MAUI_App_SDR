@@ -1,15 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp1.MainPage">
+             x:Class="AppSDR.MainPage">
 
     <ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
+        <Grid RowDefinitions="100, Auto, Auto, *, Auto"
+              ColumnDefinitions=".25*,.25*,.25*, .25*"
+              Padding="10"
+              RowSpacing="10"
+              ColumnSpacing="10">
 
-            <TableView Intent="Settings" BackgroundColor="Black"
+            <Image x:Name="myImage"
+                   Grid.Column="1"
+                   Grid.Row="0"
+                   Grid.ColumnSpan="2"
+                   Source="sdr_represent.jpg"
+                   BackgroundColor="Transparent"/>
+
+            <TableView Intent="Settings" BackgroundColor="DarkBlue"
                    Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                     >
                 <TableRoot>
@@ -48,15 +56,18 @@
                 </TableRoot>
             </TableView>
 
+            <Button Text="Choose a txt file"
+                    BackgroundColor="Beige"
+                    Grid.Row="2" Grid.Column="1"
+                    Grid.ColumnSpan="1"
+                    Clicked="OnCounterClicked"/>
 
-            <Button
-                x:Name="AddFileButton"
-                Text="Add file"
-                Clicked="AddFileButton_Clicked"
-                HorizontalOptions="Center" />
-
-        </VerticalStackLayout>
+            <Button Text="Submit"
+                    Grid.Row="2" Grid.Column="2" 
+                    Grid.ColumnSpan="1" 
+                    Background="Beige"
+                    Clicked="OnSubmitClicked"/>
+        </Grid>
     </ScrollView>
-    
+
 </ContentPage>
-    

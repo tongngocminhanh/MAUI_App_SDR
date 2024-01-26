@@ -1,24 +1,46 @@
-﻿namespace MauiApp1
+﻿using Microsoft.Maui.Controls;
+using System;
+using System.IO;
+
+namespace MauiApp1
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private async void AddFileButton_Clicked(object sender, EventArgs e)
         {
-            count++;
+            try
+            {
+                // Open file picker
+                var result = await FilePicker.PickAsync(new PickOptions
+                {
+                    PickerTitle = "Pick a text file"
+                });
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+                if (result != null)
+                {
+                    // Check if the selected file is a text file
+                    if (result.FileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Update button text to indicate file received
+                        AddFileButton.Text = "Received";
+                    }
+                    else
+                    {
+                        // Update button text to indicate error
+                        AddFileButton.Text = "Error";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions
+                Console.WriteLine($"Error picking file: {ex.Message}");
+            }
         }
     }
 }
