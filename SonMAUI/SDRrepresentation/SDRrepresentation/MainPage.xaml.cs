@@ -1,62 +1,41 @@
 ﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using System.Data;
 
-namespace DrawScatterPlotMAUI
+namespace SDRrepresentation;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    public MainPage()
     {
-        public MainPage()
+        InitializeComponent();
+        string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourCsvFile.csv");
+        string[][] csvData = ReadCsvFile(filePath);
+    }
+    private string[][] ReadCsvFile(string filePath)
+    {
+        List<string[]> data = new List<string[]>();
+
+        try
         {
-            InitializeComponent();
-
-            var graphicsView = new GraphicsView();
-            graphicsView.PaintSurface += OnGraphicsViewPaintSurface;
-
-            Content = new StackLayout
+            using (StreamReader sr = new StreamReader(filePath))
             {
-                Children = { graphicsView }
-            };
-        }
-
-        private void OnGraphicsViewPaintSurface(object sender, DrawEventArgs args)
-        {
-            var canvas = args.DrawingCanvas;
-
-            // Clear the canvas
-            canvas.Clear(Color.White);
-
-            // Sample data for scatter plot
-            var dataPoints = new[]
-            {
-                new DataPoint(50, 100),
-                new DataPoint(100, 150),
-                new DataPoint(150, 200),
-                // Add more data points as needed
-            };
-
-            // Create a paint object for drawing points
-            using (var pointPaint = new Paint())
-            {
-                pointPaint.Color = Colors.Blue;
-
-                // Draw each data point as a circle
-                foreach (var dataPoint in dataPoints)
+                while (!sr.EndOfStream)
                 {
-                    canvas.DrawCircle(dataPoint.X, dataPoint.Y, 5, pointPaint);
+                    string[] rows = sr.ReadLine().Split(',');
+                    data.Add(rows);
                 }
             }
         }
-
-        private struct DataPoint
+        catch (Exception ex)
         {
-            public float X { get; }
-            public float Y { get; }
-
-            public DataPoint(float x, float y)
-            {
-                X = x;
-                Y = y;
-            }
+            // Handle exceptions appropriately, e.g., display an error message
+            Console.WriteLine($"Error reading CSV file: {ex.Message}");
         }
+
+        return data.ToArray();
     }
 }
+    
+
+
