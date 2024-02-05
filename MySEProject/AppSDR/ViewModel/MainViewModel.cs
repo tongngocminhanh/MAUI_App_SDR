@@ -4,6 +4,8 @@ using System;
 using System.IO;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using SdrDrawerLib;
+using Microsoft.Maui.Graphics.Skia;
 
 namespace AppSDR.ViewModel
 {
@@ -24,13 +26,23 @@ namespace AppSDR.ViewModel
 
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { get; }
-
+        public ICanvas Canvas { get; set; }
+        public MyDrawable myDrawable { get; }
         public MainViewModel()
         {
             ChooseFileCommand = new Command(ChooseFile);
             SubmitCommand = new Command(Submit);
-        }
+            // Example values for rectangle
+            int x = 50;
+            int y = 50;
+            int width = 100;
+            int height = 50;
 
+            // Create instance of MyDrawable
+            Canvas = new SkiaCanvas();
+            myDrawable = new MyDrawable();
+            myDrawable.DrawRectangle(Canvas, x, y, width, height);
+        }
         private async void ChooseFile()
         {
             try
@@ -78,5 +90,6 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"Error saving data: {ex.Message}");
             }
         }
+
     }
 }
