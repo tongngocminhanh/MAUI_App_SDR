@@ -7,7 +7,7 @@
     <ContentPage.BindingContext>
         <local:MainViewModel/>
     </ContentPage.BindingContext>
-    
+
     <ScrollView>
         <Grid RowDefinitions="100, Auto, Auto, *, Auto"
               ColumnDefinitions=".25*,.25*,.25*, .25*"
@@ -72,7 +72,7 @@
                     Grid.ColumnSpan="1" 
                     Background="Beige"
                     Command="{Binding SubmitCommand}"/>
+
         </Grid>
     </ScrollView>
-
 </ContentPage>

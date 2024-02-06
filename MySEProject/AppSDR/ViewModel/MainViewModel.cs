@@ -1,9 +1,8 @@
-﻿using Microsoft.Maui.Controls;
-using Microsoft.Maui;
-using System;
-using System.IO;
+﻿using System;
 using System.Windows.Input;
+using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using SdrDrawerLib;
 
 namespace AppSDR.ViewModel
 {
@@ -30,7 +29,6 @@ namespace AppSDR.ViewModel
             ChooseFileCommand = new Command(ChooseFile);
             SubmitCommand = new Command(Submit);
         }
-
         private async void ChooseFile()
         {
             try
