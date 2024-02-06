@@ -1,4 +1,4 @@
-﻿namespace MauiApp1
+﻿namespace AppSDR
 {
     public static class MauiProgram
     {

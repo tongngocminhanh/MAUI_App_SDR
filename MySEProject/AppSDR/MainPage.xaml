@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:AppSDR.ViewModel"
+             x:Class="AppSDR.MainPage">
+
+    <ContentPage.BindingContext>
+        <local:MainViewModel/>
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <Grid RowDefinitions="100, Auto, Auto, *, Auto"
+              ColumnDefinitions=".25*,.25*,.25*, .25*"
+              Padding="10"
+              RowSpacing="10"
+              ColumnSpacing="10">
+
+            <Image x:Name="myImage"
+                   Grid.Column="1"
+                   Grid.Row="0"
+                   Grid.ColumnSpan="2"
+                   Source="sdr_represent.jpg"
+                   BackgroundColor="Transparent"/>
+
+            <TableView Intent="Settings" BackgroundColor="DarkBlue"
+                   Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                    >
+                <TableRoot>
+                    <TableSection>
+                        <EntryCell x:Name="graphNameEntry"
+                                   Label="Graph name"
+                                   Placeholder="graph name" />
+                        <EntryCell x:Name="maxCyclesEntry"
+                                   Label="Max cycles"
+                                   Placeholder="max cycles" />
+                        <EntryCell x:Name="highlightTouchEntry"
+                                   Label="Highlight touch"
+                                   Placeholder="Highlight touch" />
+                        <EntryCell x:Name="axisEntry"
+                                   Label="Axis"
+                                   Placeholder="axis" />
+                        <EntryCell x:Name="xAxisTitleEntry"
+                                   Label="X_axis title"
+                                   Placeholder="x_axis title" />
+                        <EntryCell x:Name="yAxisTitleEntry"
+                                   Label="Y_axis title"
+                                   Placeholder="y_axis title" />
+                        <EntryCell x:Name="minRangeEntry"
+                                   Label="Min range of cell"
+                                   Placeholder="min range of cell" />
+                        <EntryCell x:Name="maxRangeEntry"
+                                   Label="Max range of cell"
+                                   Placeholder="max range of cell" />
+                        <EntryCell x:Name="subplotTitleEntry"
+                                   Label="Subplot title"
+                                   Placeholder="subplot title" />
+                        <EntryCell x:Name="figureNameEntry"
+                                   Label="Figure name"
+                                   Placeholder="figure name" />
+                    </TableSection>
+                </TableRoot>
+            </TableView>
+
+            <Button Text="{Binding SelectedFileName}"
+                    BackgroundColor="Beige"
+                    Grid.Row="2" Grid.Column="1"
+                    Grid.ColumnSpan="1"
+                    Command="{Binding ChooseFileCommand}"/>
+
+            <Button Text="Submit"
+                    Grid.Row="2" Grid.Column="2" 
+                    Grid.ColumnSpan="1" 
+                    Background="Beige"
+                    Command="{Binding SubmitCommand}"/>
+
+        </Grid>
+    </ScrollView>
+</ContentPage>
