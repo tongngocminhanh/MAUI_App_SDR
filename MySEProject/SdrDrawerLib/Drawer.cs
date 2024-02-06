@@ -2,26 +2,14 @@
 
 namespace SdrDrawerLib
 {
-    public class MyDrawable
+    public class Drawer
     {
         public void DrawRectangle(ICanvas canvas, float x, float y, float width, float height)
         {
-            var paint = new SolidPaint { Color = Colors.Blue };
-            if (canvas == null)
-            {
-                // Handle null canvas object
-                return;
-            }
-
-            if (paint == null)
-            {
-                // Handle null paint object
-                return;
-            }
-            // Example: Draw a filled rectangle
-            
+            var color = Colors.Blue;
+            var paint = new SolidPaint(color);
             canvas.StrokeColor = paint.Color;
-            canvas.DrawRectangle(x, y, height, width);
+            canvas.FillRectangle(x, y, width, height);
         }
     }
 }

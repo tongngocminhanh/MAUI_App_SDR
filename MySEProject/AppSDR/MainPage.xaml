@@ -73,11 +73,6 @@
                     Background="Beige"
                     Command="{Binding SubmitCommand}"/>
 
-            <!-- Use GraphicsView to display the generated rectangle -->
-            <GraphicsView x:Name="myDrawable" 
-                          Grid.Row="3" Grid.ColumnSpan="4"
-                          WidthRequest="300" HeightRequest="200">
-            </GraphicsView>
         </Grid>
     </ScrollView>
 </ContentPage>
