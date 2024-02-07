@@ -9,19 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{7619211E-C0C7-46A9-93CF-B5D00B3556E8}"
 	ProjectSection(SolutionItems) = preProject
-		C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb = C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb
-		C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx = C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx
-		C:\Users\ACER\Desktop\Documentaion\README.md = C:\Users\ACER\Desktop\Documentaion\README.md
-		C:\Users\ACER\Desktop\Documentaion\README.md.txt = C:\Users\ACER\Desktop\Documentaion\README.md.txt
+		..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb = ..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb
+		..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx = ..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx
+		..\..\..\Users\ACER\Desktop\Documentaion\README.md = ..\..\..\Users\ACER\Desktop\Documentaion\README.md
+		..\..\..\Users\ACER\Desktop\Documentaion\README.md.txt = ..\..\..\Users\ACER\Desktop\Documentaion\README.md.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MyProjectSample", "MyProjectSample", "{600EC317-68FA-42FC-A355-F527BD5FEA5C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppSDR", "AppSDR\AppSDR.csproj", "{D0B4EF27-F5BD-4059-95E6-A482B681C6FA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SdrDrawerLib", "SdrDrawerLib", "{B6AD0115-BFA7-4F78-A866-A9636696A225}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SdrDrawerLib", "SdrDrawerLib\SdrDrawerLib.csproj", "{87DFAAFA-F815-4416-A9FD-C21A2460691B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,10 +35,6 @@ Global
 		{D0B4EF27-F5BD-4059-95E6-A482B681C6FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0B4EF27-F5BD-4059-95E6-A482B681C6FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D0B4EF27-F5BD-4059-95E6-A482B681C6FA}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{87DFAAFA-F815-4416-A9FD-C21A2460691B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87DFAAFA-F815-4416-A9FD-C21A2460691B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87DFAAFA-F815-4416-A9FD-C21A2460691B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87DFAAFA-F815-4416-A9FD-C21A2460691B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,7 +42,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9BB69289-1EF4-4F89-A7AF-46A03A4E0171} = {4FCE7362-5961-4FF6-8E92-C59CCC2BBF1D}
 		{D0B4EF27-F5BD-4059-95E6-A482B681C6FA} = {600EC317-68FA-42FC-A355-F527BD5FEA5C}
-		{87DFAAFA-F815-4416-A9FD-C21A2460691B} = {B6AD0115-BFA7-4F78-A866-A9636696A225}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5EFB541E-4EA6-47D3-B177-7F507A1D7754}
