@@ -21,8 +21,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SdrDrawerLib\SdrDrawerLib.csproj" />
-  </ItemGroup>
-
 </Project>

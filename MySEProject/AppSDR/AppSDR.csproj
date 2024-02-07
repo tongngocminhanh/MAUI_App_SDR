@@ -57,7 +57,6 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.6" />
-		<ProjectReference Include="..\SdrDrawerLib\SdrDrawerLib.csproj" />
 		<PackageReference Update="Microsoft.Maui.Controls" Version="8.0.6" />
 	</ItemGroup>
 
