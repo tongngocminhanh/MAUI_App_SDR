@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using SdrDrawerLib;
 
 namespace AppSDR.ViewModel
 {
