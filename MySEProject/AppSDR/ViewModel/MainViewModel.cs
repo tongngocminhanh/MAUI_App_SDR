@@ -2,7 +2,10 @@
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 00815c1fcfa4bd289ac12d79a21675ad4cb45202
 
 namespace AppSDR.ViewModel
 {
