@@ -15,7 +15,7 @@
    Placeholder="Enter text"
     />
         <GraphicsView Drawable="{StaticResource drawable}"
-                      HeightRequest="300"
-                      WidthRequest="400" />
+                      HeightRequest="1000"
+                      WidthRequest="500" />
     </VerticalStackLayout>
 </ContentPage>
