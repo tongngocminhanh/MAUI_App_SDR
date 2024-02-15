@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Maui.Graphics;
+using Font = Microsoft.Maui.Graphics.Font;
 
 namespace SDRrepresentation
 {
     public class GraphicsDrawable : IDrawable
     {
         public int RoundedRadius { get; set; } = 10;
-       
+
         private int[][] activeCellsColumn = new int[][]
         {
             new int[] {33, 34, 35, 36, 37, 39, 96, 97, 98, 99, 100, 103, 104, 167, 231, 232, 295, 359, 360, 423, 424, 1078, 1141, 1185, 1191, 1192, 1249, 1255, 1312, 1313, 1320, 1373, 1375, 1376, 1377, 1379, 1381, 1382, 1383, 1384, 1436, 1437, 1438, 1439, 1440, 1441, 1442, 1443, 1444, 1446, 1447, 1505, 1508, 1569, 1571, 1574, 1575, 1576, 1632, 1633, 1634, 1635, 1636, 1639, 1640, 1698, 1699, 1700, 1703, 2848, 2912, 3111, 4000, 4005, 4006, 4007, 4008, 4066, 4067, 4069, 4070},  // Sample data for active cells column
@@ -29,8 +30,48 @@ namespace SDRrepresentation
             canvas.FillColor = Colors.DarkBlue;
             canvas.StrokeSize = 4;
 
-            
-            
+            canvas.FontColor = Colors.Blue;
+            canvas.FontSize = 10;
+           
+
+            float rectangleWidth = 25;
+            float rectangleHeight = 2;
+            float rectangleSpacing = 10;
+
+            // Calculate the total height of the canvas
+            float canvasHeight = dirtyRect.Height-100;
+
+            // Start drawing from the bottom of the canvas
+
+            // Loop through each rectangle
+            for (int t = 0; t < activeCellsColumn.Length; t++)
+            {
+                float x = t * (rectangleWidth + rectangleSpacing);
+
+                // Loop through each cell in the current rectangle
+                foreach (int cell in activeCellsColumn[t])
+                {
+                    // Calculate the y-coordinate for the rectangle
+                    // Start from the bottom and decrement by rectangleHeight
+                    float y = canvasHeight - (cell / 10);
+
+                    // Draw the rectangle
+                    canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
+
+
+                }
+                canvas.Font = Font.DefaultBold;
+                canvas.DrawString($"SDR {t}", x, canvasHeight, rectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Top);
+            }
+        }
+
+        /*public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            canvas.FillColor = Colors.DarkBlue;
+            canvas.StrokeSize = 4;
+
+
+
 
 
             // Define the highlight color and paint for the red rectangle
@@ -62,25 +103,14 @@ namespace SDRrepresentation
                 }
             }
 
-        }
-
-
-    }
-        /*private Rect DrawMeter(ICanvas canvas, RectF dirtyRect)
-        {
-
-            var x = dirtyRect.X;
-            var y = dirtyRect.Y;
-            var width = dirtyRect.Width;
-            var height = dirtyRect.Height;
-
-
-            var meterRect = new Rect(x, y, width, height);
-            canvas.DrawRoundedRectangle(meterRect, (double)RoundedRadius);
-            return meterRect;
-
         }*/
     }
+}
+
+
+    
+       
+    
 
 
 
