@@ -8,14 +8,13 @@
     <ContentPage.Resources>
         <drawable:GraphicsDrawable x:Key="drawable" />
     </ContentPage.Resources>
-    
-    
+
+    <ScrollView>
     <VerticalStackLayout>
-        <Entry x:Name="entry"
-   Placeholder="Enter text"
-    />
+        
         <GraphicsView Drawable="{StaticResource drawable}"
                       HeightRequest="700"
                       WidthRequest="500" />
     </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
