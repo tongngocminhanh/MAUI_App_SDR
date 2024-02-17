@@ -57,6 +57,12 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.6" />
+		<Compile Update="Page1.xaml.cs">
+		  <DependentUpon>Page1.xaml</DependentUpon>
+		</Compile>
+		<MauiXaml Update="Page1.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<PackageReference Update="Microsoft.Maui.Controls" Version="8.0.6" />
 	</ItemGroup>
 

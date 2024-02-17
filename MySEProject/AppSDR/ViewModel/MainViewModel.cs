@@ -7,6 +7,7 @@ namespace AppSDR.ViewModel
 {
     public class MainViewModel : ObservableObject
     {
+        private INavigation _navigation;
         private string _selectedFilePath;
         public string SelectedFilePath
         {
@@ -23,10 +24,11 @@ namespace AppSDR.ViewModel
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(INavigation navigation)
         {
             ChooseFileCommand = new Command(ChooseFile);
             SubmitCommand = new Command(Submit);
+            _navigation = navigation;
         }
         private async void ChooseFile()
         {
@@ -49,7 +51,7 @@ namespace AppSDR.ViewModel
             }
         }
 
-        private void Submit()
+        private async void Submit()
         {
             try
             {
@@ -61,12 +63,13 @@ namespace AppSDR.ViewModel
                     // File.WriteAllText(SelectedFilePath, "Your data");
 
                     // Display success message
-                    Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
+                    await _navigation.PushAsync(new Page1());
                 }
                 else
                 {
                     // Display error message if no file is selected
-                    Application.Current.MainPage.DisplayAlert("Error", "Please choose a file", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please choose a file", "OK");
                 }
             }
             catch (Exception ex)
