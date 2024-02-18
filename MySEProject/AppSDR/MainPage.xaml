@@ -2,17 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:AppSDR.ViewModel"
-             xmlns:drawable="clr-namespace:AppSDR"
              x:Class="AppSDR.MainPage">
 
-
-    <ContentPage.Resources>
-        <drawable:GraphicsDrawable x:Key="drawable" />
-    </ContentPage.Resources>
-
+    <!--
     <ContentPage.BindingContext>
         <local:MainViewModel/>
-    </ContentPage.BindingContext>
+    </ContentPage.BindingContext> -->
 
     <ScrollView>
         <Grid RowDefinitions="100, Auto, Auto, *, Auto"
@@ -20,7 +15,6 @@
               Padding="10"
               RowSpacing="10"
               ColumnSpacing="10">
-            
 
             <Image x:Name="myImage"
                    Grid.Column="1"
@@ -79,11 +73,7 @@
                     Grid.ColumnSpan="1" 
                     Background="Beige"
                     Command="{Binding SubmitCommand}"/>
-            <GraphicsView Drawable="{StaticResource drawable}"
-HeightRequest="300"
-WidthRequest="400" />
 
         </Grid>
     </ScrollView>
-    
 </ContentPage>
