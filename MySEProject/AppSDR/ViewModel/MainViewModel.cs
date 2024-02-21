@@ -34,8 +34,21 @@ namespace AppSDR.ViewModel
         {
             try
             {
+                var customFileType = new FilePickerFileType(
+                new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } }, // UTType values
+                    { DevicePlatform.Android, new[] {".txt", ".csv" } }, // MIME type
+                    { DevicePlatform.WinUI, new[] { ".txt", ".csv" } }, // file extension
+                    { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
+                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }, // UTType values
+                });
+
+
                 var result = await FilePicker.PickAsync(new PickOptions
                 {
+                    FileTypes= customFileType,
+                     
                     PickerTitle = "Pick a text file"
                 });
 
