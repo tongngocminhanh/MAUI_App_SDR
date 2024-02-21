@@ -5,7 +5,7 @@
              x:Class="AppSDR.Page1"
              Title="Page1">
     
-    <ContentPage.Resources>
+    <!--<ContentPage.Resources>
         <drawable:GraphicsDrawable x:Key="drawable" />
     </ContentPage.Resources>
 
@@ -16,5 +16,5 @@
                       HeightRequest="700"
                       WidthRequest="500" />
         </VerticalStackLayout>
-    </ScrollView>
+    </ScrollView>-->
 </ContentPage>
