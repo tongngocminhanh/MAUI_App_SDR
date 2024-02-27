@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:drawable="clr-namespace:AppSDR"
+             xmlns:drawables="clr-namespace:AppSDR"
              x:Class="AppSDR.Page1"
              Title="Page1">
-    
-    <!--<ContentPage.Resources>
-        <drawable:GraphicsDrawable x:Key="drawable" />
+
+    <ContentPage.Resources>
+        <drawables:GraphicsDrawable x:Key="drawable"/>
+
     </ContentPage.Resources>
-
-    <ScrollView BackgroundColor="White">
+    <ScrollView>
         <VerticalStackLayout>
+           
 
-            <GraphicsView Drawable="{StaticResource drawable}"
-                      HeightRequest="700"
-                      WidthRequest="500" />
+            <GraphicsView 
+              Drawable="{StaticResource drawable}"
+              HeightRequest="800"
+              WidthRequest="800" 
+              x:Name="DrawableView"/>
         </VerticalStackLayout>
-    </ScrollView>-->
+    </ScrollView>
 </ContentPage>
