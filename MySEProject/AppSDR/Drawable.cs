@@ -9,6 +9,7 @@ using Font = Microsoft.Maui.Graphics.Font;
 
 namespace AppSDR
 {
+   
     public class GraphicsDrawable : BindableObject, IDrawable
     {
         public int[][] Vectors
@@ -18,15 +19,14 @@ namespace AppSDR
 
         }
 
+
         public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(GraphicsDrawable));
-        public Color BackgroundColor { get; set; } = Colors.White; // Default background color is white
+        
+
+       
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
-
-            canvas.FillColor = BackgroundColor;
-            canvas.FillRectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
-
             canvas.FillColor = Colors.DarkBlue;
             canvas.StrokeSize = 4;
 
@@ -42,6 +42,7 @@ namespace AppSDR
             float canvasHeight = dirtyRect.Height - 100;
 
             // Start drawing from the bottom of the canvas
+
             // Loop through each rectangle
             for (int t = 0; t < Vectors.Length; t++)
             {

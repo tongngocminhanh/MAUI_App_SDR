@@ -9,10 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestProject", "UnitTest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{7619211E-C0C7-46A9-93CF-B5D00B3556E8}"
 	ProjectSection(SolutionItems) = preProject
-		C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb = C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb
-		C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx = C:\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx
-		C:\Users\ACER\Desktop\Documentaion\README.md = C:\Users\ACER\Desktop\Documentaion\README.md
-		C:\Users\ACER\Desktop\Documentaion\README.md.txt = C:\Users\ACER\Desktop\Documentaion\README.md.txt
+		..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb = ..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.accdb
+		..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx = ..\..\..\Users\ACER\Desktop\Documentaion\ML22-23-8 Implement the SDR representation in the MAUI application.docx
+		..\..\..\Users\ACER\Desktop\Documentaion\README.md = ..\..\..\Users\ACER\Desktop\Documentaion\README.md
+		..\..\..\Users\ACER\Desktop\Documentaion\README.md.txt = ..\..\..\Users\ACER\Desktop\Documentaion\README.md.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MyProjectSample", "MyProjectSample", "{600EC317-68FA-42FC-A355-F527BD5FEA5C}"
