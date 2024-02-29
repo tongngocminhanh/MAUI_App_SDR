@@ -4,20 +4,33 @@
              xmlns:drawables="clr-namespace:AppSDR"
              x:Class="AppSDR.Page1"
              Title="Page1">
+    
 
     <ContentPage.Resources>
         <drawables:GraphicsDrawable x:Key="drawable"/>
 
     </ContentPage.Resources>
     <ScrollView>
-        <VerticalStackLayout>
-           
-
-            <GraphicsView 
-              Drawable="{StaticResource drawable}"
-              HeightRequest="800"
-              WidthRequest="800" 
-              x:Name="DrawableView"/>
-        </VerticalStackLayout>
+    <Grid ColumnDefinitions="*,*,*"
+          RowDefinitions="*,*,Auto">
+            <GraphicsView Drawable="{StaticResource drawable}"
+                          HeightRequest="1000"
+                          WidthRequest="1000" 
+                          Grid.Column="1"
+                          Grid.Row="0"
+                          x:Name="DrawableView"/>
+            <Button Text="BACK TO MAINPAGE" Clicked="BackButton_Clicked"
+                    Grid.Row="1" Grid.Column="1" Margin="10,10,10,10"/>
+        </Grid>
     </ScrollView>
 </ContentPage>
+
+
+
+
+
+
+
+
+
+        

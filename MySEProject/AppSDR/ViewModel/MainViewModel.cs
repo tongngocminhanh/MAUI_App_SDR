@@ -63,7 +63,6 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"File picking error: {ex.Message}");
             }
         }
-
         private async void Submit()
         {
             try
@@ -76,24 +75,40 @@ namespace AppSDR.ViewModel
                     // Split the content into lines
                     string[] lines = fileContent.Split(Environment.NewLine);
 
-                    // Initialize a 2D integer array to store the parsed values
-                    int[][] activeCellsColumn = new int[lines.Length][];
+                    // Initialize a list to store the parsed rows
+                    List<int[]> activeCellsColumn = new List<int[]>();
 
                     // Iterate over each line and parse the integers
-                    for (int i = 0; i < lines.Length; i++)
+                    foreach (string line in lines)
                     {
                         // Split each line into individual integers
-                        string[] numbers = lines[i].Split(',');
+                        string[] numbers = line.Split(',');
 
-                        // Initialize an array to store the parsed integers for this line
-                        int[] parsedNumbers = new int[numbers.Length];
+                        // Parse each number and store it in a list
+                        List<int> parsedNumbers = new List<int>();
 
-                        // Parse each number and store it in the array
-                        for (int j = 0; j < numbers.Length; j++)
+                        // Flag to indicate if the row has at least one non-zero value
+                        bool hasNonZeroValue = false;
+
+                        foreach (string numberString in numbers)
                         {
-                            if (int.TryParse(numbers[j], out int parsedNumber))
+                            if (int.TryParse(numberString, out int parsedNumber))
                             {
-                                parsedNumbers[j] = parsedNumber;
+                                // Check if it's the first value in the row
+                                if (parsedNumbers.Count == 0 && parsedNumber == 0)
+                                {
+                                    // Skip the row if the first value is 0
+                                    hasNonZeroValue = false;
+                                    break;
+                                }
+
+                                parsedNumbers.Add(parsedNumber);
+
+                                // Set the flag if a non-zero value is found
+                                if (!hasNonZeroValue && parsedNumber != 0)
+                                {
+                                    hasNonZeroValue = true;
+                                }
                             }
                             else
                             {
@@ -102,27 +117,89 @@ namespace AppSDR.ViewModel
                             }
                         }
 
-                        // Store the parsed numbers for this line in the 2D array
-                        activeCellsColumn[i] = parsedNumbers;
-
-
+                        // Add the parsed numbers to the list if the row has at least one non-zero value
+                        if (hasNonZeroValue)
+                        {
+                            activeCellsColumn.Add(parsedNumbers.ToArray());
+                        }
                     }
 
-                    await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                    await _navigation.PushAsync(new Page1(activeCellsColumn));
+                    // Convert the list to a 2D array
+                    int[][] activeCellsArray = activeCellsColumn.ToArray();
 
+                    await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
+                    await _navigation.PushAsync(new Page1(activeCellsArray));
                 }
                 else
                 {
-                    // Display error message if no file is selected
-                    await Application.Current.MainPage.DisplayAlert("Error", "Please choose a file", "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please select a file", "OK");
                 }
             }
             catch (Exception ex)
             {
-                // Handle exception
-                Console.WriteLine($"Error saving data: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
+
+        //private async void Submit()
+        //{
+        //    try
+        //    {
+        //        if (!string.IsNullOrEmpty(SelectedFilePath))
+        //        {
+        //            // Read the text content of the selected file
+        //            string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
+
+        //            // Split the content into lines
+        //            string[] lines = fileContent.Split(Environment.NewLine);
+
+        //            // Initialize a 2D integer array to store the parsed values
+        //            int[][] activeCellsColumn = new int[lines.Length][];
+
+        //            // Iterate over each line and parse the integers
+        //            for (int i = 0; i < lines.Length; i++)
+        //            {
+        //                // Split each line into individual integers
+        //                string[] numbers = lines[i].Split(',');
+
+        //                // Initialize an array to store the parsed integers for this line
+        //                int[] parsedNumbers = new int[numbers.Length];
+
+        //                // Parse each number and store it in the array
+        //                for (int j = 0; j < numbers.Length; j++)
+        //                {
+        //                    if (int.TryParse(numbers[j], out int parsedNumber))
+        //                    {
+        //                        parsedNumbers[j] = parsedNumber;
+        //                    }
+        //                    else
+        //                    {
+        //                        // Handle parsing error if needed
+        //                        // For example: throw new ArgumentException("Invalid number format");
+        //                    }
+        //                }
+
+        //                // Store the parsed numbers for this line in the 2D array
+        //                activeCellsColumn[i] = parsedNumbers;
+
+
+        //            }
+
+        //            await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
+        //            await _navigation.PushAsync(new Page1(activeCellsColumn));
+
+        //        }
+        //        else
+        //        {
+        //            // Display error message if no file is selected
+        //            await Application.Current.MainPage.DisplayAlert("Error", "Please choose a file", "OK");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Handle exception
+        //        Console.WriteLine($"Error saving data: {ex.Message}");
+        //    }
+        //}
     }
 }

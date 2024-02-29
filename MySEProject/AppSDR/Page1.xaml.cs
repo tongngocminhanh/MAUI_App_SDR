@@ -16,15 +16,11 @@ public partial class Page1 : ContentPage
         graphicsView.Invalidate();
 
 
-        /*var drawable = new GraphicsDrawable();
-            drawable.Vectors = vectors;
-            Content = new GraphicsView
-            {
-                Drawable = drawable
-            };*/
-
-
+    }
+    // In Page1.xaml.cs or wherever the event handler is defined
+    private async void BackButton_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 
-    // Other code in Page1 class
 }
