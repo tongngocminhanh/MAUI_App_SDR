@@ -4,10 +4,10 @@ namespace AppSDR;
 public partial class Page1 : ContentPage
 {
     // Define a property to hold the text to be displayed
-    public string GraphName { get; set; }
+    public string[] EntryCellValues { get; set; }
 
     //public readonly int[][] vectors;
-    public Page1(int[][] activeCellsColumn, string _graphName)
+    public Page1(int[][] activeCellsColumn, string[] entryCellValues)
     {
         InitializeComponent();
 
@@ -18,7 +18,8 @@ public partial class Page1 : ContentPage
         graphicsView.Invalidate();
 
         // Set the text to be displayed
-        GraphName = string.Join("\n", _graphName);
+        // Assign entry cell values to the property
+        EntryCellValues = entryCellValues;
 
         // Set the BindingContext to the current page
         BindingContext = this;

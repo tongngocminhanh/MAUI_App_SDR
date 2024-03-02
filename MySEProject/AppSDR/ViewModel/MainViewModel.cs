@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace AppSDR.ViewModel
 {
@@ -10,19 +11,70 @@ namespace AppSDR.ViewModel
         private INavigation _navigation;
         private string _selectedFilePath;
 
+        // Set property change for entry parameters in table
         private string _graphName;
         public string GraphName
         {
             get { return _graphName; }
-            set
-            {
-                if (_graphName != value)
-                {
-                    _graphName = value;
-                    OnPropertyChanged(); // Raise PropertyChanged event
-                }
-            }
+            set { SetProperty(ref _graphName, value); }
         }
+
+        private string _maxCycles;
+        public string MaxCycles
+        {
+            get { return _maxCycles; }
+            set { SetProperty(ref _maxCycles, value); }
+        }
+
+        private string _highlightTouch;
+        public string HighlightTouch
+        {
+            get { return _highlightTouch; }
+            set { SetProperty(ref _highlightTouch, value); }
+        }
+
+        private string _axis;
+        public string Axis
+        {
+            get { return _axis; }
+            set { SetProperty(ref _axis, value); }
+        }
+
+        private string _yaxisTitle;
+        public string YaxisTitle
+        {
+            get { return _yaxisTitle; }
+            set { SetProperty(ref _yaxisTitle, value); }
+        }
+
+        private string _xaxisTitle;
+        public string XaxisTitle
+        {
+            get { return _xaxisTitle; }
+            set { SetProperty(ref _xaxisTitle, value); }
+        }
+
+        private string _minRange;
+        public string MinRange
+        {
+            get { return _minRange; }
+            set { SetProperty(ref _minRange, value); }
+        }
+
+        private string _maxRange;
+        public string MaxRange
+        {
+            get { return _maxRange; }
+            set { SetProperty(ref _maxRange, value); }
+        }
+
+        private string _figureName;
+        public string FigureName
+        {
+            get { return _figureName; }
+            set { SetProperty(ref _figureName, value); }
+        }
+        // End property change
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
@@ -76,6 +128,20 @@ namespace AppSDR.ViewModel
                 // Handle exception
                 Console.WriteLine($"File picking error: {ex.Message}");
             }
+        }
+
+        // SetProperty method to simplify property setters
+        protected bool SetProperty<T>(ref T backingStore, T value,
+                                       [CallerMemberName] string propertyName = "",
+                                       Action onChanged = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(backingStore, value))
+                return false;
+
+            backingStore = value;
+            onChanged?.Invoke();
+            OnPropertyChanged(propertyName);
+            return true;
         }
         private async void Submit()
         {
@@ -140,9 +206,10 @@ namespace AppSDR.ViewModel
 
                     // Convert the list to a 2D array
                     int[][] activeCellsArray = activeCellsColumn.ToArray();
+                    string[] entryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, Axis, XaxisTitle, YaxisTitle, MaxRange, MinRange, FigureName };
 
                     await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                    await _navigation.PushAsync(new Page1(activeCellsArray, _graphName));
+                    await _navigation.PushAsync(new Page1(activeCellsArray, entryCellValues));
                 }
                 else
                 {
