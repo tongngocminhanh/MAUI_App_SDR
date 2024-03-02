@@ -11,7 +11,7 @@
 
     </ContentPage.Resources>
     <ScrollView>
-    <Grid ColumnDefinitions="*,*,*"
+        <Grid ColumnDefinitions="*,*,*"
           RowDefinitions="*,*,Auto">
             <GraphicsView Drawable="{StaticResource drawable}"
                           HeightRequest="1000"
@@ -21,6 +21,13 @@
                           x:Name="DrawableView"/>
             <Button Text="BACK TO MAINPAGE" Clicked="BackButton_Clicked"
                     Grid.Row="1" Grid.Column="1" Margin="10,10,10,10"/>
+            
+            <!-- Label to display the text -->
+            <Label Text="{Binding GraphName}" 
+               Grid.Row="2" Grid.Column="1" 
+               Margin="10,10,10,10"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"/>
         </Grid>
     </ScrollView>
 </ContentPage>

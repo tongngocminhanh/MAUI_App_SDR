@@ -3,9 +3,11 @@ namespace AppSDR;
 
 public partial class Page1 : ContentPage
 {
+    // Define a property to hold the text to be displayed
+    public string GraphName { get; set; }
 
     //public readonly int[][] vectors;
-    public Page1(int[][] activeCellsColumn)
+    public Page1(int[][] activeCellsColumn, string _graphName)
     {
         InitializeComponent();
 
@@ -15,6 +17,11 @@ public partial class Page1 : ContentPage
 
         graphicsView.Invalidate();
 
+        // Set the text to be displayed
+        GraphName = string.Join("\n", _graphName);
+
+        // Set the BindingContext to the current page
+        BindingContext = this;
 
     }
     // In Page1.xaml.cs or wherever the event handler is defined

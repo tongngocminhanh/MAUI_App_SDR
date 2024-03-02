@@ -5,7 +5,7 @@
              x:Class="AppSDR.MainPage">
 
     <!--
-    <ContentPage.BindingContext>
+        <ContentPage.BindingContext>
         <local:MainViewModel/>
     </ContentPage.BindingContext> -->
 
@@ -28,9 +28,9 @@
                     >
                 <TableRoot>
                     <TableSection>
-                        <EntryCell x:Name="graphNameEntry"
-                                   Label="Graph name"
-                                   Placeholder="graph name" />
+                        <EntryCell x:Name="graphNameEntry" Label="Graph name"
+                                   Placeholder="graph name" 
+                                   Text="{Binding GraphName}" />
                         <EntryCell x:Name="maxCyclesEntry"
                                    Label="Max cycles"
                                    Placeholder="max cycles" />

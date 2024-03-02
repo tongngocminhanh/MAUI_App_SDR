@@ -9,6 +9,20 @@ namespace AppSDR.ViewModel
     {
         private INavigation _navigation;
         private string _selectedFilePath;
+
+        private string _graphName;
+        public string GraphName
+        {
+            get { return _graphName; }
+            set
+            {
+                if (_graphName != value)
+                {
+                    _graphName = value;
+                    OnPropertyChanged(); // Raise PropertyChanged event
+                }
+            }
+        }
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
@@ -128,7 +142,7 @@ namespace AppSDR.ViewModel
                     int[][] activeCellsArray = activeCellsColumn.ToArray();
 
                     await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                    await _navigation.PushAsync(new Page1(activeCellsArray));
+                    await _navigation.PushAsync(new Page1(activeCellsArray, _graphName));
                 }
                 else
                 {

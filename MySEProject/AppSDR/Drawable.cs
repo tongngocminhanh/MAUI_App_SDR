@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,6 @@ using Font = Microsoft.Maui.Graphics.Font;
 
 namespace AppSDR
 {
-
     public class GraphicsDrawable : BindableObject, IDrawable
     {
         public int[][] Vectors
@@ -29,9 +27,6 @@ namespace AppSDR
 
 
         public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(GraphicsDrawable));
-
-
-
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
@@ -133,11 +128,7 @@ namespace AppSDR
                     canvas.FontColor = Colors.Black;
                     canvas.DrawString(tickValue.ToString(), tickStartX - 30, tickY - 5, 50, 50, HorizontalAlignment.Left, VerticalAlignment.Top);
                 }
-
-
-
             }
-
         }
     }
 }
