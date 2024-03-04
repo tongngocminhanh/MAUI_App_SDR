@@ -39,10 +39,6 @@
                                    Label="Highlight touch"
                                    Placeholder="Highlight touch" 
                                    Text="{Binding HighlightTouch}" />
-                        <EntryCell x:Name="axisEntry"
-                                   Label="Axis"
-                                   Placeholder="axis" 
-                                   Text="{Binding Axis}" />
                         <EntryCell x:Name="xAxisTitleEntry"
                                    Label="X_axis title"
                                    Placeholder="x_axis title" 

@@ -33,13 +33,6 @@ namespace AppSDR.ViewModel
             set { SetProperty(ref _highlightTouch, value); }
         }
 
-        private string _axis;
-        public string Axis
-        {
-            get { return _axis; }
-            set { SetProperty(ref _axis, value); }
-        }
-
         private string _yaxisTitle;
         public string YaxisTitle
         {
@@ -206,7 +199,7 @@ namespace AppSDR.ViewModel
 
                     // Convert the list to a 2D array
                     int[][] activeCellsArray = activeCellsColumn.ToArray();
-                    string[] entryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, Axis, XaxisTitle, YaxisTitle, MaxRange, MinRange, FigureName };
+                    string[] entryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange, FigureName };
 
                     await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
                     await _navigation.PushAsync(new Page1(activeCellsArray, entryCellValues));

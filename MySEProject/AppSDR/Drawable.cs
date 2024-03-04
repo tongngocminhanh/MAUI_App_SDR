@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 using Microsoft.Maui.Graphics;
 using Font = Microsoft.Maui.Graphics.Font;
 
@@ -39,11 +34,8 @@ namespace AppSDR
             canvas.FontColor = Colors.Black;
             canvas.FontSize = 10;
 
-
             float rectangleWidth = 25;
-
             float rectangleSpacing = 10;
-
 
             float canvasHeight = dirtyRect.Height - 100;
             float canvasWidth = dirtyRect.Width;
@@ -52,14 +44,11 @@ namespace AppSDR
             //// Calculate the horizontal offset to center the drawing
             float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
 
-
-
             //// Start drawing from the bottom of the canvas
             //// Draw tick marks on the left side
             float tickWidth = 10; // Width of the tick marks
             float tickSpacing = 100; // Spacing between tick marks
             float tickStartX = x_canvas - tickWidth; // X-coordinate of the tick marks
-
 
 
             // Loop through each rectangle
@@ -85,9 +74,7 @@ namespace AppSDR
                         // Draw the rectangle
                         canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
 
-
                     }
-
                 }
                 else
                 {
@@ -103,8 +90,6 @@ namespace AppSDR
 
 
                     }
-
-
                 }
                 canvas.Font = Font.DefaultBold;
                 canvas.DrawString($" {t}", x, canvasHeight, rectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
@@ -132,3 +117,5 @@ namespace AppSDR
         }
     }
 }
+
+
