@@ -1,9 +1,10 @@
 ﻿using Microsoft.Maui.Graphics;
+using System.ComponentModel;
 using Font = Microsoft.Maui.Graphics.Font;
 
 namespace AppSDR
 {
-    public class GraphicsDraw : BindableObject, IDrawable
+    public class GraphicsDraw : BindableObject, IDrawable, INotifyPropertyChanged
     {
         public int[][] Vectors
         {
@@ -20,7 +21,9 @@ namespace AppSDR
         }
 
         public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(GraphicsDrawable));
-        public void Draw(ICanvas canvas, RectF dirtyRect)
+
+
+    public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             // Check if GraphPara array has at least required number of elements
             if (GraphPara.Length < 2)
@@ -37,7 +40,6 @@ namespace AppSDR
             string yAxisTitle = GraphPara[4];
             int maxRange = int.Parse(GraphPara[5]);
             int minRange = int.Parse(GraphPara[6]);
-            //string figureName = GraphPara[7];
 
             // Define border properties
             float borderWidth = 30; // Adjust as needed
@@ -52,6 +54,7 @@ namespace AppSDR
             canvas.FillRectangle(borderX, borderY + dirtyRect.Height - borderWidth*2, borderWidthAdjusted, borderWidth*2);
             canvas.FillRectangle(borderX, borderY, borderWidth*2, borderHeightAdjusted);
             canvas.FillRectangle(borderX + dirtyRect.Width - borderWidth, borderY, borderWidth, borderHeightAdjusted);
+
 
             // Adjust dirtyRect to fit inside the borders
             RectF insideRect = new RectF(borderX + borderWidth*2, borderY + borderWidth, borderWidthAdjusted - (3 * borderWidth), borderHeightAdjusted - (3 * borderWidth));
@@ -106,6 +109,39 @@ namespace AppSDR
             // Restore the canvas state after drawing
             canvas.RestoreState();
 
+
+            // Determine the range between maxRange and minRange
+            int range = maxRange - minRange;
+
+            // Calculate the interval for gridlines and labels
+            int interval = range / 10; // Divide the range into 10 intervals
+
+            // Calculate the spacing between gridlines
+            float spacing = insideRect.Height / 10; // Divide the height into 10 equal parts
+                                                    // Draw the gridlines and labels
+
+            List<int> gridlines = new List<int>();// division
+            for (int i = 0; i <= 10; i++)
+            {
+                // Calculate the y-coordinate for the gridline
+                float gridY = insideRect.Bottom - (spacing * i);
+
+                // Draw the gridline
+                canvas.StrokeColor = Colors.LightGray; // Adjust color as needed
+                canvas.DrawLine(borderWidth * 5 / 3, gridY, borderWidth * 2, gridY);
+
+                // Calculate the value for the label
+                int labelValue = minRange + interval * i;
+                gridlines.Add(labelValue);
+
+                // Draw the label
+                string labelText = labelValue.ToString();
+                float labelWidth = labelText.Length * fontSize * 0.5f;
+                float labelX = borderWidth * 5 / 3 - labelWidth;
+                float labelY = gridY - fontSize / 2; // Adjust for centering the label vertically
+                canvas.DrawString(labelText, labelX, labelY, labelWidth, fontSize, HorizontalAlignment.Right, VerticalAlignment.Center);
+            }
+
             // Draw columns
             // Calculate the width of each column
             float columnWidth = (borderWidthAdjusted - (3 * borderWidth)) / maxCycles;
@@ -121,6 +157,70 @@ namespace AppSDR
 
             // Calculate the width of each column
             columnWidth = Math.Min(columnWidth, (insideRect.Width / maxCycles) - spaceBetweenColumns); // Adjust column width if it exceeds available width
+
+            // Define drawing spaces of each value
+            float rectangleWidth = (insideRect.Width - (Vectors.Length * borderWidth * 2)) / (Vectors.Length + 1); // Adjust as needed
+            float rectangleSpacing = rectangleWidth / 2; // Adjust as needed
+            float tickWidth = 10; // Width of the tick marks
+            float tickSpacing = (insideRect.Height - borderWidth * 2) / 10; // Spacing between tick marks
+            float tickStartX = rectangleSpacing + borderWidth; // Start X position for the ticks
+
+            // Loop through each rectangle
+            for (int t = 0; t < Vectors.Length; t++)
+            {
+                float x = (t * rectangleWidth) + ((t + 1) * rectangleSpacing) + borderWidth;
+                int maxCellValue = Vectors[t].Max() / 10;
+                int numberOfTicks = (int)(maxCellValue / tickSpacing);
+
+                // Draw rectangles and tick marks here...
+                // Check if the majority value is less than 500
+                bool majorityLessThan500 = Vectors[t].Count(value => value < 500) > Vectors[t].Length / 2;
+
+                if (majorityLessThan500)
+                {
+                    float rectangleHeight = 1;
+                    foreach (int cell in Vectors[t])
+                    {
+                        // Calculate the y-coordinate for the rectangle
+                        // Start from the bottom and decrement by rectangleHeight
+                        float y = insideRect.Height - (cell / 10) + borderWidth; // Adjust for the top border
+
+                        // Draw the rectangle
+                        canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
+                    }
+                }
+                else
+                {
+                    float rectangleHeight = 2;
+                    foreach (int cell in Vectors[t])
+                    {
+                        // Calculate the y-coordinate for the rectangle
+                        // Start from the bottom and decrement by rectangleHeight
+                        float y = insideRect.Height - (cell / 10) + borderWidth; // Adjust for the top border
+
+                        // Draw the rectangle
+                        canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
+                    }
+                }
+
+
+                //// Loop through each cell in the current rectangle
+                //for (int i = 0; i <= numberOfTicks; i++)
+                //{
+                //    // Calculate the y-coordinate for the current tick mark
+                //    float tickY = insideRect.Height - (i * tickSpacing) + borderWidth; // Adjust for the top border
+
+                //    // Draw the tick mark
+                //    canvas.DrawLine(tickStartX, tickY, tickStartX + tickWidth, tickY);
+
+                //    // Draw the text label for the current tick mark
+                //    float tickStringX = tickStartX - (tickWidth / 2); // Center the text with respect to the tick mark
+                //    float tickStringY = tickY - 5; // Adjust for better alignment
+                //    canvas.FontSize = 10;
+                //    canvas.FontColor = Colors.Black;
+                //    canvas.DrawString((10 * i).ToString(), tickStringX, tickStringY, tickWidth, 50, HorizontalAlignment.Center, VerticalAlignment.Top);
+                //}
+            }
 
             for (int i = 0; i < maxCycles; i++)
             {
@@ -149,119 +249,6 @@ namespace AppSDR
 
             // Draw the rectangle border line
             canvas.DrawRectangle(rectX, insideRect.Top-lineWidth, rectWidth, rectHeight);
-
-
-
-            // Determine the range between maxRange and minRange
-            int range = maxRange - minRange;
-
-            // Calculate the interval for gridlines and labels
-            int interval = range / 10; // Divide the range into 10 intervals
-
-            // Calculate the spacing between gridlines
-            float spacing = insideRect.Height / 10; // Divide the height into 10 equal parts
-
-            // Draw the gridlines and labels
-            // division
-            for (int i = 0; i <= 10; i++)
-            {
-                // Calculate the y-coordinate for the gridline
-                float gridY = insideRect.Bottom - (spacing * i);
-
-                // Draw the gridline
-                canvas.StrokeColor = Colors.LightGray; // Adjust color as needed
-                canvas.DrawLine(borderWidth*5/3, gridY, borderWidth*2, gridY);
-
-                // Calculate the value for the label
-                int labelValue = minRange + interval * i;
-
-                // Draw the label
-                string labelText = labelValue.ToString();
-                float labelWidth = labelText.Length * fontSize * 0.5f;
-                float labelX = borderWidth * 5 / 3 - labelWidth;
-                float labelY = gridY - fontSize / 2; // Adjust for centering the label vertically
-                canvas.DrawString(labelText, labelX, labelY, labelWidth, fontSize, HorizontalAlignment.Right, VerticalAlignment.Center);
-            }
-
-            //canvas.FillColor = Colors.DarkBlue;
-            //canvas.StrokeSize = 4;
-
-            //canvas.FontColor = Colors.Black;
-            //canvas.FontSize = 5;
-
-            //// Calculate the dimensions based on the insideRect
-            //float canvasWidth = insideRect.Width;
-            //float canvasHeight = insideRect.Height;
-
-            //// Define drawing spaces of each value
-            //float rectangleWidth = (canvasWidth - (Vectors.Length * borderWidth * 2)) / (Vectors.Length + 1); // Adjust as needed
-            //float rectangleSpacing = rectangleWidth / 2; // Adjust as needed
-            //float tickWidth = 10; // Width of the tick marks
-            //float tickSpacing = (canvasHeight - borderWidth * 2) / 10; // Spacing between tick marks
-            //float tickStartX = rectangleSpacing + borderWidth; // Start X position for the ticks
-
-            //// Loop through each rectangle
-            //for (int t = 0; t < Vectors.Length; t++)
-            //{
-            //    float x = (t * rectangleWidth) + ((t + 1) * rectangleSpacing) + borderWidth;
-            //    int maxCellValue = Vectors[t].Max() / 10;
-            //    int numberOfTicks = (int)(maxCellValue / tickSpacing);
-
-            //    // Draw rectangles and tick marks here...
-            //    // Check if the majority value is less than 500
-            //    bool majorityLessThan500 = Vectors[t].Count(value => value < 500) > Vectors[t].Length / 2;
-
-            //    if (majorityLessThan500)
-            //    {
-            //        float rectangleHeight = 1;
-            //        foreach (int cell in Vectors[t])
-            //        {
-            //            // Calculate the y-coordinate for the rectangle
-            //            // Start from the bottom and decrement by rectangleHeight
-            //            float y = insideRect.Height - (cell / 10) + borderWidth; // Adjust for the top border
-
-            //            // Draw the rectangle
-            //            canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        float rectangleHeight = 2;
-            //        foreach (int cell in Vectors[t])
-            //        {
-            //            // Calculate the y-coordinate for the rectangle
-            //            // Start from the bottom and decrement by rectangleHeight
-            //            float y = insideRect.Height - (cell / 10) + borderWidth; // Adjust for the top border
-
-            //            // Draw the rectangle
-            //            canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
-            //        }
-            //    }
-
-            //    // Adjust the x-coordinate for drawing the string
-            //    float stringX = x + (rectangleWidth / 2); // Center the string horizontally
-            //    float stringY = insideRect.Height + borderWidth; // Align with bottom of insideRect
-
-            //    canvas.Font = Font.DefaultBold;
-            //    canvas.DrawString($" {t}", stringX, stringY, rectangleWidth, 30, HorizontalAlignment.Center, VerticalAlignment.Bottom);
-
-            //    // Loop through each cell in the current rectangle
-            //    for (int i = 0; i <= numberOfTicks; i++)
-            //    {
-            //        // Calculate the y-coordinate for the current tick mark
-            //        float tickY = insideRect.Height - (i * tickSpacing) + borderWidth; // Adjust for the top border
-
-            //        // Draw the tick mark
-            //        canvas.DrawLine(tickStartX, tickY, tickStartX + tickWidth, tickY);
-
-            //        // Draw the text label for the current tick mark
-            //        float tickStringX = tickStartX - (tickWidth / 2); // Center the text with respect to the tick mark
-            //        float tickStringY = tickY - 5; // Adjust for better alignment
-            //        canvas.FontSize = 10;
-            //        canvas.FontColor = Colors.Black;
-            //        canvas.DrawString((10 * i).ToString(), tickStringX, tickStringY, tickWidth, 50, HorizontalAlignment.Center, VerticalAlignment.Top);
-            //    }
-            //}
         }
     }
 }

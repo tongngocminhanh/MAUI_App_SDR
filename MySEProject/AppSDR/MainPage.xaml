@@ -55,13 +55,6 @@
                                    Label="Max range of cell"
                                    Placeholder="max range of cell" 
                                    Text="{Binding MaxRange}" />
-                        <EntryCell x:Name="subplotTitleEntry"
-                                   Label="Subplot title"
-                                   Placeholder="subplot title" />
-                        <EntryCell x:Name="figureNameEntry"
-                                   Label="Figure name"
-                                   Placeholder="figure name" 
-                                   Text="{Binding FigureName}" />
                     </TableSection>
                 </TableRoot>
             </TableView>
