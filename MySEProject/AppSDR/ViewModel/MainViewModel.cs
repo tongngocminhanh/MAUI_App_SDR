@@ -10,6 +10,7 @@ namespace AppSDR.ViewModel
     {
         private INavigation _navigation;
         private string _selectedFilePath;
+        private string[] entryCellValues;
 
         // Set property change for entry parameters in table
         private string _graphName;
@@ -82,13 +83,17 @@ namespace AppSDR.ViewModel
 
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { get; }
+        public ICommand AddTextCommand { get; }
 
         public MainViewModel(INavigation navigation)
         {
             ChooseFileCommand = new Command(ChooseFile);
             SubmitCommand = new Command(Submit);
             _navigation = navigation;
+            entryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange, FigureName };
+            AddTextCommand = new Command(() => AddText(entryCellValues));
         }
+
         private async void ChooseFile()
         {
             try
@@ -135,6 +140,10 @@ namespace AppSDR.ViewModel
             onChanged?.Invoke();
             OnPropertyChanged(propertyName);
             return true;
+        }
+        private async void AddText(string [] entryCellValues)
+        {
+            await _navigation.PushAsync(new NavigationPage (new TextEditorPage(entryCellValues)));
         }
         private async void Submit()
         {
@@ -199,10 +208,9 @@ namespace AppSDR.ViewModel
 
                     // Convert the list to a 2D array
                     int[][] activeCellsArray = activeCellsColumn.ToArray();
-                    string[] entryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange, FigureName };
 
                     await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                    await _navigation.PushAsync(new Page1(activeCellsArray, entryCellValues));
+                    await _navigation.PushAsync(new NavigationPage(new Page1(activeCellsArray, entryCellValues)));
                 }
                 else
                 {
@@ -214,66 +222,5 @@ namespace AppSDR.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
-
-        //private async void Submit()
-        //{
-        //    try
-        //    {
-        //        if (!string.IsNullOrEmpty(SelectedFilePath))
-        //        {
-        //            // Read the text content of the selected file
-        //            string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
-
-        //            // Split the content into lines
-        //            string[] lines = fileContent.Split(Environment.NewLine);
-
-        //            // Initialize a 2D integer array to store the parsed values
-        //            int[][] activeCellsColumn = new int[lines.Length][];
-
-        //            // Iterate over each line and parse the integers
-        //            for (int i = 0; i < lines.Length; i++)
-        //            {
-        //                // Split each line into individual integers
-        //                string[] numbers = lines[i].Split(',');
-
-        //                // Initialize an array to store the parsed integers for this line
-        //                int[] parsedNumbers = new int[numbers.Length];
-
-        //                // Parse each number and store it in the array
-        //                for (int j = 0; j < numbers.Length; j++)
-        //                {
-        //                    if (int.TryParse(numbers[j], out int parsedNumber))
-        //                    {
-        //                        parsedNumbers[j] = parsedNumber;
-        //                    }
-        //                    else
-        //                    {
-        //                        // Handle parsing error if needed
-        //                        // For example: throw new ArgumentException("Invalid number format");
-        //                    }
-        //                }
-
-        //                // Store the parsed numbers for this line in the 2D array
-        //                activeCellsColumn[i] = parsedNumbers;
-
-
-        //            }
-
-        //            await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-        //            await _navigation.PushAsync(new Page1(activeCellsColumn));
-
-        //        }
-        //        else
-        //        {
-        //            // Display error message if no file is selected
-        //            await Application.Current.MainPage.DisplayAlert("Error", "Please choose a file", "OK");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Handle exception
-        //        Console.WriteLine($"Error saving data: {ex.Message}");
-        //    }
-        //}
     }
 }
