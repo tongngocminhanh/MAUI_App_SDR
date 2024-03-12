@@ -1,57 +1,82 @@
 using Microsoft.Maui.Controls;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AppSDR;
-
+namespace AppSDR
+{
     public partial class TextEditorPage : ContentPage
     {
         public string[] EntryCellValues { get; set; }
-        int[][] activeCellsColumn { get; set; }
+
         public TextEditorPage(string[] entryCellValues)
         {
             InitializeComponent();
             EntryCellValues = entryCellValues;
         }
 
-        private void OnEditorCompleted(object sender, EventArgs e)
-        {
-            // Insert a newline character when Enter is pressed
-            textEditor.Text += Environment.NewLine;
-        }
-
         private async void OnSaveClicked(object sender, EventArgs e)
         {
-            // Get the entered text
-            string enteredText = textEditor.Text;
+            string fileContent = textEditor.Text;
 
-            // Split the entered text by lines
-            string[] lines = enteredText.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            // Split the content into lines
+            string[] lines = fileContent.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
 
             // Initialize a list to store the parsed rows
-            List<int[]> rows = new List<int[]>();
+            List<int[]> activeCellsColumn = new List<int[]>();
 
-            // Parse each line and split by commas
+            // Iterate over each line and parse the integers
             foreach (string line in lines)
             {
-                // Split the line by commas and parse each number
-                int[] row = line.Split(',')
-                                 .Select(str =>
-                                 {
-                                     if (int.TryParse(str.Trim(), out int num))
-                                         return num;
-                                     else
-                                         return 0; // or handle the parsing error accordingly
-                                 })
-                                 .ToArray();
+                // Split each line into individual integers
+                string[] numbers = line.Split(',');
 
-                // Add the parsed row to the list
-                rows.Add(row);
+                // Parse each number and store it in a list
+                List<int> parsedNumbers = new List<int>();
+
+                // Flag to indicate if the row has at least one non-zero value
+                bool hasNonZeroValue = false;
+
+                foreach (string numberString in numbers)
+                {
+                    if (int.TryParse(numberString, out int parsedNumber))
+                    {
+                        // Check if it's the first value in the row
+                        if (parsedNumbers.Count == 0 && parsedNumber == 0)
+                        {
+                            // Skip the row if the first value is 0
+                            hasNonZeroValue = false;
+                            break;
+                        }
+
+                        parsedNumbers.Add(parsedNumber);
+
+                        // Set the flag if a non-zero value is found
+                        if (!hasNonZeroValue && parsedNumber != 0)
+                        {
+                            hasNonZeroValue = true;
+                        }
+                    }
+                    else
+                    {
+                        // Handle parsing error if needed
+                        // For example: throw new ArgumentException("Invalid number format");
+                    }
+                }
+
+                // Add the parsed numbers to the list if the row has at least one non-zero value
+                if (hasNonZeroValue)
+                {
+                    activeCellsColumn.Add(parsedNumbers.ToArray());
+                }
             }
 
-            // Convert the list of rows to a 2D array
-            activeCellsColumn = rows.ToArray();
+            // Convert the list to a 2D array
+            int[][] activeCellsArray = activeCellsColumn.ToArray();
 
-            // Close the text editor page
-            await Navigation.PopAsync();
-            await Navigation.PushAsync(new Page1(activeCellsColumn, EntryCellValues));
+            await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
+            await Navigation.PushAsync(new Page1(activeCellsArray, EntryCellValues));
         }
     }
+}

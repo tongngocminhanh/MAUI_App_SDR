@@ -25,26 +25,19 @@ public partial class Page1 : ContentPage
                 }
             }
         }
-        graphicsView.HeightRequest = maxCellValue/10 + 500;
+        graphicsView.HeightRequest = maxCellValue/10 + 200;
         graphicsView.Invalidate();
-        graphicsView.SizeChanged += (sender, args) => DrawableView.Invalidate();
+      
 
         // Set the BindingContext to the current page
         BindingContext = this;
 
-        /*var drawable = new GraphicsDrawable();
-            drawable.Vectors = vectors;
-            Content = new GraphicsView
-            {
-                Drawable = drawable
-            };*/
-
-
+        
     }
-    private async void BackButton_Clicked(object sender, EventArgs e)
-    {
-        await Navigation.PopAsync();
-    }
+    //private async void BackButton_Clicked(object sender, EventArgs e)
+    //{
+    //    await Navigation.PopAsync();
+    //}
 
     // Other code in Page1 class
 }

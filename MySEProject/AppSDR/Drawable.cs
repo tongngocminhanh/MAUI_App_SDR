@@ -29,11 +29,16 @@ namespace AppSDR
         }
 
         public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(GraphicsDrawable));
-
+        
 
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
+            string[] entryCellValues = GraphPara;
+
+            // Extract the graphName from entryCellValues
+            string graphName = entryCellValues[0]; // Assuming graphName is the first element in entryCellValues
+
             canvas.FillColor = Colors.WhiteSmoke;
             canvas.FillRectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
 
@@ -112,6 +117,9 @@ namespace AppSDR
                 }
                 canvas.Font = Font.DefaultBold;
                 canvas.DrawString($" {t}", x, canvasHeight, rectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
+                canvas.DrawString($" {graphName}", x_canvas, 50, 50, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
+
+
 
 
                 // Loop through each cell in the current rectangle

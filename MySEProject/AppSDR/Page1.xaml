@@ -19,8 +19,8 @@
                           Grid.Column="1"
                           Grid.Row="0"
                           x:Name="DrawableView"/>
-            <Button Text="BACK TO MAINPAGE" Clicked="BackButton_Clicked"
-                    Grid.Row="1" Grid.Column="1" Margin="10,10,10,10"/>
+            <!--<Button Text="BACK TO MAINPAGE" Clicked="BackButton_Clicked"
+                    Grid.Row="1" Grid.Column="1" Margin="10,10,10,10"/>-->
         </Grid>
     </ScrollView>
 </ContentPage>
