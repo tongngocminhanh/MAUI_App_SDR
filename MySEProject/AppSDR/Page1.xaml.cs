@@ -1,26 +1,42 @@
 
 namespace AppSDR;
 
-public partial class Page1 : ContentPage
+using AppSDR.ViewModel;
+using System.ComponentModel;
+public partial class Page1 : ContentPage, INotifyPropertyChanged
 {
-
-    //public readonly int[][] vectors;
-    public Page1(int[][] activeCellsColumn)
+    public Page1(int[][] activeCellsColumn, string[] entryCellValues)
     {
         InitializeComponent();
-
+        
         var graphicsView = this.DrawableView;
         var graphicsdrawable = (GraphicsDrawable)graphicsView.Drawable;
         graphicsdrawable.Vectors = activeCellsColumn;
+        graphicsdrawable.GraphPara = entryCellValues;
 
+        int maxCellValue = 0;
+        foreach (var column in activeCellsColumn)
+        {
+            foreach (var value in column)
+            {
+                if (value > maxCellValue)
+                {
+                    maxCellValue = value;
+                }
+            }
+        }
+        graphicsView.HeightRequest = maxCellValue/10 + 200;
         graphicsView.Invalidate();
-
-
+      
     }
-    // In Page1.xaml.cs or wherever the event handler is defined
-    private async void BackButton_Clicked(object sender, EventArgs e)
+    private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PopAsync();
+        
+        await Navigation.PopModalAsync(); // Navigate back to the MainPage
+
     }
 
 }
+
+
+

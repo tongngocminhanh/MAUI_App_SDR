@@ -2,13 +2,121 @@
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
+//ObservableObject,
 
 namespace AppSDR.ViewModel
 {
-    public class MainViewModel : ObservableObject
+    public class MainViewModel :  INotifyPropertyChanged
     {
         private INavigation _navigation;
         private string _selectedFilePath;
+        private string[] _entryCellValues;
+        public string[] EntryCellValues
+        {
+            get { return _entryCellValues; }
+            set { SetProperty(ref _entryCellValues, value); }
+        }
+
+       
+        private string _graphName;
+
+        public string GraphName
+        {
+            get => _graphName;
+            set
+            {
+                if (_graphName != value)
+                {
+                    _graphName = value;
+                    OnPropertyChanged(nameof(GraphName)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+
+                }
+            }
+        }
+        //private string _maxCycles;
+        //public string MaxCycles
+        //{
+        //    get { return _maxCycles; }
+        //    set { SetProperty(ref _maxCycles, value); }
+        //}
+
+        //private string _highlightTouch;
+        //public string HighlightTouch
+        //{
+        //    get { return _highlightTouch; }
+        //    set { SetProperty(ref _highlightTouch, value); }
+        //}
+
+        private string _yaxisTitle;
+        public string YaxisTitle
+        {
+            get => _yaxisTitle;
+            set
+            {
+                if (_yaxisTitle != value)
+                {
+                    _yaxisTitle = value;
+                    OnPropertyChanged(nameof(YaxisTitle)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
+
+        private string _xaxisTitle;
+        public string XaxisTitle
+        {
+            get => _xaxisTitle;
+            set
+            {
+                if (_xaxisTitle != value)
+                {
+                    _xaxisTitle = value;
+                    OnPropertyChanged(nameof(XaxisTitle)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
+
+        private string _minRange;
+
+        public string MinRange
+        {
+            get => _minRange;
+            set
+            {
+                if (_minRange != value)
+                {
+                    _minRange = value;
+                    OnPropertyChanged(nameof(MinRange)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
+
+        private string _maxRange;
+
+        public string MaxRange
+        {
+            get => _maxRange;
+            set
+            {
+                if (_maxRange != value)
+                {
+                    _maxRange = value;
+                    OnPropertyChanged(nameof(MaxRange)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
+
+        // End property change
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
@@ -18,18 +126,35 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged(nameof(SelectedFilePath));
             }
         }
-
+         
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
 
         public ICommand ChooseFileCommand { get; }
-        public ICommand SubmitCommand { get; }
+        public ICommand SubmitCommand { private set; get; }
+        public ICommand AddTextCommand { get; }
 
         public MainViewModel(INavigation navigation)
         {
             ChooseFileCommand = new Command(ChooseFile);
-            SubmitCommand = new Command(Submit);
             _navigation = navigation;
+            EntryCellValues = new string[6];
+            AddTextCommand = new Command(() => AddText(EntryCellValues));
+
+            SubmitCommand = new Command(
+                execute: () =>
+                {
+                    Submit();
+                    
+                },
+                canExecute: () =>
+                {
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle)
+                    ;
+                });
+
         }
+
+
         private async void ChooseFile()
         {
             try
@@ -47,8 +172,8 @@ namespace AppSDR.ViewModel
 
                 var result = await FilePicker.PickAsync(new PickOptions
                 {
-                    FileTypes= customFileType,
-                     
+                    FileTypes = customFileType,
+
                     PickerTitle = "Pick a text file"
                 });
 
@@ -63,114 +188,181 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"File picking error: {ex.Message}");
             }
         }
-        private async void Submit()
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            try
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (Object.Equals(storage, value))
+                return false;
+
+            storage = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+       
+       
+            private async void Submit()
             {
-                if (!string.IsNullOrEmpty(SelectedFilePath))
+                try
                 {
-                    // Read the text content of the selected file
-                    string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
-
-                    // Split the content into lines
-                    string[] lines = fileContent.Split(Environment.NewLine);
-
-                    // Initialize a list to store the parsed rows
-                    List<int[]> activeCellsColumn = new List<int[]>();
-
-                    // Iterate over each line and parse the integers
-                    foreach (string line in lines)
+                    if (!string.IsNullOrEmpty(SelectedFilePath))
                     {
-                        // Split each line into individual integers
-                        string[] numbers = line.Split(',');
+                    
+                        // Read the text content of the selected file
+                        string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
 
-                        // Parse each number and store it in a list
-                        List<int> parsedNumbers = new List<int>();
+                        // Parse the file content and construct activeCellsArray
+                        int[][] activeCellsArray = ParseFileContent(fileContent);
+                    string[] EntryCellValues = { GraphName,null,null,XaxisTitle, YaxisTitle, MinRange, MaxRange };
 
-                        // Flag to indicate if the row has at least one non-zero value
-                        bool hasNonZeroValue = false;
+                    // Construct EntryCellValues
+                    //EntryCellValues = new string[] { GraphName };
+                    //MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange
 
-                        foreach (string numberString in numbers)
+                    // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
+                    await NavigateToPage1(EntryCellValues, activeCellsArray);
+
+                     
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "Please select a file", "OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+                }
+            }
+
+        private async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray)
+        {
+            // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
+            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues));
+        }
+
+
+        private int[][] ParseFileContent(string fileContent)
+        {
+            // Split the content into lines
+            string[] lines = fileContent.Split(Environment.NewLine);
+
+            // Initialize a list to store the parsed rows
+            List<int[]> activeCellsColumn = new List<int[]>();
+
+            // Iterate over each line and parse the integers
+            foreach (string line in lines)
+            {
+                // Split each line into individual integers
+                string[] numbers = line.Split(',');
+
+                // Parse each number and store it in a list
+                List<int> parsedNumbers = new List<int>();
+
+                // Flag to indicate if the row has at least one non-zero value
+                bool hasNonZeroValue = false;
+
+                foreach (string numberString in numbers)
+                {
+                    if (int.TryParse(numberString, out int parsedNumber))
+                    {
+                        // Check if it's the first value in the row
+                        if (parsedNumbers.Count == 0 && parsedNumber == 0)
                         {
-                            if (int.TryParse(numberString, out int parsedNumber))
-                            {
-                                // Check if it's the first value in the row
-                                if (parsedNumbers.Count == 0 && parsedNumber == 0)
-                                {
-                                    // Skip the row if the first value is 0
-                                    hasNonZeroValue = false;
-                                    break;
-                                }
-
-                                parsedNumbers.Add(parsedNumber);
-
-                                // Set the flag if a non-zero value is found
-                                if (!hasNonZeroValue && parsedNumber != 0)
-                                {
-                                    hasNonZeroValue = true;
-                                }
-                            }
-                            else
-                            {
-                                // Handle parsing error if needed
-                                // For example: throw new ArgumentException("Invalid number format");
-                            }
+                            // Skip the row if the first value is 0
+                            hasNonZeroValue = false;
+                            break;
                         }
 
-                        // Add the parsed numbers to the list if the row has at least one non-zero value
-                        if (hasNonZeroValue)
+                        parsedNumbers.Add(parsedNumber);
+
+                        // Set the flag if a non-zero value is found
+                        if (!hasNonZeroValue && parsedNumber != 0)
                         {
-                            activeCellsColumn.Add(parsedNumbers.ToArray());
+                            hasNonZeroValue = true;
                         }
                     }
-
-                    // Convert the list to a 2D array
-                    int[][] activeCellsArray = activeCellsColumn.ToArray();
-
-                    await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                    await _navigation.PushAsync(new Page1(activeCellsArray));
+                    else
+                    {
+                        // Handle parsing error if needed
+                        // For example: throw new ArgumentException("Invalid number format");
+                    }
                 }
-                else
+
+                // Add the parsed numbers to the list if the row has at least one non-zero value
+                if (hasNonZeroValue)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Please select a file", "OK");
+                    activeCellsColumn.Add(parsedNumbers.ToArray());
                 }
             }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
-            }
+
+            // Convert the list to a 2D array
+            return activeCellsColumn.ToArray();
         }
+        private async void AddText(string[] entryCellValues)
+        {
+            await _navigation.PushAsync(new NavigationPage(new TextEditorPage(entryCellValues)));
+        }
+        
+      
+       
+
+
 
         //private async void Submit()
         //{
         //    try
         //    {
+
         //        if (!string.IsNullOrEmpty(SelectedFilePath))
         //        {
+        //            EntryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange };
+
         //            // Read the text content of the selected file
         //            string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
+
 
         //            // Split the content into lines
         //            string[] lines = fileContent.Split(Environment.NewLine);
 
-        //            // Initialize a 2D integer array to store the parsed values
-        //            int[][] activeCellsColumn = new int[lines.Length][];
+        //            // Initialize a list to store the parsed rows
+        //            List<int[]> activeCellsColumn = new List<int[]>();
 
         //            // Iterate over each line and parse the integers
-        //            for (int i = 0; i < lines.Length; i++)
+        //            foreach (string line in lines)
         //            {
         //                // Split each line into individual integers
-        //                string[] numbers = lines[i].Split(',');
+        //                string[] numbers = line.Split(',');
 
-        //                // Initialize an array to store the parsed integers for this line
-        //                int[] parsedNumbers = new int[numbers.Length];
+        //                // Parse each number and store it in a list
+        //                List<int> parsedNumbers = new List<int>();
 
-        //                // Parse each number and store it in the array
-        //                for (int j = 0; j < numbers.Length; j++)
+        //                // Flag to indicate if the row has at least one non-zero value
+        //                bool hasNonZeroValue = false;
+
+        //                foreach (string numberString in numbers)
         //                {
-        //                    if (int.TryParse(numbers[j], out int parsedNumber))
+        //                    if (int.TryParse(numberString, out int parsedNumber))
         //                    {
-        //                        parsedNumbers[j] = parsedNumber;
+        //                        // Check if it's the first value in the row
+        //                        if (parsedNumbers.Count == 0 && parsedNumber == 0)
+        //                        {
+        //                            // Skip the row if the first value is 0
+        //                            hasNonZeroValue = false;
+        //                            break;
+        //                        }
+
+        //                        parsedNumbers.Add(parsedNumber);
+
+        //                        // Set the flag if a non-zero value is found
+        //                        if (!hasNonZeroValue && parsedNumber != 0)
+        //                        {
+        //                            hasNonZeroValue = true;
+        //                        }
         //                    }
         //                    else
         //                    {
@@ -179,27 +371,60 @@ namespace AppSDR.ViewModel
         //                    }
         //                }
 
-        //                // Store the parsed numbers for this line in the 2D array
-        //                activeCellsColumn[i] = parsedNumbers;
-
-
+        //                // Add the parsed numbers to the list if the row has at least one non-zero value
+        //                if (hasNonZeroValue)
+        //                {
+        //                    activeCellsColumn.Add(parsedNumbers.ToArray());
+        //                }
         //            }
 
+        //            // Convert the list to a 2D array
+        //            int[][] activeCellsArray = activeCellsColumn.ToArray();
+
         //            await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-        //            await _navigation.PushAsync(new Page1(activeCellsColumn));
+        //            await _navigation.PushAsync(new NavigationPage(new Page1(activeCellsArray, EntryCellValues)));
 
         //        }
         //        else
         //        {
-        //            // Display error message if no file is selected
-        //            await Application.Current.MainPage.DisplayAlert("Error", "Please choose a file", "OK");
+        //            await Application.Current.MainPage.DisplayAlert("Error", "Please select a file", "OK");
         //        }
         //    }
         //    catch (Exception ex)
         //    {
-        //        // Handle exception
-        //        Console.WriteLine($"Error saving data: {ex.Message}");
+        //        await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
         //    }
+
         //}
+
+
+        //protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(storage, value))
+        //    {
+        //        return false;
+        //    }
+
+        //    storage = value;
+        //    OnPropertyChanged(propertyName);
+        //    return true;
+        //}
+
+
+        // SetProperty method to simplify property setters
+        //protected bool SetProperty<T>(ref T backingStore, T value,
+        //                               [CallerMemberName] string propertyName = "",
+        //                               Action onChanged = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(backingStore, value))
+        //        return false;
+
+        //    backingStore = value;
+        //    onChanged?.Invoke();
+        //    OnPropertyChanged(propertyName);
+        //    return true;
+        //}
+
+
     }
 }
