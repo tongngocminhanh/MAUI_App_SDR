@@ -37,10 +37,10 @@
                                    Label="Max cycles"
                                    Placeholder="Define number of max cycles" 
                                    Text="{Binding MaxCycles}" />-->
-                        <!--<EntryCell x:Name="highlightTouchEntry"
+                        <EntryCell x:Name="highlightTouchEntry"
                                    Label="Highlight touch"
                                    Placeholder="Define the highlight touch column" 
-                                   Text="{Binding HighlightTouch}" />-->
+                                   Text="{Binding HighlightTouch}" />
                         <EntryCell x:Name="xAxisTitleEntry"
                                    Label="X axis title"
                                    Placeholder="x_axis title" 

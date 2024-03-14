@@ -12,6 +12,7 @@ namespace AppSDR.ViewModel
     {
         private INavigation _navigation;
         private string _selectedFilePath;
+        //private string[] entryCellValues;
         private string[] _entryCellValues;
         public string[] EntryCellValues
         {
@@ -19,7 +20,7 @@ namespace AppSDR.ViewModel
             set { SetProperty(ref _entryCellValues, value); }
         }
 
-       
+
         private string _graphName;
 
         public string GraphName
@@ -32,6 +33,7 @@ namespace AppSDR.ViewModel
                     _graphName = value;
                     OnPropertyChanged(nameof(GraphName)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
 
                 }
             }
@@ -43,12 +45,23 @@ namespace AppSDR.ViewModel
         //    set { SetProperty(ref _maxCycles, value); }
         //}
 
-        //private string _highlightTouch;
-        //public string HighlightTouch
-        //{
-        //    get { return _highlightTouch; }
-        //    set { SetProperty(ref _highlightTouch, value); }
-        //}
+        private string _highlightTouch;
+
+        public string HighlightTouch
+        {
+            get => _highlightTouch;
+            set
+            {
+                if (_highlightTouch != value)
+                {
+                    _highlightTouch = value;
+                    OnPropertyChanged(nameof(HighlightTouch)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
 
         private string _yaxisTitle;
         public string YaxisTitle
@@ -61,6 +74,7 @@ namespace AppSDR.ViewModel
                     _yaxisTitle = value;
                     OnPropertyChanged(nameof(YaxisTitle)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
                 }
             }
         }
@@ -77,6 +91,7 @@ namespace AppSDR.ViewModel
                     _xaxisTitle = value;
                     OnPropertyChanged(nameof(XaxisTitle)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
                 }
             }
         }
@@ -94,6 +109,7 @@ namespace AppSDR.ViewModel
                     _minRange = value;
                     OnPropertyChanged(nameof(MinRange)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
                 }
             }
         }
@@ -111,6 +127,9 @@ namespace AppSDR.ViewModel
                     _maxRange = value;
                     OnPropertyChanged(nameof(MaxRange)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
+
+
                 }
             }
         }
@@ -131,14 +150,27 @@ namespace AppSDR.ViewModel
 
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
-        public ICommand AddTextCommand { get; }
+        public ICommand AddTextCommand { private set; get; }
 
         public MainViewModel(INavigation navigation)
         {
             ChooseFileCommand = new Command(ChooseFile);
             _navigation = navigation;
-            EntryCellValues = new string[6];
-            AddTextCommand = new Command(() => AddText(EntryCellValues));
+            //EntryCellValues = new string[6];
+            //string[] EntryCellValues = { GraphName, null, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+            AddTextCommand = new Command(
+                execute: () =>
+                {
+                    AddText(EntryCellValues);
+                },
+
+                canExecute: () =>
+                {
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle)
+                    ;
+                });
+            //AddTextCommand = new Command(() => AddText(EntryCellValues));
+
 
             SubmitCommand = new Command(
                 execute: () =>
@@ -203,9 +235,14 @@ namespace AppSDR.ViewModel
             OnPropertyChanged(propertyName);
             return true;
         }
-       
-       
-            private async void Submit()
+        private async void AddText(string[] entryCellValues)
+        {
+            string[] EntryCellValues = { GraphName, null, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+
+            await _navigation.PushAsync(new TextEditorPage(EntryCellValues));
+        }
+
+        private async void Submit()
             {
                 try
                 {
@@ -217,7 +254,7 @@ namespace AppSDR.ViewModel
 
                         // Parse the file content and construct activeCellsArray
                         int[][] activeCellsArray = ParseFileContent(fileContent);
-                    string[] EntryCellValues = { GraphName,null,null,XaxisTitle, YaxisTitle, MinRange, MaxRange };
+                        string[] EntryCellValues = { GraphName,null,HighlightTouch,XaxisTitle, YaxisTitle, MinRange, MaxRange };
 
                     // Construct EntryCellValues
                     //EntryCellValues = new string[] { GraphName };
@@ -303,10 +340,7 @@ namespace AppSDR.ViewModel
             // Convert the list to a 2D array
             return activeCellsColumn.ToArray();
         }
-        private async void AddText(string[] entryCellValues)
-        {
-            await _navigation.PushAsync(new NavigationPage(new TextEditorPage(entryCellValues)));
-        }
+        
         
       
        

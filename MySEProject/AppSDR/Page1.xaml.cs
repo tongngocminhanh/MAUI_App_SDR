@@ -5,10 +5,11 @@ using AppSDR.ViewModel;
 using System.ComponentModel;
 public partial class Page1 : ContentPage, INotifyPropertyChanged
 {
+    public string[] EntryCellValues { get; set; }
     public Page1(int[][] activeCellsColumn, string[] entryCellValues)
     {
         InitializeComponent();
-        
+        EntryCellValues = entryCellValues;
         var graphicsView = this.DrawableView;
         var graphicsdrawable = (GraphicsDrawable)graphicsView.Drawable;
         graphicsdrawable.Vectors = activeCellsColumn;

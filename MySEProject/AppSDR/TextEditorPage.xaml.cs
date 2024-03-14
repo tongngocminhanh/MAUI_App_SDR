@@ -76,7 +76,7 @@ namespace AppSDR
             int[][] activeCellsArray = activeCellsColumn.ToArray();
 
             await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-            await Navigation.PushAsync(new Page1(activeCellsArray, EntryCellValues));
+            await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues));
         }
     }
 }
