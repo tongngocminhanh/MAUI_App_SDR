@@ -2,13 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:AppSDR.ViewModel"
-             x:Class="AppSDR.MainPage">
+             x:Class="AppSDR.MainPage"
+             xmlns:viewmodel="clr-namespace:AppSDR.ViewModel"
+             x:DataType="viewmodel:MainViewModel">
+    
+   
+    
 
-    <!--
-        <ContentPage.BindingContext>
-        <local:MainViewModel/>
-    </ContentPage.BindingContext> -->
-
+    
     <ScrollView>
         <Grid RowDefinitions="100, Auto, Auto, *, Auto"
               ColumnDefinitions=".20*,.20*,.20*, .20*, .20*"
@@ -28,17 +29,18 @@
                     >
                 <TableRoot>
                     <TableSection>
-                        <EntryCell x:Name="graphNameEntry" Label="Graph name"
+                        <EntryCell x:Name="graphNameEntry" 
+                                   Label="Graph name"
                                    Placeholder="Define the graph name (should in letter)" 
-                                   Text="{Binding GraphName}" />
-                        <EntryCell x:Name="maxCyclesEntry"
+                                   Text="{Binding GraphName, Mode=TwoWay}"/>
+                        <!--<EntryCell x:Name="maxCyclesEntry"
                                    Label="Max cycles"
                                    Placeholder="Define number of max cycles" 
-                                   Text="{Binding MaxCycles}" />
-                        <EntryCell x:Name="highlightTouchEntry"
+                                   Text="{Binding MaxCycles}" />-->
+                        <!--<EntryCell x:Name="highlightTouchEntry"
                                    Label="Highlight touch"
                                    Placeholder="Define the highlight touch column" 
-                                   Text="{Binding HighlightTouch}" />
+                                   Text="{Binding HighlightTouch}" />-->
                         <EntryCell x:Name="xAxisTitleEntry"
                                    Label="X axis title"
                                    Placeholder="x_axis title" 
