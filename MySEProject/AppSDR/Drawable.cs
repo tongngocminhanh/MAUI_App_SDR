@@ -11,7 +11,7 @@ using Font = Microsoft.Maui.Graphics.Font;
 
 namespace AppSDR
 {
-   
+
     public class GraphicsDrawable : BindableObject, IDrawable, INotifyPropertyChanged
     {
         public int[][] Vectors
@@ -41,7 +41,7 @@ namespace AppSDR
         public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(GraphicsDrawable));
 
         // Access predefined data from GraphPara
-       
+
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
@@ -59,7 +59,7 @@ namespace AppSDR
             canvas.FillColor = Colors.WhiteSmoke;
             canvas.FillRectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
 
-         
+
             canvas.FillColor = Colors.DarkBlue;
             canvas.StrokeSize = 4;
 
@@ -71,7 +71,7 @@ namespace AppSDR
 
             float rectangleSpacing = 10;
 
-            
+
             float canvasHeight = dirtyRect.Height - 100;
             float canvasWidth = dirtyRect.Width;
 
@@ -80,7 +80,7 @@ namespace AppSDR
             float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
             canvas.DrawString($" {graphName}", x_canvas, 70, 200, 50, HorizontalAlignment.Center, VerticalAlignment.Top);
             canvas.DrawString($" {xAxisTitle}", x_canvas, canvasHeight, 200, 70, HorizontalAlignment.Center, VerticalAlignment.Bottom);
-            canvas.DrawString($" {yAxisTitle}", x_canvas-160, canvasHeight-200, 200, 70, HorizontalAlignment.Left, VerticalAlignment.Center);
+            canvas.DrawString($" {yAxisTitle}", x_canvas - 160, canvasHeight - 200, 200, 70, HorizontalAlignment.Left, VerticalAlignment.Center);
 
 
 
@@ -90,7 +90,7 @@ namespace AppSDR
             float tickSpacing = 100; // Spacing between tick marks
             float tickStartX = x_canvas - tickWidth; // X-coordinate of the tick marks
 
-            
+
 
             // Loop through each rectangle
             for (int t = 0; t < Vectors.Length; t++)
@@ -117,7 +117,7 @@ namespace AppSDR
                             // Draw the rectangle
                             canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
                         }
-                       
+
                     }
 
                 }
@@ -126,7 +126,7 @@ namespace AppSDR
                     float rectangleHeight = 2;
                     foreach (int cell in Vectors[t])
                     {
-                        if (cell<=maxRange&&cell>=minRange)
+                        if (cell <= maxRange && cell >= minRange)
                         {
                             float y = canvasHeight - (cell / 10);
 
@@ -135,19 +135,15 @@ namespace AppSDR
                         }
                         // Calculate the y-coordinate for the rectangle
                         // Start from the bottom and decrement by rectangleHeight
-                  
-
 
                     }
 
-
-                    }
 
 
                 }
                 canvas.Font = Font.DefaultBold;
                 canvas.DrawString($" {t}", x, canvasHeight, rectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
-                
+
 
 
 
@@ -173,7 +169,7 @@ namespace AppSDR
                     canvas.DrawString(tickValue.ToString(), tickStartX - 30, tickY - 5, 50, 50, HorizontalAlignment.Left, VerticalAlignment.Top);
                 }
 
-                
+
 
 
 
