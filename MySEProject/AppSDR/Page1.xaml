@@ -3,39 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:drawables="clr-namespace:AppSDR"
              x:Class="AppSDR.Page1"
-             Title="Page 1">
-    
+             Title="Page1">
+
 
     <ContentPage.Resources>
-        <drawables:GraphicsDraw x:Key="drawable"/>
+        <drawables:GraphicsDrawable x:Key="drawable"/>
 
-    <!--</ContentPage.Resources>
-    <ScrollView Orientation="Vertical">
-        <Grid ColumnDefinitions="*,*,*" 
-              RowDefinitions="*,*,Auto">
-            <ScrollView Orientation="Horizontal">
-                <GraphicsView Drawable="{StaticResource drawable}"
-                              VerticalOptions="FillAndExpand"
-                              HorizontalOptions="FillAndExpand" 
-                              Grid.Column="1"
-                              Grid.Row="0"
-                              x:Name="DrawableView"/>
-            </ScrollView>
+    </ContentPage.Resources>
 
-            <Button Text="BACK TO MAINPAGE" Clicked="BackButton_Clicked"
-                        Grid.Row="1" Grid.Column="1" Margin="10,10,10,10"/>
-        </Grid>
-    </ScrollView>
-</ContentPage>-->
+    <ScrollView Orientation="Both" HorizontalScrollBarVisibility="Always">
+        <Grid ColumnDefinitions="Auto,*">
 
-</ContentPage.Resources>
-    <ScrollView Orientation="Vertical">
-        <ScrollView Orientation="Horizontal">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <GraphicsView Drawable="{StaticResource drawable}"
+                         
                           Grid.Column="1"
                           Grid.Row="0"
-                          x:Name="DrawableView" />
-        </ScrollView>
+                          x:Name="DrawableView"/>
+
+            <Button Text="BACK TO MAINPAGE" Clicked="BackToMainPageButton_Clicked"
+                    Grid.Row="1" Grid.Column="1" />
+        </Grid>
     </ScrollView>
 </ContentPage>
-     
+
+<!--WidthRequest="1000"-->
+<!--<Grid ColumnDefinitions="*,*,*"
+   RowDefinitions="*,*,Auto">-->
+<!--Margin="10,10,10,10"-->

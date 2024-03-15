@@ -1,26 +1,75 @@
+using AppSDR.ViewModel;
+using System.ComponentModel;
+
 namespace AppSDR;
-public partial class Page1 : ContentPage
+
+public partial class Page1 : ContentPage, INotifyPropertyChanged
 {
-    // Define a property to hold the text to be displayed
+
     public string[] EntryCellValues { get; set; }
     public Page1(int[][] activeCellsColumn, string[] entryCellValues)
     {
         InitializeComponent();
-
-        // Assign entry cell values to the property
         EntryCellValues = entryCellValues;
-
         var graphicsView = this.DrawableView;
-        var graphicsdraw = (GraphicsDraw)graphicsView.Drawable;
-        graphicsdraw.Vectors = activeCellsColumn;
-        graphicsdraw.GraphPara = EntryCellValues;
+        var graphicsdrawable = (GraphicsDrawable)graphicsView.Drawable;
+        graphicsdrawable.Vectors = activeCellsColumn;
+        graphicsdrawable.GraphPara = entryCellValues;
+        float Rectwidth;
+        float Rectspacing;
 
-        //graphicsView.Invalidate();
 
-        // Handle the SizeChanged event to redraw when the size changes
-        graphicsView.SizeChanged += (sender, args) => DrawableView.Invalidate();
 
-        // Set the BindingContext to the current page
-        BindingContext = this;
+        int maxCellValue = 0;
+        foreach (var column in activeCellsColumn)
+        {
+            foreach (var value in column)
+            {
+                if (value > maxCellValue)
+                {
+                    maxCellValue = value;
+                }
+            }
+        }
+        graphicsView.HeightRequest = maxCellValue / 10 + 200;
+
+        int max_xvalue = activeCellsColumn.Length * 25 + 10;
+        int max_widthvalue = activeCellsColumn.Length * 7 + 200;
+
+        if (max_xvalue < 1000)
+        {
+            Rectwidth = 25;
+            Rectspacing = 10;
+            graphicsView.WidthRequest = 1000;
+        }
+        else
+        {
+            Rectwidth = 5;
+            Rectspacing = 2;
+            if (max_widthvalue < 12000)
+            {
+                graphicsView.WidthRequest = max_widthvalue;
+            }
+            else
+            {
+                DisplayAlert("File Index Alert", "The file index exceeds the width of the view.", "OK");
+            }
+
+        }
+
+
+        graphicsdrawable.rectangleSpacing = Rectspacing;
+        graphicsdrawable.rectangleWidth = Rectwidth;
+        graphicsView.Invalidate();
+
+
     }
+
+    private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
+    {
+
+        await Navigation.PopModalAsync(); // Navigate back to the MainPage
+
+    }
+
 }
