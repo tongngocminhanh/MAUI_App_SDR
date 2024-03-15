@@ -121,7 +121,8 @@ namespace AppSDR
                         float rectangleHeight = 1;
                         foreach (int cell in Vectors[t])
                         {
-                            if ((!maxRange.HasValue && !minRange.HasValue) || (maxRange.HasValue && cell <= maxRange) || (minRange.HasValue && cell >= minRange))
+                            if ((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null)||(minRange == null&& cell < maxRange) || (maxRange == null && cell > minRange))
+                            //if ((!maxRange.HasValue && !minRange.HasValue) || (maxRange.HasValue && cell <= maxRange) || (minRange.HasValue && cell >= minRange))
                             {
                                 float y = canvasHeight - (cell / 10);
 
@@ -152,8 +153,11 @@ namespace AppSDR
                         float rectangleHeight = 2;
                         foreach (int cell in Vectors[t])
                         {
-                            if ((!maxRange.HasValue && !minRange.HasValue) || (maxRange.HasValue && cell <= maxRange) || (minRange.HasValue && cell >= minRange))
+                            if((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null) || (minRange == null && cell < maxRange) || (maxRange == null && cell > minRange))
                             {
+
+                            //if ((!maxRange.HasValue && !minRange.HasValue) || (maxRange.HasValue && minRange.HasValue && cell > maxRange && cell < minRange) || (maxRange.HasValue && cell <= maxRange) || (minRange.HasValue && cell >= minRange) )
+                            //{
                                 float y = canvasHeight - (cell / 10);
 
                                 // Draw the rectangle
