@@ -10,17 +10,27 @@
         <drawables:GraphicsDrawable x:Key="drawable"/>
 
     </ContentPage.Resources>
-    <ScrollView>
-        <Grid ColumnDefinitions="*,*,*"
-          RowDefinitions="*,*,Auto">
+    
+    <ScrollView Orientation="Both" HorizontalScrollBarVisibility="Always">
+        <Grid ColumnDefinitions="Auto,*">
+            
+            <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <GraphicsView Drawable="{StaticResource drawable}"
-                          WidthRequest="1000" 
+                         
                           Grid.Column="1"
                           Grid.Row="0"
                           x:Name="DrawableView"/>
 
             <Button Text="BACK TO MAINPAGE" Clicked="BackToMainPageButton_Clicked"
-                    Grid.Row="1" Grid.Column="1" Margin="10,10,10,10"/>
-        </Grid>
+                    Grid.Row="1" Grid.Column="1" />
+     </Grid>
     </ScrollView>
 </ContentPage>
+
+<!--WidthRequest="1000"-->
+<!--<Grid ColumnDefinitions="*,*,*"
+   RowDefinitions="*,*,Auto">-->
+    <!--Margin="10,10,10,10"-->

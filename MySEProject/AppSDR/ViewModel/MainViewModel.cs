@@ -12,6 +12,7 @@ namespace AppSDR.ViewModel
     {
         private INavigation _navigation;
         private string _selectedFilePath;
+        //private string[] entryCellValues;
         private string[] _entryCellValues;
         public string[] EntryCellValues
         {
@@ -19,7 +20,7 @@ namespace AppSDR.ViewModel
             set { SetProperty(ref _entryCellValues, value); }
         }
 
-       
+
         private string _graphName;
 
         public string GraphName
@@ -32,6 +33,7 @@ namespace AppSDR.ViewModel
                     _graphName = value;
                     OnPropertyChanged(nameof(GraphName)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
 
                 }
             }
@@ -43,12 +45,23 @@ namespace AppSDR.ViewModel
         //    set { SetProperty(ref _maxCycles, value); }
         //}
 
-        //private string _highlightTouch;
-        //public string HighlightTouch
-        //{
-        //    get { return _highlightTouch; }
-        //    set { SetProperty(ref _highlightTouch, value); }
-        //}
+        private string _highlightTouch;
+
+        public string HighlightTouch
+        {
+            get => _highlightTouch;
+            set
+            {
+                if (_highlightTouch != value)
+                {
+                    _highlightTouch = value;
+                    OnPropertyChanged(nameof(HighlightTouch)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
 
         private string _yaxisTitle;
         public string YaxisTitle
@@ -61,6 +74,7 @@ namespace AppSDR.ViewModel
                     _yaxisTitle = value;
                     OnPropertyChanged(nameof(YaxisTitle)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
                 }
             }
         }
@@ -77,6 +91,7 @@ namespace AppSDR.ViewModel
                     _xaxisTitle = value;
                     OnPropertyChanged(nameof(XaxisTitle)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
                 }
             }
         }
@@ -94,6 +109,7 @@ namespace AppSDR.ViewModel
                     _minRange = value;
                     OnPropertyChanged(nameof(MinRange)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
                 }
             }
         }
@@ -111,6 +127,9 @@ namespace AppSDR.ViewModel
                     _maxRange = value;
                     OnPropertyChanged(nameof(MaxRange)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
+
+
                 }
             }
         }
@@ -131,14 +150,27 @@ namespace AppSDR.ViewModel
 
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
-        public ICommand AddTextCommand { get; }
+        public ICommand AddTextCommand { private set; get; }
 
         public MainViewModel(INavigation navigation)
         {
             ChooseFileCommand = new Command(ChooseFile);
             _navigation = navigation;
-            EntryCellValues = new string[6];
-            AddTextCommand = new Command(() => AddText(EntryCellValues));
+            //EntryCellValues = new string[6];
+            //string[] EntryCellValues = { GraphName, null, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+            AddTextCommand = new Command(
+                execute: () =>
+                {
+                    AddText(EntryCellValues);
+                },
+
+                canExecute: () =>
+                {
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle)
+                    ;
+                });
+            //AddTextCommand = new Command(() => AddText(EntryCellValues));
+
 
             SubmitCommand = new Command(
                 execute: () =>
@@ -203,9 +235,14 @@ namespace AppSDR.ViewModel
             OnPropertyChanged(propertyName);
             return true;
         }
-       
-       
-            private async void Submit()
+        private async void AddText(string[] entryCellValues)
+        {
+            string[] EntryCellValues = { GraphName, null, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+
+            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
+        }
+
+        private async void Submit()
             {
                 try
                 {
@@ -217,7 +254,7 @@ namespace AppSDR.ViewModel
 
                         // Parse the file content and construct activeCellsArray
                         int[][] activeCellsArray = ParseFileContent(fileContent);
-                    string[] EntryCellValues = { GraphName,null,null,XaxisTitle, YaxisTitle, MinRange, MaxRange };
+                        string[] EntryCellValues = { GraphName,null,HighlightTouch,XaxisTitle, YaxisTitle, MinRange, MaxRange };
 
                     // Construct EntryCellValues
                     //EntryCellValues = new string[] { GraphName };
@@ -303,128 +340,6 @@ namespace AppSDR.ViewModel
             // Convert the list to a 2D array
             return activeCellsColumn.ToArray();
         }
-        private async void AddText(string[] entryCellValues)
-        {
-            await _navigation.PushAsync(new NavigationPage(new TextEditorPage(entryCellValues)));
-        }
         
-      
-       
-
-
-
-        //private async void Submit()
-        //{
-        //    try
-        //    {
-
-        //        if (!string.IsNullOrEmpty(SelectedFilePath))
-        //        {
-        //            EntryCellValues = new string[] { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange };
-
-        //            // Read the text content of the selected file
-        //            string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
-
-
-        //            // Split the content into lines
-        //            string[] lines = fileContent.Split(Environment.NewLine);
-
-        //            // Initialize a list to store the parsed rows
-        //            List<int[]> activeCellsColumn = new List<int[]>();
-
-        //            // Iterate over each line and parse the integers
-        //            foreach (string line in lines)
-        //            {
-        //                // Split each line into individual integers
-        //                string[] numbers = line.Split(',');
-
-        //                // Parse each number and store it in a list
-        //                List<int> parsedNumbers = new List<int>();
-
-        //                // Flag to indicate if the row has at least one non-zero value
-        //                bool hasNonZeroValue = false;
-
-        //                foreach (string numberString in numbers)
-        //                {
-        //                    if (int.TryParse(numberString, out int parsedNumber))
-        //                    {
-        //                        // Check if it's the first value in the row
-        //                        if (parsedNumbers.Count == 0 && parsedNumber == 0)
-        //                        {
-        //                            // Skip the row if the first value is 0
-        //                            hasNonZeroValue = false;
-        //                            break;
-        //                        }
-
-        //                        parsedNumbers.Add(parsedNumber);
-
-        //                        // Set the flag if a non-zero value is found
-        //                        if (!hasNonZeroValue && parsedNumber != 0)
-        //                        {
-        //                            hasNonZeroValue = true;
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        // Handle parsing error if needed
-        //                        // For example: throw new ArgumentException("Invalid number format");
-        //                    }
-        //                }
-
-        //                // Add the parsed numbers to the list if the row has at least one non-zero value
-        //                if (hasNonZeroValue)
-        //                {
-        //                    activeCellsColumn.Add(parsedNumbers.ToArray());
-        //                }
-        //            }
-
-        //            // Convert the list to a 2D array
-        //            int[][] activeCellsArray = activeCellsColumn.ToArray();
-
-        //            await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-        //            await _navigation.PushAsync(new NavigationPage(new Page1(activeCellsArray, EntryCellValues)));
-
-        //        }
-        //        else
-        //        {
-        //            await Application.Current.MainPage.DisplayAlert("Error", "Please select a file", "OK");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
-        //    }
-
-        //}
-
-
-        //protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        //{
-        //    if (EqualityComparer<T>.Default.Equals(storage, value))
-        //    {
-        //        return false;
-        //    }
-
-        //    storage = value;
-        //    OnPropertyChanged(propertyName);
-        //    return true;
-        //}
-
-
-        // SetProperty method to simplify property setters
-        //protected bool SetProperty<T>(ref T backingStore, T value,
-        //                               [CallerMemberName] string propertyName = "",
-        //                               Action onChanged = null)
-        //{
-        //    if (EqualityComparer<T>.Default.Equals(backingStore, value))
-        //        return false;
-
-        //    backingStore = value;
-        //    onChanged?.Invoke();
-        //    OnPropertyChanged(propertyName);
-        //    return true;
-        //}
-
-
     }
 }

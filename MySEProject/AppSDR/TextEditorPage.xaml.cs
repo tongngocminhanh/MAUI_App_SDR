@@ -14,69 +14,87 @@ namespace AppSDR
             InitializeComponent();
             EntryCellValues = entryCellValues;
         }
-
+        private async void OnBackToMainPageClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopModalAsync(); // Navigate back to the MainPage
+        }
         private async void OnSaveClicked(object sender, EventArgs e)
         {
-            string fileContent = textEditor.Text;
-
-            // Split the content into lines
-            string[] lines = fileContent.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-
-            // Initialize a list to store the parsed rows
-            List<int[]> activeCellsColumn = new List<int[]>();
-
-            // Iterate over each line and parse the integers
-            foreach (string line in lines)
+            try
             {
-                // Split each line into individual integers
-                string[] numbers = line.Split(',');
-
-                // Parse each number and store it in a list
-                List<int> parsedNumbers = new List<int>();
-
-                // Flag to indicate if the row has at least one non-zero value
-                bool hasNonZeroValue = false;
-
-                foreach (string numberString in numbers)
+                string fileContent = textEditor.Text;
+                if (string.IsNullOrEmpty(fileContent))
                 {
-                    if (int.TryParse(numberString, out int parsedNumber))
+                    // If it's empty, display an alert
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please type an SDR", "OK");
+                    return; // Exit the method
+                }
+                // Split the content into lines
+                string[] lines = fileContent.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+
+                // Initialize a list to store the parsed rows
+                List<int[]> activeCellsColumn = new List<int[]>();
+
+                // Iterate over each line and parse the integers
+                foreach (string line in lines)
+                {
+                    // Split each line into individual integers
+                    string[] numbers = line.Split(',');
+
+                    // Parse each number and store it in a list
+                    List<int> parsedNumbers = new List<int>();
+
+                    // Flag to indicate if the row has at least one non-zero value
+                    bool hasNonZeroValue = false;
+
+                    foreach (string numberString in numbers)
                     {
-                        // Check if it's the first value in the row
-                        if (parsedNumbers.Count == 0 && parsedNumber == 0)
+                        if (int.TryParse(numberString, out int parsedNumber))
                         {
-                            // Skip the row if the first value is 0
-                            hasNonZeroValue = false;
-                            break;
+                            // Check if it's the first value in the row
+                            if (parsedNumbers.Count == 0 && parsedNumber == 0)
+                            {
+                                // Skip the row if the first value is 0
+                                hasNonZeroValue = false;
+                                break;
+                            }
+
+                            parsedNumbers.Add(parsedNumber);
+
+                            // Set the flag if a non-zero value is found
+                            if (!hasNonZeroValue && parsedNumber != 0)
+                            {
+                                hasNonZeroValue = true;
+                            }
                         }
-
-                        parsedNumbers.Add(parsedNumber);
-
-                        // Set the flag if a non-zero value is found
-                        if (!hasNonZeroValue && parsedNumber != 0)
+                        else
                         {
-                            hasNonZeroValue = true;
+                            // Handle parsing error if needed
+                            // For example: throw new ArgumentException("Invalid number format");
                         }
                     }
-                    else
+
+                    // Add the parsed numbers to the list if the row has at least one non-zero value
+                    if (hasNonZeroValue)
                     {
-                        // Handle parsing error if needed
-                        // For example: throw new ArgumentException("Invalid number format");
+                        activeCellsColumn.Add(parsedNumbers.ToArray());
                     }
                 }
 
-                // Add the parsed numbers to the list if the row has at least one non-zero value
-                if (hasNonZeroValue)
-                {
-                    activeCellsColumn.Add(parsedNumbers.ToArray());
-                }
+
+                // Convert the list to a 2D array
+                int[][] activeCellsArray = activeCellsColumn.ToArray();
+
+                await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
+                await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues));
             }
-
-            // Convert the list to a 2D array
-            int[][] activeCellsArray = activeCellsColumn.ToArray();
-
-            await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-            await Navigation.PushAsync(new Page1(activeCellsArray, EntryCellValues));
+            catch (Exception ex)
+            {
+                // Handle any other exceptions here
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Please input SDR");
+            }
         }
+       
     }
 }
