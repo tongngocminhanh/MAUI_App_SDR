@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -10,10 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Graphics;
 using Font = Microsoft.Maui.Graphics.Font;
 
-namespace AppSDR
+namespace AppSDR.ViewModel
 {
-
-    public class GraphicsDrawable : BindableObject, IDrawable, INotifyPropertyChanged
+    public class Page1ViewModel : BindableObject, IDrawable, INotifyPropertyChanged
     {
         int numTouch;
         public int[][] Vectors
@@ -23,7 +21,7 @@ namespace AppSDR
 
         }
 
-        public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(GraphicsDrawable));
+        public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(Page1ViewModel));
 
         public string[] GraphPara
         {
@@ -31,7 +29,7 @@ namespace AppSDR
             set => SetValue(GraphParaProperty, value);
         }
 
-        public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(GraphicsDrawable));
+        public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(Page1ViewModel));
 
         // Access predefined data from GraphPara
 
@@ -183,9 +181,7 @@ namespace AppSDR
                         canvas.FontColor = Colors.Black;
                         canvas.DrawString(tickValue.ToString(), tickStartX - 30, tickY - 5, 50, 50, HorizontalAlignment.Left, VerticalAlignment.Top);
                     }
-
                 }
-
             }
         }
     }

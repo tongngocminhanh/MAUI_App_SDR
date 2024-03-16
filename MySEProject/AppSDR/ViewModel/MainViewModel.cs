@@ -4,7 +4,6 @@ using Microsoft.Maui.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
-//ObservableObject,
 
 namespace AppSDR.ViewModel
 {

@@ -12,7 +12,7 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         InitializeComponent();
         EntryCellValues = entryCellValues;
         var graphicsView = this.DrawableView;
-        var graphicsdrawable = (GraphicsDrawable)graphicsView.Drawable;
+        var graphicsdrawable = (Page1ViewModel)graphicsView.Drawable;
         graphicsdrawable.Vectors = activeCellsColumn;
         graphicsdrawable.GraphPara = entryCellValues;
         float Rectwidth;
