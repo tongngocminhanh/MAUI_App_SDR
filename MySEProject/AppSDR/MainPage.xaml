@@ -5,10 +5,8 @@
              x:Class="AppSDR.MainPage"
              xmlns:viewmodel="clr-namespace:AppSDR.ViewModel"
              x:DataType="viewmodel:MainViewModel">
-    
 
     <ContentPage.Resources>
-       
         <ResourceDictionary>
             <!-- Define custom colors -->
             <Color x:Key="PrimaryColor">#646e78</Color>
@@ -16,7 +14,7 @@
             <Color x:Key="AccentColor">#8d98a7</Color>
             <!-- (141, 152, 167) -->
             <Color x:Key="ButtonColor">#eab464
-            <!-- (220, 204, 187) --> 
+                <!-- (220, 204, 187) -->
             </Color>
             <Color x:Key="ButtonTextColor">#dcccbb</Color>
             <!-- (234, 180, 100) -->
@@ -25,13 +23,14 @@
 
 
     <ScrollView>
+        <!--Grid Template to locate each component in their size-defined domain-->
         <Grid RowDefinitions="100, Auto, Auto, *, Auto"
               ColumnDefinitions=".20*,.20*,.20*, .20*, .20*"
               Padding="10"
               RowSpacing="10"
               ColumnSpacing="10">
 
-            <!-- Image -->
+            <!-- Image represents SDR definititon -->
             <Image x:Name="myImage"
                    Grid.Column="0"
                    Grid.Row="0"
@@ -39,19 +38,20 @@
                    Source="sdr_represent.jpg"
                    BackgroundColor="Transparent"/>
 
-            <!-- TableView with gradient background -->
+            <!-- Create an input table with gradient background -->
             <TableView Intent="Settings" 
                        Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
                        BackgroundColor="{StaticResource PrimaryColor}"
                        Margin="5"
                        >
-                <!-- TableView content -->
+                <!-- TableView content taking users' defined parameters -->
                 <TableRoot>
                     <TableSection>
                         <EntryCell x:Name="graphNameEntry" 
                                    Label="Graph name"
                                    Placeholder="Define the graph name (should in letter)" 
                                    Text="{Binding GraphName, Mode=TwoWay}"/>
+
                         <EntryCell x:Name="maxCyclesEntry"
                                    Label="Max cycles"
                                    Placeholder="Define number of max cycles" 
@@ -60,20 +60,23 @@
                         <EntryCell x:Name="highlightTouchEntry"
                                    Label="Highlight touch"
                                    Placeholder="Define the highlight touch column" 
-                                   Text="{Binding HighlightTouch}"
-                                   />
+                                   Text="{Binding HighlightTouch}"/>
+
                         <EntryCell x:Name="xAxisTitleEntry"
                                    Label="X axis title"
                                    Placeholder="x_axis title" 
                                    Text="{Binding XaxisTitle}" />
+
                         <EntryCell x:Name="yAxisTitleEntry"
                                    Label="Y axis title"
                                    Placeholder="y_axis title" 
                                    Text="{Binding YaxisTitle}" />
+
                         <EntryCell x:Name="minRangeEntry"
                                    Label="Min range of cell"
                                    Placeholder="min range of cell value" 
                                    Text="{Binding MinRange}" />
+
                         <EntryCell x:Name="maxRangeEntry"
                                    Label="Max range of cell"
                                    Placeholder="max range of cell value" 
@@ -83,6 +86,7 @@
             </TableView>
 
             <!-- Buttons -->
+            <!-- Let user choose a file from local device-->
             <Button Text="{Binding SelectedFileName}"
                     BackgroundColor="{StaticResource ButtonColor}"
                     TextColor="{StaticResource ButtonTextColor}"
@@ -93,6 +97,7 @@
                     Grid.ColumnSpan="1"
                     Command="{Binding ChooseFileCommand}"/>
 
+            <!-- Done manipulating inputs, submit to see the outputs -->
             <Button Text="Submit"
                     BackgroundColor="{StaticResource ButtonColor}"
                     TextColor="{StaticResource ButtonTextColor}"
@@ -103,6 +108,7 @@
                     Grid.ColumnSpan="1" 
                     Command="{Binding SubmitCommand}"/>
 
+            <!-- Manually add inputs data instead of a data file -->
             <Button Text="Add Text"
                     BackgroundColor="{StaticResource ButtonColor}"
                     TextColor="{StaticResource ButtonTextColor}"
@@ -112,10 +118,6 @@
                     Grid.Row="2" Grid.Column="3"
                     Grid.ColumnSpan="1"
                     Command="{Binding AddTextCommand}"/>
-           
-
         </Grid>
     </ScrollView>
 </ContentPage>
-
-

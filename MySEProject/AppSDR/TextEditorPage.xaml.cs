@@ -1,8 +1,3 @@
-using Microsoft.Maui.Controls;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace AppSDR
 {
     public partial class TextEditorPage : ContentPage
@@ -71,7 +66,7 @@ namespace AppSDR
                         else
                         {
                             // Handle parsing error if needed
-                            // For example: throw new ArgumentException("Invalid number format");
+                            throw new ArgumentException("Invalid number format");
                         }
                     }
 
@@ -95,6 +90,6 @@ namespace AppSDR
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Please input SDR");
             }
         }
-       
+
     }
 }

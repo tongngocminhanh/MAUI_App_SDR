@@ -3,26 +3,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppSDR.TextEditorPage"
              Title="TextEditorPage">
+
     <StackLayout>
         <ScrollView>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="250" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+            <Grid>
+                <!-- Define charateristic of all elements in the grid -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="250" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <Editor x:Name="textEditor" Placeholder="Enter your numbers"
-                    AutoSize="TextChanges"
-                    Keyboard="Numeric"
-                    Grid.Row="0"
-                    FontSize="15"
-                    />
+                <!-- Instruction of manually adding SDR values-->
+                <Label Text="Enter SDR values. 
+                       Each SDR value is separated by a comma 
+                       and each SDR column is separated by &quot;Enter&quot; to the new line"
+                       Grid.Row="1"
+                       FontSize="15"
+                       FontAttributes="Italic"/>
 
-            <Button Text="SAVE" Clicked="OnSaveClicked" Grid.Row="1" />
-            
+                <!-- Define input holder and let users enter SDR values -->
+                <Editor x:Name="textEditor" Placeholder="Enter your numbers"
+                        AutoSize="TextChanges"
+                        Keyboard="Numeric"
+                        Grid.Row="2"
+                        FontSize="15"/>
 
-        </Grid>
-    </ScrollView>
-    <Button Text="BACK TO MAINPAGE" Clicked="OnBackToMainPageClicked" Grid.Row="2" />
+                <!-- Save SDR data and navigate to visualisation page (Page1) -->
+                <Button Text="SAVE" Clicked="OnSaveClicked" Grid.Row="3" />
+
+            </Grid>
+        </ScrollView>
+
+        <!-- Navigate back to MainPage -->
+        <Button Text="BACK TO MAINPAGE" Clicked="OnBackToMainPageClicked" Grid.Row="4" />
+
     </StackLayout>
 </ContentPage>
