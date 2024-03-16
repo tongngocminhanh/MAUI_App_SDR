@@ -6,10 +6,24 @@
              xmlns:viewmodel="clr-namespace:AppSDR.ViewModel"
              x:DataType="viewmodel:MainViewModel">
     
-   
-    
 
-    
+    <ContentPage.Resources>
+       
+        <ResourceDictionary>
+            <!-- Define custom colors -->
+            <Color x:Key="PrimaryColor">#646e78</Color>
+            <!-- (100, 110, 120) -->
+            <Color x:Key="AccentColor">#8d98a7</Color>
+            <!-- (141, 152, 167) -->
+            <Color x:Key="ButtonColor">#eab464
+            <!-- (220, 204, 187) --> 
+            </Color>
+            <Color x:Key="ButtonTextColor">#dcccbb</Color>
+            <!-- (234, 180, 100) -->
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+
     <ScrollView>
         <Grid RowDefinitions="100, Auto, Auto, *, Auto"
               ColumnDefinitions=".20*,.20*,.20*, .20*, .20*"
@@ -17,6 +31,7 @@
               RowSpacing="10"
               ColumnSpacing="10">
 
+            <!-- Image -->
             <Image x:Name="myImage"
                    Grid.Column="0"
                    Grid.Row="0"
@@ -24,23 +39,29 @@
                    Source="sdr_represent.jpg"
                    BackgroundColor="Transparent"/>
 
-            <TableView Intent="Settings" BackgroundColor="DarkBlue"
-                   Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
-                    >
+            <!-- TableView with gradient background -->
+            <TableView Intent="Settings" 
+                       Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                       BackgroundColor="{StaticResource PrimaryColor}"
+                       Margin="5"
+                       >
+                <!-- TableView content -->
                 <TableRoot>
                     <TableSection>
                         <EntryCell x:Name="graphNameEntry" 
                                    Label="Graph name"
                                    Placeholder="Define the graph name (should in letter)" 
                                    Text="{Binding GraphName, Mode=TwoWay}"/>
-                        <!--<EntryCell x:Name="maxCyclesEntry"
+                        <EntryCell x:Name="maxCyclesEntry"
                                    Label="Max cycles"
                                    Placeholder="Define number of max cycles" 
-                                   Text="{Binding MaxCycles}" />-->
+                                   Text="{Binding MaxCycles}" />
+
                         <EntryCell x:Name="highlightTouchEntry"
                                    Label="Highlight touch"
                                    Placeholder="Define the highlight touch column" 
-                                   Text="{Binding HighlightTouch}" />
+                                   Text="{Binding HighlightTouch}"
+                                   />
                         <EntryCell x:Name="xAxisTitleEntry"
                                    Label="X axis title"
                                    Placeholder="x_axis title" 
@@ -61,24 +82,40 @@
                 </TableRoot>
             </TableView>
 
+            <!-- Buttons -->
             <Button Text="{Binding SelectedFileName}"
-                    BackgroundColor="Beige"
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
                     Grid.Row="2" Grid.Column="1"
                     Grid.ColumnSpan="1"
                     Command="{Binding ChooseFileCommand}"/>
 
             <Button Text="Submit"
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
                     Grid.Row="2" Grid.Column="2" 
                     Grid.ColumnSpan="1" 
-                    Background="Beige"
                     Command="{Binding SubmitCommand}"/>
 
             <Button Text="Add Text"
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
                     Grid.Row="2" Grid.Column="3"
                     Grid.ColumnSpan="1"
-                    BackgroundColor="Beige"
                     Command="{Binding AddTextCommand}"/>
+           
 
         </Grid>
     </ScrollView>
 </ContentPage>
+
+

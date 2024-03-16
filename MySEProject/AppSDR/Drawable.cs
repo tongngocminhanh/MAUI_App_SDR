@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,27 +15,19 @@ namespace AppSDR
 
     public class GraphicsDrawable : BindableObject, IDrawable, INotifyPropertyChanged
     {
+        int numTouch;
         public int[][] Vectors
         {
             get => (int[][])GetValue(VectorsProperty);
             set => SetValue(VectorsProperty, value);
 
         }
-        public string XAxisTitle
-        {
-            get => (string)GetValue(XAxisTitleProperty);
-            set => SetValue(XAxisTitleProperty, value);
-        }
-
-        public static readonly BindableProperty XAxisTitleProperty = BindableProperty.Create(nameof(XAxisTitle), typeof(string), typeof(GraphicsDrawable));
-
-
+    
         public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(GraphicsDrawable));
 
         public string[] GraphPara
         {
             get => (string[])GetValue(GraphParaProperty);
-            //get { return (string[])GetValue(GraphParaProperty); }
             set => SetValue(GraphParaProperty, value);
         }
 
@@ -46,16 +39,9 @@ namespace AppSDR
         public float rectangleSpacing { get; set; } 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
-            if (GraphPara != null && GraphPara.Length >= 7)     // Ensure GraphPara is not null and has at least 7 elements
+            if (GraphPara != null && GraphPara.Length >= 7)     
             {
 
-                //string graphName = GraphPara[0];
-                ////int maxCycles = int.Parse(GraphPara[1]);
-                //int highlightTouch = int.Parse(GraphPara[2]);
-                //string xAxisTitle = GraphPara[3];
-                //string yAxisTitle = GraphPara[4];
-                //int minRange = int.Parse(GraphPara[5]);
-                //int maxRange = int.Parse(GraphPara[6]);
                 string graphName = null;
                 int? maxCycles = null;
                 int? highlightTouch = null;
@@ -90,7 +76,7 @@ namespace AppSDR
 
                 //// Calculate the horizontal offset to center the drawing
                 float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
-                canvas.DrawString($" {graphName}", x_canvas, 70, 200, 50, HorizontalAlignment.Center, VerticalAlignment.Top);
+                canvas.DrawString($" {graphName}", x_canvas, 30, 200, 50, HorizontalAlignment.Center, VerticalAlignment.Top);
                 canvas.DrawString($" {xAxisTitle}", x_canvas, canvasHeight, 200, 70, HorizontalAlignment.Center, VerticalAlignment.Bottom);
                 canvas.DrawString($" {yAxisTitle}", x_canvas - 160, canvasHeight - 200, 200, 70, HorizontalAlignment.Left, VerticalAlignment.Center);
 
@@ -100,13 +86,23 @@ namespace AppSDR
                 //// Start drawing from the bottom of the canvas
                 //// Draw tick marks on the left side
                 float tickWidth = 10; // Width of the tick marks
-                float tickSpacing = 100; // Spacing between tick marks
+                float tickSpacing = 50; // Spacing between tick marks
                 float tickStartX = x_canvas - tickWidth; // X-coordinate of the tick marks
 
+             
+                
+                if (maxCycles<=Vectors.Length)
+                {
+                    numTouch = maxCycles ??0 ;
+                }
+                else
+                {
+                    numTouch = Vectors.Length;
+                }
 
 
                 // Loop through each rectangle
-                for (int t = 0; t < Vectors.Length; t++)
+                for (int t = 0; t < numTouch; t++)
                 {
                     float x = t * (rectangleWidth + rectangleSpacing) + x_canvas;
                     int maxCellValue = Vectors[t].Max() / 10;
@@ -122,28 +118,13 @@ namespace AppSDR
                         foreach (int cell in Vectors[t])
                         {
                             if ((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null)||(minRange == null&& cell < maxRange) || (maxRange == null && cell > minRange))
-                            //if ((!maxRange.HasValue && !minRange.HasValue) || (maxRange.HasValue && cell <= maxRange) || (minRange.HasValue && cell >= minRange))
+                        
                             {
                                 float y = canvasHeight - (cell / 10);
 
                                 // Draw the rectangle
                                 canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
                             }
-
-                            //if (!maxRange.HasValue && !minRange.HasValue)
-                            //{
-                            //    float y = canvasHeight - (cell / 10);
-
-                            //    // Draw the rectangle
-                            //    canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
-                            //}
-                            //else if ((maxRange.HasValue || minRange.HasValue) && cell <= maxRange && cell >= minRange)
-                            //{
-                            //    float y = canvasHeight - (cell / 10);
-
-                            //    // Draw the rectangle
-                            //    canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
-                            //}
 
                         }
 
@@ -156,8 +137,6 @@ namespace AppSDR
                             if((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null) || (minRange == null && cell < maxRange) || (maxRange == null && cell > minRange))
                             {
 
-                            //if ((!maxRange.HasValue && !minRange.HasValue) || (maxRange.HasValue && minRange.HasValue && cell > maxRange && cell < minRange) || (maxRange.HasValue && cell <= maxRange) || (minRange.HasValue && cell >= minRange) )
-                            //{
                                 float y = canvasHeight - (cell / 10);
 
                                 // Draw the rectangle
@@ -173,7 +152,7 @@ namespace AppSDR
 
                     canvas.StrokeColor = Colors.Red;
                     canvas.StrokeSize = 2;
-                    //float x_highlight = highlightTouch * (rectangleWidth + rectangleSpacing) + x_canvas;
+                    
                    
 
                     float y_height = canvasHeight - maxCellValue - 10;
@@ -204,10 +183,6 @@ namespace AppSDR
                         canvas.FontColor = Colors.Black;
                         canvas.DrawString(tickValue.ToString(), tickStartX - 30, tickY - 5, 50, 50, HorizontalAlignment.Left, VerticalAlignment.Top);
                     }
-
-
-
-
 
                 }
 

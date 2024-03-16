@@ -38,12 +38,22 @@ namespace AppSDR.ViewModel
                 }
             }
         }
-        //private string _maxCycles;
-        //public string MaxCycles
-        //{
-        //    get { return _maxCycles; }
-        //    set { SetProperty(ref _maxCycles, value); }
-        //}
+        private string _maxCycles;
+       
+        public string MaxCycles
+        {
+            get => _maxCycles;
+            set
+            {
+                if (_maxCycles != value)
+                {
+                    _maxCycles = value;
+                    OnPropertyChanged(nameof(MaxCycles)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
 
         private string _highlightTouch;
 
@@ -61,7 +71,6 @@ namespace AppSDR.ViewModel
                 }
             }
         }
-
 
         private string _yaxisTitle;
         public string YaxisTitle
@@ -156,8 +165,7 @@ namespace AppSDR.ViewModel
         {
             ChooseFileCommand = new Command(ChooseFile);
             _navigation = navigation;
-            //EntryCellValues = new string[6];
-            //string[] EntryCellValues = { GraphName, null, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+          
             AddTextCommand = new Command(
                 execute: () =>
                 {
@@ -166,12 +174,10 @@ namespace AppSDR.ViewModel
 
                 canExecute: () =>
                 {
-                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle)
-                    ;
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || !string.IsNullOrEmpty(MaxCycles)
+                     ;
                 });
-            //AddTextCommand = new Command(() => AddText(EntryCellValues));
-
-
+          
             SubmitCommand = new Command(
                 execute: () =>
                 {
@@ -180,7 +186,7 @@ namespace AppSDR.ViewModel
                 },
                 canExecute: () =>
                 {
-                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle)
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || !string.IsNullOrEmpty(MaxCycles)
                     ;
                 });
 
@@ -237,7 +243,7 @@ namespace AppSDR.ViewModel
         }
         private async void AddText(string[] entryCellValues)
         {
-            string[] EntryCellValues = { GraphName, null, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
 
             await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
         }
@@ -254,12 +260,9 @@ namespace AppSDR.ViewModel
 
                         // Parse the file content and construct activeCellsArray
                         int[][] activeCellsArray = ParseFileContent(fileContent);
-                        string[] EntryCellValues = { GraphName,null,HighlightTouch,XaxisTitle, YaxisTitle, MinRange, MaxRange };
+                        string[] EntryCellValues = { GraphName,MaxCycles,HighlightTouch,XaxisTitle, YaxisTitle, MinRange, MaxRange };
 
-                    // Construct EntryCellValues
-                    //EntryCellValues = new string[] { GraphName };
-                    //MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MaxRange, MinRange
-
+                   
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
                     await NavigateToPage1(EntryCellValues, activeCellsArray);
 
@@ -286,7 +289,8 @@ namespace AppSDR.ViewModel
         private int[][] ParseFileContent(string fileContent)
         {
             // Split the content into lines
-            string[] lines = fileContent.Split(Environment.NewLine);
+            //string[] lines = fileContent.Split(Environment.NewLine);
+            string[] lines = fileContent.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
             // Initialize a list to store the parsed rows
             List<int[]> activeCellsColumn = new List<int[]>();
