@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Input;
-using Microsoft.Maui.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Windows.Input;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 
@@ -11,7 +8,6 @@ namespace AppSDR.ViewModel
     {
         private INavigation _navigation;
         private string _selectedFilePath;
-        //private string[] entryCellValues;
         private string[] _entryCellValues;
         public string[] EntryCellValues
         {
@@ -19,9 +15,8 @@ namespace AppSDR.ViewModel
             set { SetProperty(ref _entryCellValues, value); }
         }
 
-
+        // Start property change
         private string _graphName;
-
         public string GraphName
         {
             get => _graphName;
@@ -33,12 +28,11 @@ namespace AppSDR.ViewModel
                     OnPropertyChanged(nameof(GraphName)); // Raise PropertyChanged event
                     (SubmitCommand as Command).ChangeCanExecute();
                     (AddTextCommand as Command).ChangeCanExecute();
-
                 }
             }
         }
-        private string _maxCycles;
 
+        private string _maxCycles;
         public string MaxCycles
         {
             get => _maxCycles;
@@ -55,7 +49,6 @@ namespace AppSDR.ViewModel
         }
 
         private string _highlightTouch;
-
         public string HighlightTouch
         {
             get => _highlightTouch;
@@ -87,7 +80,6 @@ namespace AppSDR.ViewModel
             }
         }
 
-
         private string _xaxisTitle;
         public string XaxisTitle
         {
@@ -104,9 +96,7 @@ namespace AppSDR.ViewModel
             }
         }
 
-
         private string _minRange;
-
         public string MinRange
         {
             get => _minRange;
@@ -122,9 +112,7 @@ namespace AppSDR.ViewModel
             }
         }
 
-
         private string _maxRange;
-
         public string MaxRange
         {
             get => _maxRange;
@@ -141,9 +129,8 @@ namespace AppSDR.ViewModel
                 }
             }
         }
-
-
         // End property change
+
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
@@ -155,7 +142,6 @@ namespace AppSDR.ViewModel
         }
 
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
-
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
         public ICommand AddTextCommand { private set; get; }
@@ -173,37 +159,43 @@ namespace AppSDR.ViewModel
 
                 canExecute: () =>
                 {
-                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || !string.IsNullOrEmpty(MaxCycles)
-                     ;
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || 
+                            !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || 
+                            !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || 
+                            !string.IsNullOrEmpty(MaxCycles);
                 });
 
             SubmitCommand = new Command(
                 execute: () =>
                 {
                     Submit();
-
                 },
                 canExecute: () =>
                 {
-                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || !string.IsNullOrEmpty(MaxCycles)
+                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || 
+                            !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || 
+                            !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || 
+                            !string.IsNullOrEmpty(MaxCycles)
                     ;
                 });
 
         }
 
-
+        // Pick a file from local device
         private async void ChooseFile()
         {
             try
             {
+                // Compatible with Text files and Comma-separated values (csv) files
+                // Define file extension for all supported platforms
                 var customFileType = new FilePickerFileType(
                 new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
-                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } }, // UTType values
-                    { DevicePlatform.Android, new[] {".txt", ".csv" } }, // MIME type
-                    { DevicePlatform.WinUI, new[] { ".txt", ".csv" } }, // file extension
+                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } }, 
+                    { DevicePlatform.Android, new[] {".txt", ".csv" } }, 
+                    { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
                     { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
-                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }, // UTType values
+                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }, 
                 });
 
 
@@ -225,12 +217,13 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"File picking error: {ex.Message}");
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
 
+        public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (Object.Equals(storage, value))
@@ -240,20 +233,20 @@ namespace AppSDR.ViewModel
             OnPropertyChanged(propertyName);
             return true;
         }
+
         private async void AddText(string[] entryCellValues)
         {
             string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
-
             await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
         }
 
         private async void Submit()
         {
+            // Done taking inputs and navigate to the visualisation page (Page1)
             try
             {
                 if (!string.IsNullOrEmpty(SelectedFilePath))
                 {
-
                     // Read the text content of the selected file
                     string fileContent = await File.ReadAllTextAsync(SelectedFilePath);
 
@@ -261,12 +254,11 @@ namespace AppSDR.ViewModel
                     int[][] activeCellsArray = ParseFileContent(fileContent);
                     string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
 
-
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
                     await NavigateToPage1(EntryCellValues, activeCellsArray);
-
-
                 }
+                
+                // Exception Alert when no input file is detected 
                 else
                 {
                     await Application.Current.MainPage.DisplayAlert("Error", "Please select a file", "OK");
@@ -288,7 +280,6 @@ namespace AppSDR.ViewModel
         private int[][] ParseFileContent(string fileContent)
         {
             // Split the content into lines
-            //string[] lines = fileContent.Split(Environment.NewLine);
             string[] lines = fileContent.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
             // Initialize a list to store the parsed rows
@@ -329,7 +320,7 @@ namespace AppSDR.ViewModel
                     else
                     {
                         // Handle parsing error if needed
-                        // For example: throw new ArgumentException("Invalid number format");
+                        new ArgumentException("Invalid number format");
                     }
                 }
 
@@ -343,6 +334,5 @@ namespace AppSDR.ViewModel
             // Convert the list to a 2D array
             return activeCellsColumn.ToArray();
         }
-
     }
 }

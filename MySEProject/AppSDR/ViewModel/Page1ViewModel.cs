@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Maui.Graphics;
+﻿using System.ComponentModel;
 using Font = Microsoft.Maui.Graphics.Font;
 
 namespace AppSDR.ViewModel
@@ -18,7 +10,6 @@ namespace AppSDR.ViewModel
         {
             get => (int[][])GetValue(VectorsProperty);
             set => SetValue(VectorsProperty, value);
-
         }
 
         public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(Page1ViewModel));
@@ -32,14 +23,13 @@ namespace AppSDR.ViewModel
         public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(Page1ViewModel));
 
         // Access predefined data from GraphPara
-
         public float rectangleWidth { get; set; }
         public float rectangleSpacing { get; set; }
+
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             if (GraphPara != null && GraphPara.Length >= 7)
             {
-
                 string graphName = null;
                 int? maxCycles = null;
                 int? highlightTouch = null;
@@ -60,17 +50,14 @@ namespace AppSDR.ViewModel
                 canvas.FillColor = Colors.WhiteSmoke;
                 canvas.FillRectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
 
-
                 canvas.FillColor = Colors.DarkBlue;
                 canvas.StrokeSize = 4;
 
                 canvas.FontColor = Colors.Black;
                 canvas.FontSize = 20;
 
-
                 float canvasHeight = dirtyRect.Height - 100;
                 float canvasWidth = dirtyRect.Width;
-
 
                 //// Calculate the horizontal offset to center the drawing
                 float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
@@ -78,16 +65,11 @@ namespace AppSDR.ViewModel
                 canvas.DrawString($" {xAxisTitle}", x_canvas, canvasHeight, 200, 70, HorizontalAlignment.Center, VerticalAlignment.Bottom);
                 canvas.DrawString($" {yAxisTitle}", x_canvas - 160, canvasHeight - 200, 200, 70, HorizontalAlignment.Left, VerticalAlignment.Center);
 
-
-
-
                 //// Start drawing from the bottom of the canvas
                 //// Draw tick marks on the left side
                 float tickWidth = 10; // Width of the tick marks
                 float tickSpacing = 50; // Spacing between tick marks
                 float tickStartX = x_canvas - tickWidth; // X-coordinate of the tick marks
-
-
 
                 if (maxCycles <= Vectors.Length)
                 {
@@ -98,7 +80,6 @@ namespace AppSDR.ViewModel
                     numTouch = Vectors.Length;
                 }
 
-
                 // Loop through each rectangle
                 for (int t = 0; t < numTouch; t++)
                 {
@@ -106,6 +87,19 @@ namespace AppSDR.ViewModel
                     int maxCellValue = Vectors[t].Max() / 10;
 
                     int numberOfTicks = (int)(maxCellValue / tickSpacing);
+                    
+                    // Draw highlight of the wanted column
+                    if (highlightTouch.HasValue)
+                    {
+                        if (highlightTouch == t)
+                        {    
+                            canvas.StrokeColor = Colors.Red;
+                            canvas.StrokeSize = 2;
+                            float y_height = canvasHeight - maxCellValue - 10;
+                            float x_highlight = ((highlightTouch ?? 0)) * (rectangleWidth + rectangleSpacing) + x_canvas;
+                            canvas.DrawRoundedRectangle(x_highlight, y_height, rectangleWidth + 5, maxCellValue + 20, 5);
+                        }
+                    }
 
                     // Check if the majority value is less than 500
                     bool majorityLessThan500 = Vectors[t].Count(value => value < 500) > Vectors[t].Length / 2;
@@ -123,45 +117,28 @@ namespace AppSDR.ViewModel
                                 // Draw the rectangle
                                 canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
                             }
-
                         }
-
                     }
+
                     else
                     {
                         float rectangleHeight = 2;
                         foreach (int cell in Vectors[t])
                         {
-                            if ((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null) || (minRange == null && cell < maxRange) || (maxRange == null && cell > minRange))
+                            if ((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null) || 
+                                (minRange == null && cell < maxRange) || (maxRange == null && cell > minRange))
                             {
-
                                 float y = canvasHeight - (cell / 10);
 
                                 // Draw the rectangle
                                 canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
                             }
-
                         }
-
                     }
+
                     canvas.Font = Font.DefaultBold;
                     canvas.FontSize = 15;
                     canvas.DrawString($" {t}", x, canvasHeight + 15, rectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
-
-                    canvas.StrokeColor = Colors.Red;
-                    canvas.StrokeSize = 2;
-
-
-
-                    float y_height = canvasHeight - maxCellValue - 10;
-                    if (highlightTouch.HasValue)
-                    {
-                        float x_highlight = ((highlightTouch ?? 0)) * (rectangleWidth + rectangleSpacing) + x_canvas;
-                        canvas.DrawRoundedRectangle(x_highlight, y_height, rectangleWidth + 5, maxCellValue + 20, 5);
-                    }
-
-
-
 
                     // Loop through each cell in the current rectangle
                     canvas.StrokeColor = Colors.Green;
@@ -171,7 +148,8 @@ namespace AppSDR.ViewModel
                         float tickY = canvasHeight - (i * tickSpacing);
 
                         // Calculate the value associated with the current tick mark
-                        float tickValue = 10 * i * tickSpacing; // Adjusted calculation to start from 0
+                        // Adjusted calculation to start from 0
+                        float tickValue = 10 * i * tickSpacing; 
 
                         // Draw the tick mark
                         canvas.DrawLine(tickStartX, tickY, tickStartX + tickWidth, tickY);

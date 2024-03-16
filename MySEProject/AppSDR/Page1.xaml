@@ -29,8 +29,3 @@
         </Grid>
     </ScrollView>
 </ContentPage>
-
-<!--WidthRequest="1000"-->
-<!--<Grid ColumnDefinitions="*,*,*"
-   RowDefinitions="*,*,Auto">-->
-<!--Margin="10,10,10,10"-->
