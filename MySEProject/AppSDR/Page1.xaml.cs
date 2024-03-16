@@ -1,8 +1,8 @@
-using AppSDR.ViewModel;
-using System.ComponentModel;
 
 namespace AppSDR;
+using AppSDR.ViewModel;
 
+using System.ComponentModel;
 public partial class Page1 : ContentPage, INotifyPropertyChanged
 {
 
