@@ -14,7 +14,7 @@ namespace AppSDR
             InitializeComponent();
             EntryCellValues = entryCellValues;
         }
-        private async void OnBackToMainPageClicked(object sender, EventArgs e)
+        private async void Back(object sender, EventArgs e)
         {
             await Navigation.PopModalAsync(); // Navigate back to the MainPage
         }
