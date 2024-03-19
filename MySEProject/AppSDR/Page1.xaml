@@ -17,6 +17,7 @@
             <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+             <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <GraphicsView Drawable="{StaticResource drawable}"
                          
@@ -26,8 +27,14 @@
 
             <Button Text="BACK TO MAINPAGE" Clicked="BackToMainPageButton_Clicked"
                     Grid.Row="1" Grid.Column="1" />
+            <Button Text="Save" Clicked="Save"
+         Grid.Row="2" Grid.Column="1" />
      </Grid>
-    </ScrollView>
+        </ScrollView>
+     
+    
+
+
 </ContentPage>
 
 <!--WidthRequest="1000"-->
