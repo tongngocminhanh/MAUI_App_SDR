@@ -134,7 +134,7 @@ namespace AppSDR.SdrDrawerLib
         public void DrawColumnNumber(ICanvas canvas, RectF dirtyRect, int column, float X)
         {
             // Start drawing from the bottom of the canvas
-            float canvasHeight = dirtyRect.Height - 100;
+            float canvasHeight = dirtyRect.Height - 90;
 
             canvas.Font = Font.DefaultBold;
             canvas.FontSize = 9;
