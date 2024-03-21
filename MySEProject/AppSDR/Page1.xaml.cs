@@ -5,6 +5,8 @@ namespace AppSDR;
 public partial class Page1 : ContentPage, INotifyPropertyChanged
 {
     public string[] EntryCellValues { get; set; }
+    double WidthRequest { get; set; }
+    double HeightRequest { get; set; }
     public Page1(int[][] activeCellsColumn, string[] entryCellValues)
     {
         InitializeComponent();
@@ -36,6 +38,7 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         }
 
         graphicsView.HeightRequest = maxCellValue / 10 + 200;
+        HeightRequest = graphicsView.HeightRequest;
 
         // Define horizontal screen size based on total SDR columns
         int max_xvalue = activeCellsColumn.Length;
@@ -45,13 +48,15 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         {
             Rectwidth = 20;
             Rectspacing = 10;
+            
             graphicsView.WidthRequest = 350 + max_xvalue*(Rectwidth + Rectspacing);
+            WidthRequest = graphicsView.WidthRequest;
         }
         else
         {
             Rectwidth = 5;
             Rectspacing = 2;
-            if (max_widthvalue < 12000)
+            if (max_widthvalue < 35000)
             {
                 graphicsView.WidthRequest = max_widthvalue;
             }
@@ -62,6 +67,8 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
 
         }
 
+        graphicsdrawable.widthRequest = (float)WidthRequest;
+        graphicsdrawable.heightRequest = (float)HeightRequest;
         graphicsdrawable.rectangleSpacing = Rectspacing;
         graphicsdrawable.rectangleWidth = Rectwidth;
         graphicsView.Invalidate();

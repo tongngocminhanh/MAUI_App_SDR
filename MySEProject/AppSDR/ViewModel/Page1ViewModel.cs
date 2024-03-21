@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Font = Microsoft.Maui.Graphics.Font;
+using AppSDR.SdrDrawerLib;
 
 namespace AppSDR.ViewModel
 {
@@ -25,9 +26,11 @@ namespace AppSDR.ViewModel
         // Access predefined data from GraphPara
         public float rectangleWidth { get; set; }
         public float rectangleSpacing { get; set; }
-
+        public float widthRequest { get; set; }
+        public float heightRequest { get; set; }
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
+            // Check if all needed 7 parameters are assigned
             if (GraphPara != null && GraphPara.Length >= 7)
             {
                 string graphName = null;
@@ -47,26 +50,38 @@ namespace AppSDR.ViewModel
                 if (!string.IsNullOrEmpty(GraphPara[5])) minRange = int.Parse(GraphPara[5]);
                 if (!string.IsNullOrEmpty(GraphPara[6])) maxRange = int.Parse(GraphPara[6]);
 
-                canvas.FillColor = Colors.WhiteSmoke;
-                canvas.FillRectangle(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height);
+                // Define drawing area
+                float left = dirtyRect.Width/2 - widthRequest / 2;
+                RectF rectangle = new RectF(left, 0, widthRequest, heightRequest);
 
-                canvas.FillColor = Colors.DarkBlue;
-                canvas.StrokeSize = 4;
+                // Assign drawing area to SdrDrawerLib
+                SdrDrawable drawable = new SdrDrawable(graphName,maxCycles,highlightTouch,xAxisTitle,yAxisTitle,minRange,maxRange);
+                drawable.DrawInnerBorder(canvas, dirtyRect);
 
-                canvas.FontColor = Colors.Black;
-                canvas.FontSize = 20;
+                // Draw the axis titles and graph name
+                drawable.IRect = rectangle;
+                drawable.DrawYAxis(canvas, rectangle);
 
+                // Condition for axises position for better view
+                if ((widthRequest < 35000) && (widthRequest > 1250))
+                {
+                    drawable.DrawXAxisExtend(canvas, rectangle);
+                    drawable.DrawNameExtend(canvas, rectangle);
+                }
+                else
+                {
+                    drawable.DrawXAxisFit(canvas, rectangle);
+                    drawable.DrawNameFit(canvas, rectangle);
+                }
+
+                // Start drawing from the bottom of the canvas
                 float canvasHeight = dirtyRect.Height - 100;
                 float canvasWidth = dirtyRect.Width;
 
-                //// Calculate the horizontal offset to center the drawing
+                // Calculate the horizontal offset to center the drawing
                 float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
-                canvas.DrawString($" {graphName}", x_canvas, 30, 200, 50, HorizontalAlignment.Center, VerticalAlignment.Top);
-                canvas.DrawString($" {xAxisTitle}", x_canvas, canvasHeight, 200, 70, HorizontalAlignment.Center, VerticalAlignment.Bottom);
-                canvas.DrawString($" {yAxisTitle}", x_canvas - 160, canvasHeight - 200, 200, 70, HorizontalAlignment.Left, VerticalAlignment.Center);
 
-                //// Start drawing from the bottom of the canvas
-                //// Draw tick marks on the left side
+                // Draw tick marks on the left side
                 float tickWidth = 10; // Width of the tick marks
                 float tickSpacing = 50; // Spacing between tick marks
                 float tickStartX = x_canvas - tickWidth; // X-coordinate of the tick marks
@@ -81,23 +96,26 @@ namespace AppSDR.ViewModel
                 }
 
                 // Loop through each rectangle
+                canvas.FillColor = Colors.DarkBlue;
+                canvas.StrokeSize = 4;
                 for (int t = 0; t < numTouch; t++)
                 {
                     float x = t * (rectangleWidth + rectangleSpacing) + x_canvas;
                     int maxCellValue = Vectors[t].Max() / 10;
 
                     int numberOfTicks = (int)(maxCellValue / tickSpacing);
-                    
+
+                    drawable.MaxCellValues = maxCellValue;
+                    drawable.RectangleWidth = rectangleWidth;
+                    drawable.RectangleSpacing = rectangleSpacing;
+                    drawable.XCanvas = x_canvas;
+
                     // Draw highlight of the wanted column
                     if (highlightTouch.HasValue)
                     {
                         if (highlightTouch == t)
-                        {    
-                            canvas.StrokeColor = Colors.Red;
-                            canvas.StrokeSize = 2;
-                            float y_height = canvasHeight - maxCellValue - 10;
-                            float x_highlight = ((highlightTouch ?? 0)) * (rectangleWidth + rectangleSpacing) + x_canvas;
-                            canvas.DrawRoundedRectangle(x_highlight, y_height, rectangleWidth + 5, maxCellValue + 20, 5);
+                        {
+                            drawable.DrawHighlight(canvas, rectangle, highlightTouch, maxCellValue);
                         }
                     }
 
@@ -109,7 +127,9 @@ namespace AppSDR.ViewModel
                         float rectangleHeight = 1;
                         foreach (int cell in Vectors[t])
                         {
-                            if ((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null) || (minRange == null && cell < maxRange) || (maxRange == null && cell > minRange))
+                            // Condition of min, max value range defined by users
+                            if ((cell > minRange && cell < maxRange) || (minRange == null && maxRange == null) || 
+                                (minRange == null && cell < maxRange) || (maxRange == null && cell > minRange))
 
                             {
                                 float y = canvasHeight - (cell / 10);
