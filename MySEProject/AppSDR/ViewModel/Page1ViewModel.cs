@@ -74,18 +74,7 @@ namespace AppSDR.ViewModel
                     drawable.DrawNameFit(canvas, rectangle);
                 }
 
-                // Start drawing from the bottom of the canvas
-                float canvasHeight = dirtyRect.Height - 100;
-                float canvasWidth = dirtyRect.Width;
-
-                // Calculate the horizontal offset to center the drawing
-                float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
-
-                // Draw tick marks on the left side
-                float tickWidth = 10; // Width of the tick marks
-                float tickSpacing = 50; // Spacing between tick marks
-                float tickStartX = x_canvas - tickWidth; // X-coordinate of the tick marks
-
+                // Assign number of columns
                 if (maxCycles <= Vectors.Length)
                 {
                     numTouch = maxCycles ?? 0;
@@ -95,27 +84,38 @@ namespace AppSDR.ViewModel
                     numTouch = Vectors.Length;
                 }
 
-                // Loop through each rectangle
+                // Start drawing from the bottom of the canvas
+                float canvasHeight = dirtyRect.Height - 100;
+                float canvasWidth = dirtyRect.Width;
+
+                // Calculate the horizontal offset to center the drawing
+                float x_canvas = (canvasWidth - (Vectors.Length * (rectangleWidth + rectangleSpacing))) / 2;
+
+                // Assign new parameters into SdrDrawer
+                drawable.RectangleWidth = rectangleWidth;
+                drawable.RectangleSpacing = rectangleSpacing;
+                drawable.XCanvas = x_canvas;
+
+                // Define the size of the tick
+                float tickWidth = 10; // Width of the tick marks
+                float tickSpacing = 50; // Spacing between tick marks
+
                 canvas.FillColor = Colors.DarkBlue;
                 canvas.StrokeSize = 4;
+                // Loop through each rectangle
                 for (int t = 0; t < numTouch; t++)
                 {
                     float x = t * (rectangleWidth + rectangleSpacing) + x_canvas;
                     int maxCellValue = Vectors[t].Max() / 10;
-
-                    int numberOfTicks = (int)(maxCellValue / tickSpacing);
-
-                    drawable.MaxCellValues = maxCellValue;
-                    drawable.RectangleWidth = rectangleWidth;
-                    drawable.RectangleSpacing = rectangleSpacing;
-                    drawable.XCanvas = x_canvas;
+                    
+                    drawable.DrawColumnNumber(canvas, dirtyRect, t, x);
 
                     // Draw highlight of the wanted column
                     if (highlightTouch.HasValue)
                     {
                         if (highlightTouch == t)
                         {
-                            drawable.DrawHighlight(canvas, rectangle, highlightTouch, maxCellValue);
+                            drawable.DrawHighlight(canvas, rectangle, highlightTouch, maxCellValue, tickSpacing);
                         }
                     }
 
@@ -156,29 +156,7 @@ namespace AppSDR.ViewModel
                         }
                     }
 
-                    canvas.Font = Font.DefaultBold;
-                    canvas.FontSize = 15;
-                    canvas.DrawString($" {t}", x, canvasHeight + 15, rectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
-
-                    // Loop through each cell in the current rectangle
-                    canvas.StrokeColor = Colors.Green;
-                    for (int i = 0; i <= numberOfTicks; i++)
-                    {
-                        // Calculate the y-coordinate for the current tick mark
-                        float tickY = canvasHeight - (i * tickSpacing);
-
-                        // Calculate the value associated with the current tick mark
-                        // Adjusted calculation to start from 0
-                        float tickValue = 10 * i * tickSpacing; 
-
-                        // Draw the tick mark
-                        canvas.DrawLine(tickStartX, tickY, tickStartX + tickWidth, tickY);
-
-                        // Draw the text label for the current tick mark
-                        canvas.FontSize = 10;
-                        canvas.FontColor = Colors.Black;
-                        canvas.DrawString(tickValue.ToString(), tickStartX - 30, tickY - 5, 50, 50, HorizontalAlignment.Left, VerticalAlignment.Top);
-                    }
+                    drawable.DrawTickMark(canvas, dirtyRect, maxCellValue, tickWidth, tickSpacing);
                 }
             }
         }
