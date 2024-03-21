@@ -85,7 +85,6 @@ namespace AppSDR.SdrDrawerLib
             canvas.DrawString($" {YAxisTitle}", TextX, TextY, TextWidth, TextHeight, HorizontalAlignment.Left, VerticalAlignment.Center);
             canvas.RestoreState();
         }
-
         public void DrawNameFit(ICanvas canvas, RectF IRect)
         {
             canvas.FontColor = Colors.Black;
@@ -132,14 +131,13 @@ namespace AppSDR.SdrDrawerLib
 
             canvas.DrawRoundedRectangle(x_highlight, y_highlight, RectangleWidth + 2, maxCellValue + 20, 5);
         }
-
         public void DrawColumnNumber(ICanvas canvas, RectF dirtyRect, int column, float X)
         {
             // Start drawing from the bottom of the canvas
             float canvasHeight = dirtyRect.Height - 100;
 
             canvas.Font = Font.DefaultBold;
-            canvas.FontSize = 8;
+            canvas.FontSize = 9;
             canvas.DrawString($" {column}", X, canvasHeight + 15, RectangleWidth, 30, HorizontalAlignment.Left, VerticalAlignment.Bottom);
         }
         public void DrawTickMark(ICanvas canvas, RectF dirtyRect, int maxCellValue, float tickWidth, float tickSpacing)

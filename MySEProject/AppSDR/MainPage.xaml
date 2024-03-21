@@ -16,7 +16,7 @@
             <Color x:Key="ButtonColor">#eab464
                 <!-- (220, 204, 187) -->
             </Color>
-            <Color x:Key="ButtonTextColor">#dcccbb</Color>
+            <Color x:Key="ButtonTextColor">#000</Color>
             <!-- (234, 180, 100) -->
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -59,27 +59,27 @@
 
                         <EntryCell x:Name="highlightTouchEntry"
                                    Label="Highlight touch"
-                                   Placeholder="Define the highlight touch column" 
+                                   Placeholder="Define the highlight touch column, start with column 0" 
                                    Text="{Binding HighlightTouch}"/>
                         
                         <EntryCell x:Name="xAxisTitleEntry"
                                    Label="X axis title"
-                                   Placeholder="x_axis title" 
+                                   Placeholder="Define x axis title" 
                                    Text="{Binding XaxisTitle}" />
                         
                         <EntryCell x:Name="yAxisTitleEntry"
                                    Label="Y axis title"
-                                   Placeholder="y_axis title" 
+                                   Placeholder="Define y axis title" 
                                    Text="{Binding YaxisTitle}" />
                         
                         <EntryCell x:Name="minRangeEntry"
                                    Label="Min range of cell"
-                                   Placeholder="min range of cell value" 
+                                   Placeholder="Assign minimum cell value" 
                                    Text="{Binding MinRange}" />
                         
                         <EntryCell x:Name="maxRangeEntry"
                                    Label="Max range of cell"
-                                   Placeholder="max range of cell value" 
+                                   Placeholder="Assign maximum cell value" 
                                    Text="{Binding MaxRange}" />
                     </TableSection>
                 </TableRoot>
