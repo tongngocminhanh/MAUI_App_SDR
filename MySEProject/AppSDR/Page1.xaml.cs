@@ -71,39 +71,7 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         graphicsView.Invalidate();
 
     }
-    //private async void Save(object sender, EventArgs e)
-    //{
-    //    // Capture the screenshot
-    //    IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
-
-    //    if (screenshotResult != null)
-    //    {
-    //        // Create an output filename
-    //        string targetFile = Path.Combine(FileSystem.AppDataDirectory, "test1.png");
-
-    //        try
-    //        {
-    //            // Copy the file to the AppDataDirectory
-    //            using (FileStream outputStream = File.Create(targetFile))
-    //            {
-    //                await screenshotResult.CopyToAsync(outputStream);
-    //            }
-
-    //            // Display a success message
-    //            await DisplayAlert("Success", "Screenshot saved successfully.", "OK");
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            // Display an error message if saving fails
-    //            await DisplayAlert("Error", $"Failed to save screenshot: {ex.Message}", "OK");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // Display a message if no screenshot was captured
-    //        await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
-    //    }
-    //}
+   
     private async void Save(object sender, EventArgs e)
     {
         // Capture the screenshot
