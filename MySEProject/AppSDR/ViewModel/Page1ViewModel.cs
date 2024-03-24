@@ -63,15 +63,15 @@ namespace AppSDR.ViewModel
                 drawable.DrawYAxis(canvas, rectangle);
 
                 // Condition for axises position for better view
-                if ((widthRequest < 35300) && (widthRequest > 1250))
-                {
-                    drawable.DrawXAxisExtend(canvas, rectangle);
-                    drawable.DrawNameExtend(canvas, rectangle);
-                }
-                else
+                if (widthRequest <=  1250)
                 {
                     drawable.DrawXAxisFit(canvas, rectangle);
                     drawable.DrawNameFit(canvas, rectangle);
+                }
+                else if (widthRequest < 35300)
+                {
+                    drawable.DrawXAxisExtend(canvas, rectangle);
+                    drawable.DrawNameExtend(canvas, rectangle);
                 }
 
                 // Assign number of columns

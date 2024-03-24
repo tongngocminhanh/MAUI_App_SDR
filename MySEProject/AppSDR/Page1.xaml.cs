@@ -42,7 +42,6 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
 
         // Define horizontal screen size based on total SDR columns
         int max_xvalue = activeCellsColumn.Length;
-        int max_widthvalue = activeCellsColumn.Length * 7 + 200;
 
         if (max_xvalue < 31)
         {
@@ -56,9 +55,10 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         {
             Rectwidth = 5;
             Rectspacing = 2;
-            if (max_widthvalue < 35300)
+            if (max_xvalue < 5100)
             {
-                graphicsView.WidthRequest = max_widthvalue;
+                graphicsView.WidthRequest = 200 + max_xvalue * (Rectwidth + Rectspacing);
+                WidthRequest = graphicsView.WidthRequest;
             }
             else
             {
