@@ -16,7 +16,7 @@ namespace AppSDR.SdrDrawerLib
         public float RectangleWidth { get; set; }
         public float RectangleSpacing { get; set; }
         public float XCanvas { get; set; }
-        public int[][] Vectors {  get; set; }
+
         // Constructor to initialize the properties
         public SdrDrawable(string graphName, int? maxCycles, int? highlightTouch, string xAxisTitle, string yAxisTitle, int? minRange, int? maxRange)
         {
@@ -27,7 +27,6 @@ namespace AppSDR.SdrDrawerLib
             YAxisTitle = yAxisTitle;
             MinRange = minRange;
             MaxRange = maxRange;
-
         }
         public void DrawInnerBorder(ICanvas canvas, RectF dirtyRect)
         {
@@ -49,7 +48,6 @@ namespace AppSDR.SdrDrawerLib
 
             canvas.DrawString($" {XAxisTitle}", TextX, TextY, TextWidth, TextHeight, HorizontalAlignment.Center, VerticalAlignment.Bottom);
         }
-
         public void DrawXAxisExtend(ICanvas canvas, RectF IRect)
         {
             canvas.FontColor = Colors.Gray;
@@ -78,7 +76,7 @@ namespace AppSDR.SdrDrawerLib
             float TextHeight = FontSize * 1.2f;
 
             // Define x,y position of yAxisTitle
-            float TextX = IRect.X + 30;
+            float TextX = IRect.X + 20;
             float TextY = IRect.Height / 2;
 
             canvas.Rotate(-90, TextX, TextY); // Rotate the canvas by -90 degrees
@@ -119,8 +117,7 @@ namespace AppSDR.SdrDrawerLib
 
             canvas.DrawString($" {GraphName}", textX, textY, textWidth, textHeight, HorizontalAlignment.Center, VerticalAlignment.Top);
         }
-
-        public void DrawHighlight(ICanvas canvas, RectF IRect, int? HightlightTouch, int maxCellValue, float tickSpacing)
+        public void DrawHighlight(ICanvas canvas, RectF IRect, int maxCellValue)
         {
             canvas.StrokeColor = Colors.Red;
             canvas.StrokeSize = 2;
@@ -163,7 +160,6 @@ namespace AppSDR.SdrDrawerLib
                 DrawTickLabel(canvas, tickValue, tickStartX, tickY);
             }
         }
-
         public void DrawTickLabel(ICanvas canvas, float tickValue, float tickStartX, float tickY)
         {
             // Draw the text label for the current tick mark
@@ -171,7 +167,6 @@ namespace AppSDR.SdrDrawerLib
             canvas.FontColor = Colors.Black;
             canvas.DrawString(tickValue.ToString(), tickStartX - 30, tickY - 5, 50, 50, HorizontalAlignment.Left, VerticalAlignment.Top);
         }
-
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             DrawInnerBorder(canvas, dirtyRect);

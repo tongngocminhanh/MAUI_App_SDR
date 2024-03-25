@@ -5,13 +5,13 @@
 ## Table of contents
 1. [Introduction](#introduction)
 2. [Important Links](#important-links)
-2. [Getting Started](#getting-started)
-3. [Implementation of MAUI App](#implementation-of-maui-app)
+3. [Getting Started](#getting-started)
+4. [Implementation of MAUI App](#implementation-of-maui-app)
     * [UI implementation](#ui-implementation)
     * [Logic implementation](#logic-implementation)
     * [SDR drawing library implementation](#sdr-drawing-library-implementation)
-4. [Testing and evaluation](#testing-and-evaluation)
-5. [References](#references)
+5. [Testing and evaluation](#testing-and-evaluation)
+6. [References](#references)
 
 ## Introduction
 .NET MAUI is a cross-platform framework, dealing with real-time problems. The foundation of MAUI is to simplify multiplatform app development. Within a single project, users can add the platform-specific source code and resources if needed. The scope of the project is to show the hardware and software requirements, how to implement the MAUI app, evaluate the test results, and provide possible improvements. In general, the project involves
@@ -25,7 +25,7 @@ Based on the previous reference of the SDR representation generating file - [dra
 1. SE Project Documentation: [PDF](https://github.com/tongngocminhanh/MAUI_App_SDR/tree/master/MySEProject/Documentation)<br/>
 2. UI implemenation files of Input Page, Text Input Page and Visualisation Page: [MainPage.xaml](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/MainPage.xaml), [TextEditorPage.xaml](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/TextEditorPage.xaml), [Page1.xaml](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/Page1.xaml)<br/>
 3. Logic implementation files of mentioned pages: [MainViewmodel.cs](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/ViewModel/MainViewModel.cs), [TextEditorPage.xaml.cs](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/TextEditorPage.xaml.cs), [Page1.xaml.cs](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/Page1.xaml.cs)<br/>
-4. SDR drawing library: [SDRDrawerLib]()<br/>
+4. SDR drawing library: [SDRDrawerLib](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/SdrDrawerLib/SdrDrawable.cs)<br/>
 5. Project solution: [MyProjectSample.sln](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/MyProjectSample.sln)
 
 ## Getting started
@@ -46,11 +46,121 @@ The project's idea is to draw SDR representations from users' SDR data and visua
 * Parameters to define the graphical output of the required representation. The program uses *Main Page* to collect the parameters, parsing them to *Text Editor Page* and *Page 1* depending on the user's intention.
 * An input text file (.txt) or sheet files (.csv) feeding the SDR data into the program. Another method to input SDR data is directly entering values from keyboards. In both cases, the data is parsed into *Page 1* for visualizing SDR representations with the help of the *SDRDrawerLib* library.
 
+The main structure for the app is illustrated by the following figure, in which all the attending pages are created with .NET MAUI ContenPage (XAML), *ViewModel* folder containing C# classes used for the logic behind, and *SdrDrawerLib*, a new library used for SDR drawing. Class *SdrDrawable* is in charge of configuring the visualization of SDR. This class is called on *Page 1*, as the drawing output is shown here. 
+
+<div style="text-align:center">
+  <img src="./Figures/AppStructure.jpg" title="app-structure" width=60%></img>
+</div><br>
+
 Details on implementation configuration and steps are explained in the next subsections.
 
 ### UI implementation
 ### Logic implementation
 ### SDR drawing library implementaion
+
+<div style="text-align:center">
+  <img src="./Figures/SdrComponents.png" title="sdr-components" width=120%></img>
+</div><br>
+
+```csharp
+namespace AppSDR.SdrDrawerLib
+{
+    public class SdrDrawable : BindableObject, IDrawable, INotifyPropertyChanged
+    {
+        public RectF IRect { get; set; }
+        public string GraphName { get; set; }
+        public int? MaxCycles { get; set; }
+        public int? HighlightTouch { get; set; }
+        public string XAxisTitle { get; set; }
+        public string YAxisTitle { get; set; }
+        public int? MinRange { get; set; }
+        public int? MaxRange { get; set; }
+        public float RectangleWidth { get; set; }
+        public float RectangleSpacing { get; set; }
+        public float XCanvas { get; set; }
+
+        // Constructor to initialize the properties
+        public SdrDrawable(string graphName, int? maxCycles, int? highlightTouch, string xAxisTitle, string yAxisTitle, int? minRange, int? maxRange)
+        {
+            GraphName = graphName;
+            MaxCycles = maxCycles;
+            HighlightTouch = highlightTouch;
+            XAxisTitle = xAxisTitle;
+            YAxisTitle = yAxisTitle;
+            MinRange = minRange;
+            MaxRange = maxRange;
+        }
+
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            // Code for drawing...
+            // ...
+        }
+    }
+}
+```
+
+```csharp
+        public void DrawInnerBorder(ICanvas canvas, RectF dirtyRect)
+        {
+            // Code for drawing inner border...
+            // ...
+        }
+
+        public void DrawXAxisFit(ICanvas canvas, RectF IRect)
+        {
+            // Code for drawing X axis fit...
+            // ...
+        }
+
+        public void DrawXAxisExtend(ICanvas canvas, RectF IRect)
+        {
+            // Code for drawing X axis extend...
+            // ...
+        }
+
+        public void DrawYAxis(ICanvas canvas, RectF IRect)
+        {
+            // Code for drawing Y axis...
+            // ...
+        }
+
+        public void DrawNameFit(ICanvas canvas, RectF IRect)
+        {
+            // Code for drawing name fit...
+            // ...
+        }
+
+        public void DrawNameExtend(ICanvas canvas, RectF IRect)
+        {
+            // Code for drawing name extend...
+            // ...
+        }
+
+        public void DrawHighlight(ICanvas canvas, RectF IRect, int maxCellValue)
+        {
+            // Code for drawing highlight...
+            // ...
+        }
+
+        public void DrawColumnNumber(ICanvas canvas, RectF dirtyRect, int column, float X)
+        {
+            // Code for drawing column number...
+            // ...
+        }
+
+        public void DrawTickMark(ICanvas canvas, RectF dirtyRect, int maxCellValue, float tickWidth, float tickSpacing)
+        {
+            // Code for drawing tick mark...
+            // ...
+        }
+
+        public void DrawTickLabel(ICanvas canvas, float tickValue, float tickStartX, float tickY)
+        {
+            // Code for drawing tick label...
+            // ...
+        }
+```
 ## Testing and evaluation
 
 In this project, we have successfully implemented the MAUI app for visualizing SDR representation. Users can set the wanted parameters for the configuration of the graph. They also can input the file with the extension "CSV, TXT" containing data of Active Cells Columns, for visualization. For further improvement, the draw function in this App could be generated into one MAUI library and applied to other purposes.
@@ -58,4 +168,5 @@ In this project, we have successfully implemented the MAUI app for visualizing S
 ## References
 
 [Documentaion on MAUI creation and configuration ](https://learn.microsoft.com/en-us/dotnet/maui/?view=net-maui-8.0)
+
 [Example videos of building the first MAUI app ](https://www.youtube.com/playlist?list=PLdo4fOcmZ0oUBAdL2NwBpDs32zwGqb9DY)

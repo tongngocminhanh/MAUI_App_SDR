@@ -92,7 +92,7 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
                 }
 
                 string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string desktopFilePath = Path.Combine(desktopDirectory, "test.png");
+                string desktopFilePath = Path.Combine(desktopDirectory, $"{EntryCellValues[7]}.png");
 
                 // Copy the file from the AppDataDirectory to the desktop
                 File.Copy(targetFile, desktopFilePath, true);

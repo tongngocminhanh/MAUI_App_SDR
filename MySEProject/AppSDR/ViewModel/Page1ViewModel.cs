@@ -113,7 +113,7 @@ namespace AppSDR.ViewModel
                     {
                         if (highlightTouch == t)
                         {
-                            drawable.DrawHighlight(canvas, rectangle, highlightTouch, maxCellValue, tickSpacing);
+                            drawable.DrawHighlight(canvas, rectangle, maxCellValue);
                         }
                     }
 
