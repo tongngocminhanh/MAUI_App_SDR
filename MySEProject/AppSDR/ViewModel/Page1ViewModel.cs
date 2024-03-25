@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Font = Microsoft.Maui.Graphics.Font;
 using AppSDR.SdrDrawerLib;
 
 namespace AppSDR.ViewModel
