@@ -169,12 +169,13 @@ namespace AppSDR.SdrDrawerLib
         }
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
+            // Basic drawing function when called Draw
             DrawInnerBorder(canvas, dirtyRect);
             DrawNameFit(canvas, dirtyRect); 
             DrawXAxisExtend(canvas, IRect);
             DrawYAxis(canvas, IRect);
             DrawNameFit(canvas, IRect);
-            DrawNameExtend(canvas, IRect);;
+            DrawNameExtend(canvas, IRect);
         }
     }
 }

@@ -19,14 +19,15 @@
 * Modify the logic behind the UI elements, showing how the data binds together and being processed.
 * Generate and implement an SDR drawing library to visualize the input data based on requirements. The library contains multiple functions used to clarify the content of the output. Therefore, for future improvements, developers can handle the library better. 
 
-Based on the previous reference of the SDR representation generating file - [draw_figure.py](./Python/ColumnActivityDiagram/draw_figure.py), the requirements are to create a MAUI app that could draw the similar SDR representation as the mentioned file. The result is directly loaded on the app UI, not in another HTML file. The app input can handle specific formats for files: CSV and TXT, and types for parameters: string, and numbers. Evaluations are made on "Windows machine" because of the bigger, better view and simple operation. 
+Based on the previous reference of the SDR representation generating file - [draw_figure.py](../../Python/ColumnActivityDiagram/draw_figure.py), the requirements are to create a MAUI app that could draw the similar SDR representation as the mentioned file. The result is directly loaded on the app UI, not in another HTML file. The app input can handle specific formats for files: CSV and TXT, and types for parameters: string, and numbers. Evaluations are made on "Windows machine" because of the bigger, better view and simple operation. 
 
 ## Important links
-1. SE Project Documentation: [PDF](https://github.com/tongngocminhanh/MAUI_App_SDR/tree/master/MySEProject/Documentation)<br/>
-2. UI implemenation files of Input Page, Text Input Page and Visualisation Page: [MainPage.xaml](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/MainPage.xaml), [TextEditorPage.xaml](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/TextEditorPage.xaml), [Page1.xaml](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/Page1.xaml)<br/>
-3. Logic implementation files of mentioned pages: [MainViewmodel.cs](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/ViewModel/MainViewModel.cs), [TextEditorPage.xaml.cs](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/TextEditorPage.xaml.cs), [Page1.xaml.cs](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/Page1.xaml.cs)<br/>
-4. SDR drawing library: [SDRDrawerLib](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/AppSDR/SdrDrawerLib/SdrDrawable.cs)<br/>
-5. Project solution: [MyProjectSample.sln](https://github.com/tongngocminhanh/MAUI_App_SDR/blob/master/MySEProject/MyProjectSample.sln)
+1. SE Project Documentation: [PDF](./ML22-23-8%20Implement%20the%20SDR%20representation%20in%20the%20MAUI%20application.docx)<br/>
+2. UI implemenation files of Input Page, Text Input Page and Visualisation Page: [MainPage.xaml](../AppSDR/MainPage.xaml), [TextEditorPage.xaml](../AppSDR/TextEditorPage.xaml), [Page1.xaml](../AppSDR/Page1.xaml)<br/>
+3. Logic implementation files of mentioned pages, in View Model: [MainViewmodel.cs](../AppSDR/ViewModel/MainViewModel.cs), [Page1ViewModel.cs](../AppSDR/ViewModel/Page1ViewModel.cs)
+4. Logic implementation files of mentioned pages, in Model: [MainPage.cs](../AppSDR/MainPage.xaml.cs), [TextEditorPage.xaml.cs](../AppSDR/TextEditorPage.xaml.cs), [Page1.xaml.cs](../AppSDR/Page1.xaml.cs)<br/>
+5. SDR drawing file: [SDRDrawerable.cs](../AppSDR/SdrDrawerLib/SdrDrawable.cs)<br/>
+6. Project solution: [MyProjectSample.sln](../MyProjectSample.sln)
 
 ## Getting started
 The project integrates the latest update; therefore, the suggestion is to install at least the following version of IDE, text editor, and MAUI.
@@ -58,9 +59,16 @@ Details on implementation configuration and steps are explained in the next subs
 ### Logic implementation
 ### SDR drawing library implementaion
 
-<div style="text-align:center">
-  <img src="./Figures/SdrComponents.png" title="sdr-components" width=120%></img>
-</div><br>
+Class *SdrDrawable()* is the SDR drawing c# class, included in folder *SdrDrawerLib* of *AppSDR*. For drawing properties, this class uses two libraries as in the following figure. *System.ComponentModel* is used for any changing variables, and *Microsoft.Maui.Graphics* is used for specifying the *Font* internal variable, and allows the ICanvas drawing interface. 
+
+```csharp
+using System.ComponentModel;
+using Font = Microsoft.Maui.Graphics.Font;
+```
+
+Seven parameters need to be initialized when the class is first called in the project. They are *GraphName, MaxCycles, and HighlightTouch, XAxisTitle, YAxisTitle, MinRange, and MaxRange*. These are not normally changed. In addition, there are four public variables, that can be assigned later when needed. The initialization of variables is shown below. They can be changed multiple times.
+
+The *Draw(canvas, dirtyRect)* is the primary function, must-generated when assigning *SdrDrawable()* with the *IDrawable* interface. This function includes primary functions, depending only on the initial parameters. When this function is called, all functions defined are executed.
 
 ```csharp
 namespace AppSDR.SdrDrawerLib
@@ -93,73 +101,99 @@ namespace AppSDR.SdrDrawerLib
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
-            // Code for drawing...
-            // ...
+            // Basic drawing functions when called Draw()
+            DrawInnerBorder(canvas, dirtyRect);
+            DrawNameFit(canvas, dirtyRect); 
+            DrawXAxisExtend(canvas, IRect);
+            DrawYAxis(canvas, IRect);
+            DrawNameFit(canvas, IRect);
+            DrawNameExtend(canvas, IRect);
         }
+
+        // Further code ...
     }
 }
 ```
+After initialization of the used parameter, next is the multiple distinguished drawing functions. Necessary parameters are defined on the method signature. The components include specifications as: the availability of the function, *public void* in this case, the function name, and used-parameter names along with their types. All of the created drawing functions are shown below.
 
 ```csharp
         public void DrawInnerBorder(ICanvas canvas, RectF dirtyRect)
         {
             // Code for drawing inner border...
-            // ...
         }
 
         public void DrawXAxisFit(ICanvas canvas, RectF IRect)
         {
             // Code for drawing X axis fit...
-            // ...
         }
 
         public void DrawXAxisExtend(ICanvas canvas, RectF IRect)
         {
             // Code for drawing X axis extend...
-            // ...
         }
 
         public void DrawYAxis(ICanvas canvas, RectF IRect)
         {
             // Code for drawing Y axis...
-            // ...
         }
 
         public void DrawNameFit(ICanvas canvas, RectF IRect)
         {
             // Code for drawing name fit...
-            // ...
         }
 
         public void DrawNameExtend(ICanvas canvas, RectF IRect)
         {
             // Code for drawing name extend...
-            // ...
         }
 
         public void DrawHighlight(ICanvas canvas, RectF IRect, int maxCellValue)
         {
             // Code for drawing highlight...
-            // ...
         }
 
         public void DrawColumnNumber(ICanvas canvas, RectF dirtyRect, int column, float X)
         {
             // Code for drawing column number...
-            // ...
         }
 
         public void DrawTickMark(ICanvas canvas, RectF dirtyRect, int maxCellValue, float tickWidth, float tickSpacing)
         {
             // Code for drawing tick mark...
-            // ...
         }
 
         public void DrawTickLabel(ICanvas canvas, float tickValue, float tickStartX, float tickY)
         {
             // Code for drawing tick label...
-            // ...
         }
+```
+The primary idea of all drawing functions is based on three *ICanvas* methods:
+* DrawString(string value, float x, float y, HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment)
+* DrawRectangle(float x, float y, float width, float height)
+* DrawRoundedRectangle(float x, float y, float width, float height, float cornerRadius)
+
+The parameters are understood as below. The parameters are calculated and defined within the functions. For a detailed description of each function, please check the following [SdrDrawable.cs](../AppSDR/SdrDrawerLib/SdrDrawable.cs)
+* *x, y* for the drawing position, with *x* for the horizontal axis, and *y* for the vertical axis.
+* *width, height* for the size of the text or rectangle.
+* *cornerRadius* defines how round the corners of a rectangle.
+* *horizontalAlignment, verticalAlignment* specify the text-align on each axis.
+
+The overview of the library is shown in the next figure. The graph has the *X axis title* at the center bottom of the screen, while the *Graph Name* is at the center top of the screen. The *Y axis title* is rotated anti-clockwise 90 degrees, placed at the right center of the graph. There are numbers specifying all the columns, division of the vertical axis (tick marks and division numbers), and the highlight column as specified. 
+
+<div style="text-align:center">
+  <img src="./Figures/SdrComponents.png" title="sdr-components" width=120%></img>
+</div><br>
+
+To be used in the project, called in *Page1ViewModel.cs*, include the library in the c# file. The library name is the namespace where it is used.
+```csharp
+using AppSDR.SdrDrawerLib;
+```
+
+Then in the main loop, assign a name class for *SdrDrawable*. All the initial parameters must be defined. Functions in the class can be called in logic file like in the example below. 
+
+```csharp
+SdrDrawable drawable = new SdrDrawable(graphName,maxCycles,highlightTouch,xAxisTitle,yAxisTitle,minRange,maxRange);
+drawable.Draw(canvas, dirtyRect)
 ```
 ## Testing and evaluation
 
