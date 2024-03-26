@@ -40,7 +40,7 @@ Detailed information can be found on [MySEProject](https://github.com/tongngocmi
 When building a .NET MAUI app, developers could work on one specific platform, normally Windows. To display on other platforms, .NET MAUI auto-generates the compatible code for that platform. For this project, specification on Windows is provided, based on the general architecture below.
 
 <div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/General Architecture of App SDR.jpg" title="general-architecture-of-app-sdr" width=700px></img>
+  <img src="./Figures/General Architecture of App SDR.jpg" title="general-architecture-of-app-sdr" width=60%></img>
 </div><br>
 
 The project's idea is to draw SDR representations from users' SDR data and visualization specifications. Therefore, users must input the program in two orders: 
