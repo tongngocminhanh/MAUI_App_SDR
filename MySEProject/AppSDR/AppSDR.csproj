@@ -56,8 +56,8 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.6" />
-		<PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.6" />
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.14" />
+		<PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.14" />
 		<Compile Update="TextEditorPage.xaml.cs">
 			<DependentUpon>TextEditorPage.xaml</DependentUpon>
 		</Compile>
@@ -70,7 +70,11 @@
 		<MauiXaml Update="Page1.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<PackageReference Update="Microsoft.Maui.Controls" Version="8.0.6" />
+		<PackageReference Update="Microsoft.Maui.Controls" Version="8.0.14" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.14" />
 	</ItemGroup>
 
 </Project>

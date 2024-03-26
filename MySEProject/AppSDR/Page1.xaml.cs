@@ -42,7 +42,6 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
 
         // Define horizontal screen size based on total SDR columns
         int max_xvalue = activeCellsColumn.Length;
-        int max_widthvalue = activeCellsColumn.Length * 7 + 200;
 
         if (max_xvalue < 31)
         {
@@ -56,9 +55,10 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         {
             Rectwidth = 5;
             Rectspacing = 2;
-            if (max_widthvalue < 35000)
+            if (max_xvalue < 5100)
             {
-                graphicsView.WidthRequest = max_widthvalue;
+                graphicsView.WidthRequest = 200 + max_xvalue * (Rectwidth + Rectspacing);
+                WidthRequest = graphicsView.WidthRequest;
             }
             else
             {
@@ -72,6 +72,45 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         graphicsdrawable.rectangleSpacing = Rectspacing;
         graphicsdrawable.rectangleWidth = Rectwidth;
         graphicsView.Invalidate();
+    }
+
+    private async void Save(object sender, EventArgs e)
+    {
+        // Capture the screenshot
+        IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
+
+        if (screenshotResult != null)
+        {
+            // Create an output filename
+            string targetFile = Path.Combine(FileSystem.AppDataDirectory, "test4.png");
+
+            try
+            {
+                using (FileStream outputStream = File.Create(targetFile))
+                {
+                    await screenshotResult.CopyToAsync(outputStream);
+                }
+
+                string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string desktopFilePath = Path.Combine(desktopDirectory, $"{EntryCellValues[7]}.png");
+
+                // Copy the file from the AppDataDirectory to the desktop
+                File.Copy(targetFile, desktopFilePath, true);
+
+                // Display a success message
+                await DisplayAlert("Success", "Screenshot saved to desktop successfully.", "OK");
+            }
+            catch (Exception ex)
+            {
+                // Display an error message if saving fails
+                await DisplayAlert("Error", $"Failed to save screenshot to desktop: {ex.Message}", "OK");
+            }
+        }
+        else
+        {
+            // Display a message if no screenshot was captured
+            await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
+        }
     }
 
     private async void BackToMainPageButton_Clicked(object sender, EventArgs e)

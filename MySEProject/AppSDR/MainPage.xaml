@@ -81,6 +81,11 @@
                                    Label="Max range of cell"
                                    Placeholder="Assign maximum cell value" 
                                    Text="{Binding MaxRange}" />
+
+                        <EntryCell x:Name="savedFigureName"
+                                   Label="Saved figure name"
+                                   Placeholder="Assign a name when save representation" 
+                                   Text="{Binding SavedName}" />
                     </TableSection>
                 </TableRoot>
             </TableView>

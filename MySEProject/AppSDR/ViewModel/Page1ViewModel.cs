@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Font = Microsoft.Maui.Graphics.Font;
 using AppSDR.SdrDrawerLib;
 
 namespace AppSDR.ViewModel
@@ -63,15 +62,15 @@ namespace AppSDR.ViewModel
                 drawable.DrawYAxis(canvas, rectangle);
 
                 // Condition for axises position for better view
-                if ((widthRequest < 35000) && (widthRequest > 1250))
-                {
-                    drawable.DrawXAxisExtend(canvas, rectangle);
-                    drawable.DrawNameExtend(canvas, rectangle);
-                }
-                else
+                if (widthRequest <=  1250)
                 {
                     drawable.DrawXAxisFit(canvas, rectangle);
                     drawable.DrawNameFit(canvas, rectangle);
+                }
+                else if (widthRequest < 35300)
+                {
+                    drawable.DrawXAxisExtend(canvas, rectangle);
+                    drawable.DrawNameExtend(canvas, rectangle);
                 }
 
                 // Assign number of columns
@@ -100,8 +99,6 @@ namespace AppSDR.ViewModel
                 float tickWidth = 10; // Width of the tick marks
                 float tickSpacing = 50; // Spacing between tick marks
 
-                canvas.FillColor = Colors.DarkBlue;
-                canvas.StrokeSize = 4;
                 // Loop through each rectangle
                 for (int t = 0; t < numTouch; t++)
                 {
@@ -115,12 +112,15 @@ namespace AppSDR.ViewModel
                     {
                         if (highlightTouch == t)
                         {
-                            drawable.DrawHighlight(canvas, rectangle, highlightTouch, maxCellValue, tickSpacing);
+                            drawable.DrawHighlight(canvas, rectangle, maxCellValue);
                         }
                     }
 
                     // Check if the majority value is less than 500
                     bool majorityLessThan500 = Vectors[t].Count(value => value < 500) > Vectors[t].Length / 2;
+                    
+                    canvas.FillColor = Colors.DarkBlue;
+                    canvas.StrokeSize = 4;
 
                     if (majorityLessThan500)
                     {
@@ -134,7 +134,8 @@ namespace AppSDR.ViewModel
                             {
                                 float y = canvasHeight - (cell / 10);
 
-                                // Draw the rectangle
+                                // Draw the SDR cell value
+                               
                                 canvas.FillRectangle(x, y, rectangleWidth, rectangleHeight);
                             }
                         }

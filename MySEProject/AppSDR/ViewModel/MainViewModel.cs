@@ -32,6 +32,22 @@ namespace AppSDR.ViewModel
             }
         }
 
+        private string _savedName;
+        public string SavedName
+        {
+            get => _savedName;
+            set
+            {
+                if (_savedName != value)
+                {
+                    _savedName = value;
+                    OnPropertyChanged(nameof(SavedName)); // Raise PropertyChanged event
+                    (SubmitCommand as Command).ChangeCanExecute();
+                    (AddTextCommand as Command).ChangeCanExecute();
+                }
+            }
+        }
+
         private string _maxCycles;
         public string MaxCycles
         {
@@ -162,7 +178,7 @@ namespace AppSDR.ViewModel
                     return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || 
                             !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || 
                             !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || 
-                            !string.IsNullOrEmpty(MaxCycles);
+                            !string.IsNullOrEmpty(MaxCycles) || !string.IsNullOrEmpty(SavedName);
                 });
 
             SubmitCommand = new Command(
@@ -175,8 +191,7 @@ namespace AppSDR.ViewModel
                     return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || 
                             !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || 
                             !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || 
-                            !string.IsNullOrEmpty(MaxCycles)
-                    ;
+                            !string.IsNullOrEmpty(MaxCycles) || !string.IsNullOrEmpty(MaxCycles);
                 });
 
         }
@@ -236,7 +251,7 @@ namespace AppSDR.ViewModel
 
         private async void AddText(string[] entryCellValues)
         {
-            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
             await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
         }
 
@@ -252,7 +267,7 @@ namespace AppSDR.ViewModel
 
                     // Parse the file content and construct activeCellsArray
                     int[][] activeCellsArray = ParseFileContent(fileContent);
-                    string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange };
+                    string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
 
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
                     await NavigateToPage1(EntryCellValues, activeCellsArray);
