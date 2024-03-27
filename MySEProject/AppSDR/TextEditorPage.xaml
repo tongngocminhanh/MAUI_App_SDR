@@ -17,9 +17,7 @@
                 </Grid.RowDefinitions>
                 
                 <!-- Instruction of manually adding SDR values-->
-                <Label Text="Enter SDR values. 
-                       Each SDR value is separated by a comma 
-                       and each SDR column is separated by &quot;Enter&quot; to the new line"
+                <Label Text="Enter SDR values. Each SDR value is separated by a comma and each SDR column is separated by &quot;Enter&quot; to the new line"
                        Grid.Row="1"
                        FontSize="15"
                        FontAttributes="Italic"/>
@@ -37,7 +35,7 @@
             </Grid>
         </ScrollView>
         
-        <!-- Navigate back to MainPage -->
+        <!-- Navigate back to Main Page -->
         <Button Text="BACK TO MAINPAGE" Clicked="OnBackToMainPageClicked" Grid.Row="4" />
         
     </StackLayout>

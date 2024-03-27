@@ -210,7 +210,7 @@ namespace AppSDR.ViewModel
                     { DevicePlatform.Android, new[] {".txt", ".csv" } }, 
                     { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
                     { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
-                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }, 
+                    { DevicePlatform.macOS, new[] {".txt", ".csv" } } 
                 });
 
 
@@ -230,6 +230,7 @@ namespace AppSDR.ViewModel
             {
                 // Handle exception
                 Console.WriteLine($"File picking error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
             }
         }
 

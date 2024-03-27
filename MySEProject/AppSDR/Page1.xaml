@@ -6,28 +6,32 @@
              xmlns:viewmodel="clr-namespace:AppSDR.ViewModel"
              Title="Page1">
 
-
+    <!-- Define the resouces used in this xaml -->
     <ContentPage.Resources>
         <local:Page1ViewModel x:Key="drawable"/>
     </ContentPage.Resources>
 
     <ScrollView Orientation="Both" HorizontalScrollBarVisibility="Always">
         <Grid ColumnDefinitions="Auto,*">
-
+            <!-- Define charateristic of all elements in the grid -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+
+            <!-- Present the visualization via GraphicsView -->
             <GraphicsView Drawable="{StaticResource drawable}"
-                         
                           Grid.Column="1"
                           Grid.Row="0"
                           x:Name="DrawableView"/>
-
+            
+            <!-- Buttons -->
+            <!-- Navigate to Main Page-->
             <Button Text="BACK TO MAINPAGE" Clicked="BackToMainPageButton_Clicked"
                     Grid.Row="1" Grid.Column="1" />
-
+            
+            <!-- Save method-->
             <Button Text="Save as Picture" Clicked="Save"
                     Grid.Row="2" Grid.Column="1" />
         </Grid>
