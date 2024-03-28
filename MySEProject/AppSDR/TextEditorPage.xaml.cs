@@ -3,15 +3,10 @@ namespace AppSDR
     public partial class TextEditorPage : ContentPage
     {
         public string[] EntryCellValues { get; set; }
-
         public TextEditorPage(string[] entryCellValues)
         {
             InitializeComponent();
             EntryCellValues = entryCellValues;
-        }
-        private async void OnBackToMainPageClicked(object sender, EventArgs e)
-        {
-            await Navigation.PopModalAsync(); // Navigate back to the MainPage
         }
         private async void OnSaveClicked(object sender, EventArgs e)
         {
@@ -90,6 +85,9 @@ namespace AppSDR
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Please input SDR");
             }
         }
-
+        private async void OnBackToMainPageClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopModalAsync(); // Navigate back to the MainPage
+        }
     }
 }

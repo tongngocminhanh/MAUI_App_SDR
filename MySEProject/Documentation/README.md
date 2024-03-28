@@ -299,6 +299,35 @@ drawable.Draw(canvas, dirtyRect)
 ```
 
 ### Logic implementation
+There are five c# files in charge of configuring the logic behind three UI files. The general structure is shown in the figure below.
+* Each UI file in standard has one corresponding c# file, here is *MainPage.xaml.cs*, *TextEditorPage.xaml.cs*, and *Page1.xaml.cs*. If the logic is simple and needs basic connections within the project, logic implementation is directly on those files, *TextEditorPage.xaml.cs*. 
+* However, for more complex data processing, it is suggested to use The *Model-View-ViewModel* MVVM Pattern, here are *MainViewModel.cs*, and *Page1ViewModel.cs*
+
+<div style="text-align:center; background:white;">
+  <img src="./Figures/StructureLogic.png" title="sdr-components" width=80%></img>
+</div><br>
+
+1. First, *MainPage()*, and *MainViewModel()* classes are discussed.
+* *MainPage()* has the responsibilty of initializing all the components in corresponding UI, and parsing all binding context to *MainViewMode()*. To access the *ViewModel* pattern, it must be included.
+* *MainViewModel()* works on the binding parsed parameters; therefore, interface *INotifyPropertyChanged* is implemented within the class. These parameters must be initialized and then processed. The participating functions involve file selection, form input, and submission. 
+* The *ChooseFile()* method enables users to select a text file from their device using *Xamarin.Forms' FilePicker API*. It gracefully handles any exceptions during file picking and alerts users of errors. Properties like graph names, axis titles, and ranges store user input for visualization parameters. They automatically update the UI through the *OnPropertyChanged* event.
+* *AddText()* creates an array of entry cell values and navigates to a *Text Editor Page* for text editing when users want to input text data.
+* *Submit()* processes form submission by reading the selected file's content, parsing it into a 2D array of integers, and preparing data and navigate to *Page 1*. It alerts users if no file is selected.
+* *ParseFileContent()* parses the file content into a 2D array of integers, validating rows to include only those with at least one non-zero value. It handles parsing errors by throwing exceptions, ensuring reliable data handling.
+
+2. Next, *Page1()*, and *Page1ViewModel()* classes are discussed.
+* Width adjustment in the Page1 class is calculated according to the number of SDR columns present in the dataset. Different configurations are applied for smaller and larger datasets to optimize the visualization's display.
+* *Save()* allows users to capture and save a screenshot of the visualization. Robust error handling is integrated to manage potential failures during the saving process, ensuring a seamless user experience.
+* The *BackToMainPageButton_Clicked()* handles navigation back to the main page of the application, providing users with an intuitive way to transition between different sections of the app.
+
+* The *Page1ViewModel()* implements the *IDrawable* interface and inherits from *BindableObject* and *INotifyPropertyChanged* to facilitate data binding and property change notifications.
+* The *Draw()* method is responsible for rendering the visualization on the canvas. It retrieves the graph parameters and SDR vectors, calculates the dimensions of the drawing area, and then utilizes the SdrDrawable class to draw the visualization elements.
+* The method iterates through each SDR column, determining the height and position of each rectangle based on the cell values. It also handles highlighting of specific columns and draws tick marks and axis titles for better visualization.
+* Conditional logic is applied to adjust the visualization based on the size of the canvas and the provided data parameters, ensuring optimal display regardless of the dataset's characteristics.
+
+3. Third, *TextEditorPage()* class is discussed.
+* The *OnSaveClicked* function orchestrates actions when the save button is clicked. It first checks for empty content and prompts the user if necessary. Then, it parses the content into a 2D integer array, ensuring non-zero rows. After successful parsing, it presents a success alert and navigates to the next page. Exception handling is in place to promptly notify users of any encountered errors.
+* The *OnBackToMainPageClicked* function responds to the back button click event by initiating navigation back to the MainPage of the application. Its primary role is to facilitate seamless navigation, allowing users to return to the main interface effortlessly.
 
 ## Testing and evaluation
 
