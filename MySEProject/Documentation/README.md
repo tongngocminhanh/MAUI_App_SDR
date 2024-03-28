@@ -311,8 +311,8 @@ There are five c# files in charge of configuring the logic behind three UI files
 * *MainPage()* has the responsibilty of initializing all the components in corresponding UI, and parsing all binding context to *MainViewMode()*. To access the *ViewModel* pattern, it must be included.
 * *MainViewModel()* works on the binding parsed parameters; therefore, interface *INotifyPropertyChanged* is implemented within the class. These parameters must be initialized and then processed. The participating functions involve file selection, form input, and submission. 
 * The *ChooseFile()* method enables users to select a text file from their device using *Xamarin.Forms' FilePicker API*. It gracefully handles any exceptions during file picking and alerts users of errors. Properties like graph names, axis titles, and ranges store user input for visualization parameters. They automatically update the UI through the *OnPropertyChanged* event.
-* *AddText()* creates an array of entry cell values and navigates to a *Text Editor Page* for text editing when users want to input text data.
-* *Submit()* processes form submission by reading the selected file's content, parsing it into a 2D array of integers, and preparing data and navigate to *Page 1*. It alerts users if no file is selected.
+* *AddText()* creates an array of entry cell values and navigates to a *Text Editor Page* for text editing when users want to input text data. This function is valid only when the first 7 parameters are entered.
+* *Submit()* processes form submission by reading the selected file's content, parsing it into a 2D array of integers, and preparing data and navigate to *Page 1*. It alerts users if no file is selected. This function is valid only when the first 7 parameters are entered.
 * *ParseFileContent()* parses the file content into a 2D array of integers, validating rows to include only those with at least one non-zero value. It handles parsing errors by throwing exceptions, ensuring reliable data handling.
 
 2. Next, *Page1()*, and *Page1ViewModel()* classes are discussed.
