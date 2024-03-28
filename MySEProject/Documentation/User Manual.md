@@ -49,7 +49,7 @@ After the installation step, the following screen is shown when opening the solu
   <img src="./Figures/MainPage.jpg" title="main-page-representation" width=80%></img>
 </div><br>
 
-* Only button *Choose a text file* is available for clicking, because none of the needed parameters are defined. After inserting all parameters, all button works. 
+* Only button *Choose a text file* is available for clicking, because none of the needed parameters are defined. After inserting the first 7 parameters, all button works. *Saved figure name* is optional.
 
 * As configuration, there are two types to define the parameters. For *Graph name, Max cycles, Highlight Touch, Min range of cell, Max range of cell*, entered values are only numbers. The rest could be entered with text and number operated as string type. 
 

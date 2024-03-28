@@ -2,7 +2,7 @@ using AppSDR.ViewModel;
 using System.ComponentModel;
 
 namespace AppSDR;
-public partial class Page1 : ContentPage, INotifyPropertyChanged
+public partial class Page1 : ContentPage
 {
     public string[] EntryCellValues { get; set; }
     double WidthRequest { get; set; }
@@ -73,7 +73,6 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
         graphicsdrawable.rectangleWidth = Rectwidth;
         graphicsView.Invalidate();
     }
-
     private async void Save(object sender, EventArgs e)
     {
         // Capture the screenshot
@@ -112,7 +111,6 @@ public partial class Page1 : ContentPage, INotifyPropertyChanged
             await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
         }
     }
-
     private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
     {
         await Navigation.PopModalAsync(); // Navigate back to the MainPage

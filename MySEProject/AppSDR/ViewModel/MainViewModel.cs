@@ -175,10 +175,19 @@ namespace AppSDR.ViewModel
 
                 canExecute: () =>
                 {
-                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || 
-                            !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || 
-                            !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || 
-                            !string.IsNullOrEmpty(MaxCycles) || !string.IsNullOrEmpty(SavedName);
+                    // Check if the first 7 parameters are not null
+                    bool firstSevenNotNull =
+                        !string.IsNullOrEmpty(GraphName) &&
+                        !string.IsNullOrEmpty(MaxCycles) &&
+                        !string.IsNullOrEmpty(HighlightTouch) &&
+                        !string.IsNullOrEmpty(XaxisTitle) &&
+                        !string.IsNullOrEmpty(YaxisTitle) &&
+                        !string.IsNullOrEmpty(MinRange) &&
+                        !string.IsNullOrEmpty(MaxRange);
+
+                    // Return true if the first 7 parameters are not null and SavedName is either null or not null
+                    return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) ||
+                                                !string.IsNullOrEmpty(SavedName));
                 });
 
             SubmitCommand = new Command(
@@ -188,11 +197,21 @@ namespace AppSDR.ViewModel
                 },
                 canExecute: () =>
                 {
-                    return !string.IsNullOrEmpty(GraphName) || !string.IsNullOrEmpty(YaxisTitle) || 
-                            !string.IsNullOrEmpty(XaxisTitle) || !string.IsNullOrEmpty(HighlightTouch) || 
-                            !string.IsNullOrEmpty(MaxRange) || !string.IsNullOrEmpty(MinRange) || 
-                            !string.IsNullOrEmpty(MaxCycles) || !string.IsNullOrEmpty(MaxCycles);
+                    // Check if the first 7 parameters are not null
+                    bool firstSevenNotNull =
+                        !string.IsNullOrEmpty(GraphName) &&
+                        !string.IsNullOrEmpty(MaxCycles) &&
+                        !string.IsNullOrEmpty(HighlightTouch) &&
+                        !string.IsNullOrEmpty(XaxisTitle) &&
+                        !string.IsNullOrEmpty(YaxisTitle) &&
+                        !string.IsNullOrEmpty(MinRange) &&
+                        !string.IsNullOrEmpty(MaxRange);
+
+                    // Return true if the first 7 parameters are not null and SavedName is either null or not null
+                    return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) || 
+                                                !string.IsNullOrEmpty(SavedName));
                 });
+
 
         }
 
@@ -210,7 +229,7 @@ namespace AppSDR.ViewModel
                     { DevicePlatform.Android, new[] {".txt", ".csv" } }, 
                     { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
                     { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
-                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }, 
+                    { DevicePlatform.macOS, new[] {".txt", ".csv" } } 
                 });
 
 
@@ -230,6 +249,7 @@ namespace AppSDR.ViewModel
             {
                 // Handle exception
                 Console.WriteLine($"File picking error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
             }
         }
 
@@ -249,9 +269,21 @@ namespace AppSDR.ViewModel
             return true;
         }
 
-        private async void AddText(string[] entryCellValues)
+        //private async void AddText(string[] EntryCellValues)
+        //{
+        //    //string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
+        //    if (EntryCellValues.Length <= 7)
+        //    {
+        //        await Application.Current.MainPage.DisplayAlert("Error", "Not enough parameters", "OK");
+        //    }
+        //    else if (EntryCellValues.Length > 7)
+        //    {
+        //        await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
+        //    }
+        //}
+
+        private async void AddText(string[] EntryCellValues)
         {
-            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
             await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
         }
 
@@ -345,7 +377,6 @@ namespace AppSDR.ViewModel
                     activeCellsColumn.Add(parsedNumbers.ToArray());
                 }
             }
-
             // Convert the list to a 2D array
             return activeCellsColumn.ToArray();
         }
