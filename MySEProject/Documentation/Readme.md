@@ -387,7 +387,7 @@ In this project, we have successfully implemented the MAUI app for visualizing S
 8. [Page1ViewModel.cs](../AppSDR/ViewModel/Page1ViewModel.cs)
 9. [TextEditorPage.xaml.cs](../AppSDR/TextEditorPage.xaml.cs)
 10. [Page1.xaml.cs](../AppSDR/Page1.xaml.cs)
-11. [SdrDrawerable.cs](../AppSDR/SdrDrawerLib/SdrDrawable.cs)
+11. [SdrDrawable.cs](../AppSDR/SdrDrawerLib/SdrDrawable.cs)
 
 ## References
 
