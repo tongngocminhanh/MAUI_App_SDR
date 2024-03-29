@@ -253,7 +253,6 @@ namespace AppSDR.ViewModel
             // Handle any changed property, here is entry parameters
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             // Update and save any changed property
@@ -264,7 +263,6 @@ namespace AppSDR.ViewModel
             OnPropertyChanged(propertyName);
             return true;
         }
-
         private async void AddText()
         {
             // Parse EntryCellValues, navigate to Text Editor Page

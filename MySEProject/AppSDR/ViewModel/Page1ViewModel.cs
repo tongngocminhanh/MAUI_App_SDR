@@ -156,7 +156,6 @@ namespace AppSDR.ViewModel
                             }
                         }
                     }
-
                     drawable.DrawTickMark(canvas, dirtyRect, maxCellValue, tickWidth, tickSpacing);
                 }
             }
