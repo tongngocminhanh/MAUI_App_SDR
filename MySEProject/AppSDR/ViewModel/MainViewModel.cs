@@ -6,15 +6,6 @@ namespace AppSDR.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private INavigation _navigation;
-        private string _selectedFilePath;
-        private string[] _entryCellValues;
-        public string[] EntryCellValues
-        {
-            get { return _entryCellValues; }
-            set { SetProperty(ref _entryCellValues, value); }
-        }
-
         // Start property change
         private string _graphName;
         public string GraphName
@@ -146,7 +137,18 @@ namespace AppSDR.ViewModel
             }
         }
         // End property change
-
+        private INavigation _navigation;
+        private string _selectedFilePath;
+        private string[] _entryCellValues;
+        public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
+        public ICommand ChooseFileCommand { get; }
+        public ICommand SubmitCommand { private set; get; }
+        public ICommand AddTextCommand { private set; get; }
+        public string[] EntryCellValues
+        {
+            get { return _entryCellValues; }
+            set { SetProperty(ref _entryCellValues, value); }
+        }
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
@@ -156,12 +158,6 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged(nameof(SelectedFilePath));
             }
         }
-
-        public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
-        public ICommand ChooseFileCommand { get; }
-        public ICommand SubmitCommand { private set; get; }
-        public ICommand AddTextCommand { private set; get; }
-
         public MainViewModel(INavigation navigation)
         {
             ChooseFileCommand = new Command(ChooseFile);
@@ -170,7 +166,7 @@ namespace AppSDR.ViewModel
             AddTextCommand = new Command(
                 execute: () =>
                 {
-                    AddText(EntryCellValues);
+                    AddText();
                 },
 
                 canExecute: () =>
@@ -211,8 +207,6 @@ namespace AppSDR.ViewModel
                     return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) || 
                                                 !string.IsNullOrEmpty(SavedName));
                 });
-
-
         }
 
         // Pick a file from local device
@@ -256,11 +250,13 @@ namespace AppSDR.ViewModel
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
+            // Handle any changed property, here is entry parameters
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
+            // Update and save any changed property
             if (Object.Equals(storage, value))
                 return false;
 
@@ -269,24 +265,12 @@ namespace AppSDR.ViewModel
             return true;
         }
 
-        //private async void AddText(string[] EntryCellValues)
-        //{
-        //    //string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-        //    if (EntryCellValues.Length <= 7)
-        //    {
-        //        await Application.Current.MainPage.DisplayAlert("Error", "Not enough parameters", "OK");
-        //    }
-        //    else if (EntryCellValues.Length > 7)
-        //    {
-        //        await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
-        //    }
-        //}
-
-        private async void AddText(string[] EntryCellValues)
+        private async void AddText()
         {
+            // Parse EntryCellValues, navigate to Text Editor Page
+            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
             await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
         }
-
         private async void Submit()
         {
             // Done taking inputs and navigate to the visualisation page (Page1)
@@ -316,14 +300,11 @@ namespace AppSDR.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
-
         private async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray)
         {
             // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
             await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues));
         }
-
-
         private int[][] ParseFileContent(string fileContent)
         {
             // Split the content into lines

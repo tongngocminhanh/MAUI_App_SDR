@@ -87,7 +87,7 @@ namespace AppSDR
         }
         private async void OnBackToMainPageClicked(object sender, EventArgs e)
         {
-            await Navigation.PopModalAsync(); // Navigate back to the MainPage
+            await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
         }
     }
 }

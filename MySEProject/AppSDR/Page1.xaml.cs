@@ -62,11 +62,12 @@ public partial class Page1 : ContentPage
             }
             else
             {
+                // Warning message of the significant rows of data
                 DisplayAlert("File Index Alert", "The file index exceeds the width of the view.", "OK");
             }
-
         }
 
+        // Assign extra variables in graphicsdrawable
         graphicsdrawable.widthRequest = (float)WidthRequest;
         graphicsdrawable.heightRequest = (float)HeightRequest;
         graphicsdrawable.rectangleSpacing = Rectspacing;
@@ -113,6 +114,6 @@ public partial class Page1 : ContentPage
     }
     private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PopModalAsync(); // Navigate back to the MainPage
+        await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
     }
 }

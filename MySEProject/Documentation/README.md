@@ -1,6 +1,6 @@
 # ML22-23-8 Implement the SDR representation in the MAUI application
 
- This project requires the implementation of a .NET Multi-platform App User Interface (.NET MAUI) app for visualizing the SDR representations. The app is compatible in Windows, Android, and IOS devices. This includes generating a UI for parameters setting and file input with XAML, binding data for application and logic with Model-View-ViewModel (MVVM) and XAML, using of Maui.Graphics for generating a new SDR drawing library.  
+ This project requires the implementation of a .NET Multi-platform App User Interface (.NET MAUI) app for visualizing the SDR representations. This includes generating a UI for parameters setting and file input with XAML, binding data and logic with Model-View-ViewModel (MVVM) and XAML, using of Maui.Graphics for generating a new SDR drawing library.  
 
 ## Table of contents
 1. [Introduction](#introduction)
@@ -15,12 +15,12 @@
 6. [References](#references)
 
 ## Introduction
-.NET MAUI is a cross-platform framework, dealing with real-time problems. The foundation of MAUI is to simplify multiplatform app development. Within a single project, users can add the platform-specific source code and resources if needed. The scope of the project is to show the hardware and software requirements, how to implement the MAUI app, evaluate the test results, and provide possible improvements. In general, the project involves
-* Create a User Interface (UI) in the MAUI app so users can define required parameters, and input a file from local devices. The parameters for visual control of the output screen, while the input file contains data used for representation. The main idea in this part is to use XAML to set the method for inputting and Data binding to handle the data within the program.
+.NET MAUI is a cross-platform framework, with foundation of simplifying multiplatform app development. The scope of the project is to show the hardware and software requirements, how to implement the MAUI app, evaluate the test results, and provide possible improvements. In general, the project involves
+* Create a User Interface (UI) in the MAUI app so users can define required parameters for visual control of the output screen, and input a file from local devices for representation. The main idea is to use XAML to set the method for inputting and data binding to handle the data within the program.
 * Modify the logic behind the UI elements, showing how the data binds together and being processed.
-* Generate and implement an SDR drawing library to visualize the input data based on requirements. The library contains multiple functions used to clarify the content of the output. Therefore, for future improvements, developers can handle the library better. 
+* Generate and implement an SDR drawing library to visualize the input data based on requirements. The library contains multiple functions used to clarify the content of the output.
 
-Based on the previous reference of the SDR representation generating file - [draw_figure.py](../../Python/ColumnActivityDiagram/draw_figure.py), the requirements are to create a MAUI app that could draw the similar SDR representation as the mentioned file. The result is directly loaded on the app UI, not in another HTML file. The app input can handle specific formats for files: CSV and TXT, and types for parameters: string, and numbers. Evaluations are made on "Windows machine" because of the bigger, better view and simple operation. 
+Based on the previous model of the SDR representation - [draw_figure.py](../../Python/ColumnActivityDiagram/draw_figure.py), the requirements are to create a MAUI app that could draw the similar SDR representation. The result is directly loaded on the app UI, not in another HTML file. The app input can handle specific formats for files: CSV and TXT, and types for parameters: string, and numbers. Evaluations are made on "Windows machine" as local device. 
 
 ## Important links
 1. SE Project Documentation: [PDF](./ML22-23-8%20Implement%20the%20SDR%20representation%20in%20the%20MAUI%20application.pdf)<br/>
@@ -38,7 +38,7 @@ The project integrates the latest update; therefore, the suggestion is to instal
 Detailed information can be found on [MySEProject](https://github.com/tongngocminhanh/MAUI_App_SDR/tree/master/MySEProject).
 
 ## Implementation of MAUI App
-When building a .NET MAUI app, developers could work on one specific platform, normally Windows. To display on other platforms, .NET MAUI auto-generates the compatible code for that platform. For this project, specification on Windows is provided, based on the general architecture below.
+When building a .NET MAUI app in this project, specification on Windows is provided, based on the general architecture below.
 
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/General Architecture of App SDR.jpg" title="general-architecture-of-app-sdr" width=60%></img>
@@ -48,17 +48,17 @@ The project's idea is to draw SDR representations from users' SDR data and visua
 * Parameters to define the graphical output of the required representation. The program uses *Main Page* to collect the parameters, parsing them to *Text Editor Page* and *Page 1* depending on the user's intention.
 * An input text file (.txt) or sheet files (.csv) feeding the SDR data into the program. Another method to input SDR data is directly entering values from keyboards. In both cases, the data is parsed into *Page 1* for visualizing SDR representations with the help of the *SDRDrawerLib* library.
 
-The main structure for the app is illustrated by the following figure, in which all the attending pages are created with .NET MAUI ContenPage (XAML), *ViewModel* folder containing C# classes used for the logic behind, and *SdrDrawerLib*, a new library used for SDR drawing. Class *SdrDrawable* is in charge of configuring the visualization of SDR. This class is called on *Page 1*, as the drawing output is shown here. 
+The main structure for the app is illustrated by the following figure, in which all the attending pages are created with .NET MAUI ContentPage (XAML), *ViewModel* folder containing C# classes used for the logic behind, and *SdrDrawerLib*, a new library used for SDR drawing. Class *SdrDrawable* is in charge of configuring the visualization of SDR. This class is called on *Page 1*, as the drawing output is shown here. 
 
 <div style="text-align:center">
-  <img src="./Figures/AppStructure.jpg" title="app-structure" width=60%></img>
+  <img src="./Figures/AppStructure.jpg" title="app-structure" width=50%></img>
 </div><br>
 
 Details on implementation configuration and steps are explained in the next subsections.
 
 ### UI implementation
 
-The app has three pages interacting with users: *Main Page, Text Editor Page, Page 1*. The primary page, loaded when running *AppSDR*, is *Main Page*. In .NET MAUI, the user can define which of the created pages is the primary one, via *AppShell.xaml*. The explanation is the *App Shell* the first accessed when running the MAUI app, holding the defined primary page and presenting its content. *AppShell.xaml* is presented in the code below.
+The app has three pages interacting with users: *Main Page, Text Editor Page, Page 1*. The primary page, loaded when running *AppSDR*, is *Main Page*. In .NET MAUI, the user can define the primary page, via *AppShell.xaml*. The *App Shell* is the first accessed when running the MAUI app, holding the defined primary page and presenting its content. *AppShell.xaml* is presented in the code below.
 
 ```xaml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -77,20 +77,20 @@ The app has three pages interacting with users: *Main Page, Text Editor Page, Pa
 </Shell>
 ```
 The content and connections among the pages are illustrated in the following figure. 
-* There is an SDR descriptive image on top, a table having eight entry cells in the middle to take user's parameters, and three buttons at the bottom, in *Main Page*. 
-* The *Text Editor Page* has one block in the middle for entered SDR values, instructions on top, and two buttons at the bottom. 
-* *Page 1* has a big block for SDR representations and two buttons at the bottom.
-* Arrows present the connection or navigation among pages. As can be seen, *Main Page* can navigate to *Page 1* and vice versa. The relationship between *Main Page* and *Text Editor Page* is the same. However, navigation between *Text Editor Page* and *Page 1* is one-direction. When users are on *Page 1*, they cannot go back to *Text Editor Page*. One option is to go back to *Main Page* and start again.
+* There is an SDR descriptive image, a table having eight entry cells to take user's parameters, and three buttons, in *Main Page*. 
+* The *Text Editor Page* has one block for entered SDR values, instructions, and two buttons. 
+* *Page 1* has a big block for SDR representations and two buttons.
+* Arrows present the navigation among pages. As can be seen, *Main Page* can navigate to *Page 1* and vice versa, same for *Main Page* and *Text Editor Page*. However, navigation between *Text Editor Page* and *Page 1* is one-direction. When users are on *Page 1*, they cannot go back to *Text Editor Page*. One option is to go back to *Main Page* and start again.
 
 <div style="text-align:center; background:white;">
-  <img src="./Figures/StructureUI.png" title="ui-structure" width=80%></img>
+  <img src="./Figures/StructureUI.png" title="ui-structure" width=70%></img>
 </div><br>
 
  The UI is defined by the *.xaml* files, always having the following code to make the *.xaml* file processable.
  ```xaml
  <?xml version="1.0" encoding="utf-8" ?>
  ```
- * At the start, the code must declare the namespace and class. Namespace declarations include the default XML namespace for .NET MAUI and the XML namespace for XAML-specific elements. Then specify the class name working with the *.xaml* file.
+ * The code must declare the namespace and class at the start. Namespace declarations include the default XML namespace for .NET MAUI and the XML namespace for XAML-specific elements. Then specify the class name working with the *.xaml* file.
  * *Title* is optional, included to have a better view when controlling the project.
  * *ContentPage.Resources* is defined when extra configurations for the UI are needed. Example is provided as belows.
 
@@ -107,7 +107,7 @@ The content and connections among the pages are illustrated in the following fig
              xmlns:viewmodel="clr-namespace:AppSDR.ViewModel"
  ``` 
 
-The structure layout is defined next, deciding how and where to place the children elements, containing *ScrollView*, * StackLayout*, or *Grid*. Combinations are applied to have a flexible and visualized layout. 
+The structure layout decides how and where to place the children elements, containing *ScrollView*, *StackLayout*, or *Grid*. Combinations to have a flexible and visualized layout. 
 * As the information used in UI is vertically expanded, *ScrollView* is applied to retain the dimension of each element.
 * *Grid* allows the user to use the screen as a combination of columns and rows. Therefore, the position of each element is based on the cell defined by a specific row and column. Multiple cells can be combined. Grid definition can be defined for the number of rows, columns, and dimensions by two methods.
 
@@ -214,7 +214,7 @@ namespace AppSDR.SdrDrawerLib
     }
 }
 ```
-After initialization of the used parameter, next is the multiple distinguished drawing functions. Necessary parameters are defined on the method signature. The components include specifications as: the availability of the function, *public void* in this case, the function name, and used-parameter names along with their types. All of the created drawing functions are shown below.
+After parameters initialization comes the multiple distinguished drawing functions. Necessary parameters are defined on the method signature. The components include specifications as: the availability of the function, *public void*, the function name, and used-parameter names along with their types. All of the created drawing functions are shown below.
 
 ```csharp
         public void DrawInnerBorder(ICanvas canvas, RectF dirtyRect)
@@ -280,10 +280,10 @@ The parameters are understood as below. The parameters are calculated and define
 
 The overview of the library is shown in the next figure. The graph has the *X axis title* at the center bottom of the screen, while the *Graph Name* is at the center top of the screen. The *Y axis title* is rotated anti-clockwise 90 degrees, placed at the right center of the graph. There are numbers specifying all the columns, division of the vertical axis (tick marks and division numbers), and the highlight column as specified. 
 
-There are generally two categories: fit screen, corresponding to the function *DrawXAxisFit(), DrawNameFit()*, and expand screen, corresponding to function *DrawXAxisExtend(), DrawNameExtend()*. For the library, the difference lies in the position of *X axis title, and Graph Name*. If the screen has *ScrollView* in the horizontal direction, the position is on the left, not in the center like the fit screen case.
+There are generally two categories: fit screen, corresponding to the function *DrawXAxisFit(), DrawNameFit()*, and expand screen, corresponding to function *DrawXAxisExtend(), DrawNameExtend()*. The difference lies in the position of *X axis title, and Graph Name*. If the screen is in expand mode, the positions are on the left, not in the center like the fit screen case.
 
 <div style="text-align:center">
-  <img src="./Figures/SdrComponents.png" title="sdr-components" width=120%></img>
+  <img src="./Figures/SdrComponents.png" title="sdr-components" width=100%></img>
 </div><br>
 
 To be used in the project, called in *Page1ViewModel.cs*, include the library in the c# file. The library name is the namespace where it is used.
@@ -300,8 +300,8 @@ drawable.Draw(canvas, dirtyRect)
 
 ### Logic implementation
 There are five c# files in charge of configuring the logic behind three UI files. The general structure is shown in the figure below.
-* Each UI file in standard has one corresponding c# file, here is *MainPage.xaml.cs*, *TextEditorPage.xaml.cs*, and *Page1.xaml.cs*. If the logic is simple and needs basic connections within the project, logic implementation is directly on those files, *TextEditorPage.xaml.cs*. 
-* However, for more complex data processing, it is suggested to use The *Model-View-ViewModel* MVVM Pattern, here are *MainViewModel.cs*, and *Page1ViewModel.cs*
+* Each UI file in standard has one corresponding c# file, with extension of *.xaml.cs*. If the logic is simple and needs basic connections within the project, logic implementation is directly on those files, *TextEditorPage.xaml.cs*. 
+* However, for more complex data processing, it is suggested to use The MVVM Pattern, here are *MainViewModel.cs*, and *Page1ViewModel.cs*
 
 <div style="text-align:center; background:white;">
   <img src="./Figures/StructureLogic.png" title="sdr-components" width=80%></img>
@@ -327,7 +327,7 @@ There are five c# files in charge of configuring the logic behind three UI files
 
 3. Third, *TextEditorPage()* class is discussed.
 * The *OnSaveClicked* function orchestrates actions when the save button is clicked. It first checks for empty content and prompts the user if necessary. Then, it parses the content into a 2D integer array, ensuring non-zero rows. After successful parsing, it presents a success alert and navigates to the next page. Exception handling is in place to promptly notify users of any encountered errors.
-* The *OnBackToMainPageClicked* function responds to the back button click event by initiating navigation back to the MainPage of the application. Its primary role is to facilitate seamless navigation, allowing users to return to the main interface effortlessly.
+* The *OnBackToMainPageClicked()* function responds to the back button click event by initiating navigation back to the MainPage of the application. Its primary role is to facilitate seamless navigation, allowing users to return to the main interface effortlessly.
 
 ## Testing and evaluation
 
@@ -344,7 +344,7 @@ python draw_figure.py -fn samplerandom.txt -gn 'Sample Random visualization'  -m
 * As shown in the figure below, though parameters are defined in the Python command, it does not produce clear and sufficient graph components. The upper and lower limits do not affect the graph. For the *AppSDR*, it can include all of the defined parameters, and show any SDR values in the range (1000, 15000).
 
 <div style="display: flex; justify-content: center;">
-  <img src="./Figures/DrawPY_random.png" title="python-draw-random" style="width: 25%;" alt="Python Draw Random">
+  <img src="./Figures/DrawPY_random.png" title="python-draw-random" style="width: 20%;" alt="Python Draw Random">
   <img src="./Figures/TestSampleRandom.png" title="test-sample-random-by-app" style="width: 75%;" alt="Test Sample Random by App">
 </div><br/>
 
