@@ -5,8 +5,8 @@ namespace AppSDR;
 public partial class Page1 : ContentPage
 {
     public string[] EntryCellValues { get; set; }
-    double WidthRequest { get; set; }
-    double HeightRequest { get; set; }
+    //double WidthRequest { get; set; }
+    //double HeightRequest { get; set; }
     public Page1(int[][] activeCellsColumn, string[] entryCellValues)
     {
         InitializeComponent();
