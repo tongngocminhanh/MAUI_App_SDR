@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppSDR.TextEditorPage"
              Title="TextEditorPage">
-    <VerticalStackLayout>
+    <StackLayout>
         <ScrollView>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="250" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
@@ -20,13 +19,10 @@
                     />
 
             <Button Text="SAVE" Clicked="OnSaveClicked" Grid.Row="1" />
-                <Button Text="BACK" Clicked="Back" Grid.Row="2" />
+            
 
-
-
-            </Grid>
+        </Grid>
     </ScrollView>
-   
-    </VerticalStackLayout>
-
+    <Button Text="BACK TO MAINPAGE" Clicked="OnBackToMainPageClicked" Grid.Row="2" />
+    </StackLayout>
 </ContentPage>

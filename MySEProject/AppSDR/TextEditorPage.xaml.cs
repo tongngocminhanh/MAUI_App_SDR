@@ -1,20 +1,14 @@
-using Microsoft.Maui.Controls;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace AppSDR
 {
     public partial class TextEditorPage : ContentPage
     {
         public string[] EntryCellValues { get; set; }
-
         public TextEditorPage(string[] entryCellValues)
         {
             InitializeComponent();
             EntryCellValues = entryCellValues;
         }
-        private async void Back(object sender, EventArgs e)
+        private async void OnBackToMainPageClicked(object sender, EventArgs e)
         {
             await Navigation.PopModalAsync(); // Navigate back to the MainPage
         }
@@ -71,7 +65,7 @@ namespace AppSDR
                         else
                         {
                             // Handle parsing error if needed
-                            // For example: throw new ArgumentException("Invalid number format");
+                            throw new ArgumentException("Invalid number format");
                         }
                     }
 
@@ -95,6 +89,9 @@ namespace AppSDR
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "Please input SDR");
             }
         }
-       
+        private async void OnBackToMainPageClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
+        }
     }
 }
