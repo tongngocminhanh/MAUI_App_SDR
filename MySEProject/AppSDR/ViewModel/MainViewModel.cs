@@ -1,6 +1,8 @@
 ﻿using System.Windows.Input;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace AppSDR.ViewModel
 {
@@ -137,6 +139,8 @@ namespace AppSDR.ViewModel
             }
         }
         // End property change
+
+        // Navigation and reading functions
         private INavigation _navigation;
         private string _selectedFilePath;
         private string[] _entryCellValues;
