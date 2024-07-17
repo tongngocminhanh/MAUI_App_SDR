@@ -1,4 +1,4 @@
-﻿using TestCloudProject.Viewmodel;
+﻿using TestCloudProject.ViewModel;
 
 namespace TestCloudProject
 {

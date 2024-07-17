@@ -30,6 +30,15 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
 ## Project specifications
 
 ## Overview of the cloud architecture
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/architecture.png" title="general-architecture-of-cloud" width=60%></img>
+</div><br>
+
+
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/app-architecture.jpg" title="general-architecture-of-app-architecture" width=60%></img>
+</div><br>
 
 ### Experiment specifications
 * Improvise the App SDR into MVC web application.

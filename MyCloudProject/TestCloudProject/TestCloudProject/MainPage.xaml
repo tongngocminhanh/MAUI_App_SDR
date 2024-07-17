@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:TestCloudProject.Viewmodel"
+             xmlns:local="clr-namespace:TestCloudProject.ViewModel"
              x:Class="TestCloudProject.MainPage">
 
     <ContentPage.BindingContext>
@@ -10,15 +10,28 @@
 
     <StackLayout>
         <Button Text="Load Containers" Command="{Binding LoadContainersCommand}" />
-        <ListView ItemsSource="{Binding ContainerNames}" SelectedItem="{Binding SelectedContainer}"
-                  HasUnevenRows="True">
-            <ListView.ItemTemplate>
+
+        <CollectionView ItemsSource="{Binding ContainerNames}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <TextCell Text="{Binding}" />
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Access"
+                                           BackgroundColor="LightGreen"
+                                           Command="{Binding Path=BindingContext.LoadBlobsCommand, Source={x:Reference Name=MainPage}}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid BackgroundColor="White" Padding="10">
+                            <Label Text="{Binding .}" FontSize="Medium" VerticalOptions="Center" />
+                        </Grid>
+                    </SwipeView>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <Button Text="Load Blobs" Command="{Binding LoadBlobsCommand}" />
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Text="Blobs" FontSize="Large" HorizontalOptions="Center" Margin="0,20,0,0" />
         <ListView ItemsSource="{Binding BlobNames}" SelectedItem="{Binding SelectedBlob}"
                   HasUnevenRows="True">
             <ListView.ItemTemplate>
