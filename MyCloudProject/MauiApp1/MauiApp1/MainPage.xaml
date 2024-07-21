@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.MainPage">
+
+    <StackLayout Padding="10">
+        <Button Text="Upload Files" Clicked="OnUploadFilesClicked"/>
+        <Entry x:Name="ConnectionStringEntry" Placeholder="Enter Queue Connection String"/>
+        <Entry x:Name="QueueNameEntry" Placeholder="Enter Queue Name"/>
+        <Button Text="Start Listening" Clicked="OnStartListeningClicked"/>
+        <Button Text="Stop Listening" Clicked="OnStopListeningClicked"/>
+        <Label x:Name="StatusLabel" Text="Status: Stopped" />
+
+    </StackLayout>
+
+</ContentPage>
