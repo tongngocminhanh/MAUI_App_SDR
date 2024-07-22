@@ -8,7 +8,7 @@ namespace AppSDR.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        // Start property change
+        // Start property change of parameters
         private string _graphName;
         public string GraphName
         {
@@ -138,14 +138,52 @@ namespace AppSDR.ViewModel
                 }
             }
         }
+        
+        // Changed properties of Azure
+        public string ConnectionString
+        {
+            get => _connectionString;
+            set
+            {
+                _connectionString = value;
+                OnPropertyChanged(nameof(ConnectionString));
+            }
+        }
+
+        public string QueueName
+        {
+            get => _queueName;
+            set
+            {
+                _queueName = value;
+                OnPropertyChanged(nameof(QueueName));
+            }
+        }
+
+        public string Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+        }
         // End property change
+
+        // Azure connection and Upload function
+        private string _connectionString;
+        private string _queueName;
+        private string _status;
+        public ICommand UploadFilesCommand { get; }
+        // private QueueMessageListener _listener;
+        // private CancellationTokenSource _cts;
 
         // Navigation and reading functions
         private INavigation _navigation;
         private string _selectedFilePath;
         private string[] _entryCellValues;
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
-        public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
         public ICommand AddTextCommand { private set; get; }
         public string[] EntryCellValues
@@ -164,7 +202,6 @@ namespace AppSDR.ViewModel
         }
         public MainViewModel(INavigation navigation)
         {
-            ChooseFileCommand = new Command(ChooseFile);
             _navigation = navigation;
 
             AddTextCommand = new Command(
@@ -211,44 +248,23 @@ namespace AppSDR.ViewModel
                     return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) || 
                                                 !string.IsNullOrEmpty(SavedName));
                 });
+
+            // Upload functions
+            UploadFilesCommand = new Command(async () => await OnUploadFilesClicked());
+            // StartListeningCommand = new Command(OnStartListeningClicked);
+            // StopListeningCommand = new Command(OnStopListeningClicked);
         }
 
-        // Pick a file from local device
-        private async void ChooseFile()
+        private async Task OnUploadFilesClicked()
         {
-            try
-            {
-                // Compatible with Text files and Comma-separated values (csv) files
-                // Define file extension for all supported platforms
-                var customFileType = new FilePickerFileType(
-                new Dictionary<DevicePlatform, IEnumerable<string>>
-                {
-                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } }, 
-                    { DevicePlatform.Android, new[] {".txt", ".csv" } }, 
-                    { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
-                    { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
-                    { DevicePlatform.macOS, new[] {".txt", ".csv" } } 
-                });
+            // Navigate to Page1 with the updated ConnectionString and QueueName
+            await NavigateToUploadPage(ConnectionString, QueueName);
+        }
 
-
-                var result = await FilePicker.PickAsync(new PickOptions
-                {
-                    FileTypes = customFileType,
-
-                    PickerTitle = "Pick a text file"
-                });
-
-                if (result != null)
-                {
-                    SelectedFilePath = result.FullPath;
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
-                Console.WriteLine($"File picking error: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
-            }
+        private async Task NavigateToUploadPage(string ConnectionString, string QueueName)
+        {
+            // Navigate to UploadPage with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
+            await _navigation.PushModalAsync(new UploadPage(ConnectionString, QueueName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

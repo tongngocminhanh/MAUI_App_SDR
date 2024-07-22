@@ -3,10 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppSDR.UploadPage"
              Title="UploadPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+
+    <StackLayout Padding="10">
+        <Label Text="Configure Storage" FontAttributes="Bold"/>
+
+        <Label Text="Select files to upload:" FontAttributes="Bold"/>
+        <Button Text="Select Files" Clicked="OnSelectFilesClicked"/>
+        <Button Text="Upload Files" Clicked="OnUploadFilesClicked"/>
+
+        <!-- Add x:Name here -->
+        <Label Text="Status: Idle" x:Name="statusLabel"/>
+    </StackLayout>
 </ContentPage>
