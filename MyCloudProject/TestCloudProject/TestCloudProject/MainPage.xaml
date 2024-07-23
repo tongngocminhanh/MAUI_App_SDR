@@ -2,43 +2,23 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TestCloudProject.ViewModel"
-             x:Class="TestCloudProject.MainPage">
+             x:Class="TestCloudProject.MainPage"
+             Title="Blob Storage Example">
 
     <ContentPage.BindingContext>
         <local:MainViewModel />
     </ContentPage.BindingContext>
 
-    <StackLayout>
-        <Button Text="Load Containers" Command="{Binding LoadContainersCommand}" />
+    <StackLayout Padding="10">
+        <Label Text="Configure Storage" FontAttributes="Bold"/>
 
-        <CollectionView ItemsSource="{Binding ContainerNames}" SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <SwipeView>
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Access"
-                                           BackgroundColor="LightGreen"
-                                           Command="{Binding Path=BindingContext.LoadBlobsCommand, Source={x:Reference Name=MainPage}}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.RightItems>
-                        <Grid BackgroundColor="White" Padding="10">
-                            <Label Text="{Binding .}" FontSize="Medium" VerticalOptions="Center" />
-                        </Grid>
-                    </SwipeView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <Entry Placeholder="Connection String" Text="{Binding ConnectionString}" />
+        <Entry Placeholder="Upload Blob Storage Name" Text="{Binding UploadBlobStorageName}" />
+        <Entry Placeholder="Download Blob Storage Name" Text="{Binding DownloadBlobStorageName}" />
 
-        <Label Text="Blobs" FontSize="Large" HorizontalOptions="Center" Margin="0,20,0,0" />
-        <ListView ItemsSource="{Binding BlobNames}" SelectedItem="{Binding SelectedBlob}"
-                  HasUnevenRows="True">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextCell Text="{Binding}" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Button Text="Select and Upload File" Command="{Binding SelectAndUploadFileCommand}" />
+        <Button Text="Download Files" Command="{Binding DownloadFilesCommand}" />
+
+        <Label Text="{Binding StatusMessage}" />
     </StackLayout>
 </ContentPage>

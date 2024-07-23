@@ -1,109 +1,175 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace TestCloudProject.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private BlobStorageService _blobStorageService;
-        private ObservableCollection<string> _containerNames;
-        private ObservableCollection<string> _blobNames;
-        private string _selectedContainer;
-        private string _selectedBlob;
+        private string _connectionString;
+        private string _uploadBlobStorageName;
+        private string _downloadBlobStorageName;
+        private string _statusMessage;
 
-        public ObservableCollection<string> ContainerNames
+        public string ConnectionString
         {
-            get { return _containerNames; }
+            get => _connectionString;
             set
             {
-                _containerNames = value;
+                _connectionString = value;
                 OnPropertyChanged();
             }
         }
 
-        public ObservableCollection<string> BlobNames
+        public string UploadBlobStorageName
         {
-            get { return _blobNames; }
+            get => _uploadBlobStorageName;
             set
             {
-                _blobNames = value;
+                _uploadBlobStorageName = value;
                 OnPropertyChanged();
             }
         }
 
-        public string SelectedContainer
+        public string DownloadBlobStorageName
         {
-            get { return _selectedContainer; }
+            get => _downloadBlobStorageName;
             set
             {
-                _selectedContainer = value;
-                OnPropertyChanged();
-                LoadBlobsCommand.Execute(_selectedContainer);
-            }
-        }
-
-        public string SelectedBlob
-        {
-            get { return _selectedBlob; }
-            set
-            {
-                _selectedBlob = value;
+                _downloadBlobStorageName = value;
                 OnPropertyChanged();
             }
         }
 
-        public ICommand LoadContainersCommand { get; }
-        public ICommand LoadBlobsCommand { get; }
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                _statusMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand SelectAndUploadFileCommand { get; }
+        public ICommand DownloadFilesCommand { get; }
 
         public MainViewModel()
         {
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;";
-            _blobStorageService = new BlobStorageService(connectionString);
-
-            LoadContainersCommand = new Command(async () => await ExecuteLoadContainersCommand());
-            LoadBlobsCommand = new Command<string>(async (containerName) => await LoadBlobsAsync(containerName));
+            SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync());
+            DownloadFilesCommand = new Command(async () => await DownloadFilesAsync());
         }
 
-        private async Task ExecuteLoadContainersCommand()
+        private async Task SelectAndUploadFileAsync()
         {
             try
             {
-                ContainerNames = await LoadContainersAsync();
-                if (ContainerNames == null || ContainerNames.Count == 0)
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { ".txt", ".csv" } },
+                        { DevicePlatform.Android, new[] { ".txt", ".csv" } },
+                        { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
+                        { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
+                        { DevicePlatform.macOS, new[] { ".txt", ".csv" } }
+                    });
+
+                var filePickerResult = await FilePicker.PickMultipleAsync(new PickOptions
                 {
-                    Console.WriteLine("No containers found.");
+                    FileTypes = customFileType,
+                    PickerTitle = "Select files to upload"
+                });
+
+                if (filePickerResult != null)
+                {
+                    var containerClient = new BlobContainerClient(ConnectionString, UploadBlobStorageName);
+                    await containerClient.CreateIfNotExistsAsync();
+
+                    foreach (var file in filePickerResult)
+                    {
+                        var blobClient = containerClient.GetBlobClient(Path.GetFileName(file.FullPath));
+                        await blobClient.UploadAsync(file.FullPath, overwrite: true);
+                    }
+
+                    StatusMessage = "Files uploaded successfully.";
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading containers: {ex.Message}");
+                StatusMessage = $"Error: {ex.Message}";
             }
         }
 
-        public async Task<ObservableCollection<string>> LoadContainersAsync()
+        private string SanitizeFileName(string fileName)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c, '_');
+            }
+            return fileName;
+        }
+
+        private async Task DownloadFilesAsync()
         {
             try
             {
-                return await _blobStorageService.ListContainersAsync();
+                StatusMessage = "Processing experiment request";
+
+                BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(DownloadBlobStorageName);
+
+                if (!await containerClient.ExistsAsync())
+                {
+                    StatusMessage = "Container does not exist.";
+                    return;
+                }
+
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+                {
+                    string blobName = blobItem.Name;
+                    StatusMessage = $"Found blob: {blobName}";
+
+                    BlobClient blobClient = containerClient.GetBlobClient(blobName);
+                    string localFilePath = Path.Combine(desktopPath, SanitizeFileName(blobName));
+
+                    try
+                    {
+                        await DownloadBlobToFileAsync(blobClient, localFilePath);
+                        StatusMessage = $"Downloaded file to {localFilePath}";
+
+                    }
+                    catch (Exception ex)
+                    {
+                        StatusMessage = $"Error downloading or processing blob '{blobName}': {ex.Message}";
+                    }
+                }
+
+                StatusMessage = "All files have been processed.";
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading containers: {ex.Message}");
-                return new ObservableCollection<string>();
+                StatusMessage = $"Error processing experiment request: {ex.Message}";
             }
         }
 
-        private async Task LoadBlobsAsync(string containerName)
+        private async Task DownloadBlobToFileAsync(BlobClient blobClient, string filePath)
         {
             try
             {
-                BlobNames = await _blobStorageService.ListBlobsAsync(containerName);
+                BlobDownloadInfo download = await blobClient.DownloadAsync();
+                using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await download.Content.CopyToAsync(fs);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading blobs in container '{containerName}': {ex.Message}");
+                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
+                throw;
             }
         }
 
