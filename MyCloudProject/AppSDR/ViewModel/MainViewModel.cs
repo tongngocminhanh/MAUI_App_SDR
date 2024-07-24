@@ -138,46 +138,41 @@ namespace AppSDR.ViewModel
                 }
             }
         }
-        
+
         // Changed properties of Azure
+        private bool _isConnected;
+        private string _connectionString;
+        private string _storageAccount;
+        private string _statusMessage;
+
         public string ConnectionString
         {
             get => _connectionString;
-            set
-            {
-                _connectionString = value;
-                OnPropertyChanged(nameof(ConnectionString));
-            }
+            set { _connectionString = value; OnPropertyChanged(); }
         }
 
-        public string QueueName
+        public string StorageAccount
         {
-            get => _queueName;
-            set
-            {
-                _queueName = value;
-                OnPropertyChanged(nameof(QueueName));
-            }
+            get => _storageAccount;
+            set { _storageAccount = value; OnPropertyChanged(); }
         }
 
-        public string Status
+        public bool IsConnected
         {
-            get => _status;
-            set
-            {
-                _status = value;
-                OnPropertyChanged(nameof(Status));
-            }
+            get => _isConnected;
+            set { _isConnected = value; OnPropertyChanged(); }
         }
-        // End property change
 
-        // Azure connection and Upload function
-        private string _connectionString;
-        private string _queueName;
-        private string _status;
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set { _statusMessage = value; OnPropertyChanged(); }
+        }
+
+        // Azure connection functions
+        public ICommand ConnectCommand { get; }
         public ICommand UploadFilesCommand { get; }
-        // private QueueMessageListener _listener;
-        // private CancellationTokenSource _cts;
+
 
         // Navigation and reading functions
         private INavigation _navigation;
@@ -250,22 +245,55 @@ namespace AppSDR.ViewModel
                 });
 
             // Upload functions
-            UploadFilesCommand = new Command(async () => await OnUploadFilesClicked());
-            // StartListeningCommand = new Command(OnStartListeningClicked);
-            // StopListeningCommand = new Command(OnStopListeningClicked);
+            ConnectCommand = new Command(async () => await OnConnectAsync());
+            UploadFilesCommand = new Command(OnUploadFiles, CanExecuteCommands);
         }
 
-        private async Task OnUploadFilesClicked()
+        private async Task OnConnectAsync()
         {
-            // Navigate to Page1 with the updated ConnectionString and QueueName
-            await NavigateToUploadPage(ConnectionString, QueueName);
+            StatusMessage = "Connecting...";
+            await Task.Delay(1000); // Simulate a delay for connecting
+
+            // Here should be your actual connection logic
+            if (!string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(QueueName))
+            {
+                IsConnected = true;
+                StatusMessage = "Connected to storage account.";
+            }
+            else
+            {
+                IsConnected = false;
+                StatusMessage = "Please provide a valid connection string and queue name.";
+            }
+
+            ((Command)UploadFilesCommand).ChangeCanExecute();
+            ((Command)SubmitCommand).ChangeCanExecute();
+            ((Command)AddTextCommand).ChangeCanExecute();
         }
 
-        private async Task NavigateToUploadPage(string ConnectionString, string QueueName)
+        private void OnUploadFiles()
         {
-            // Navigate to UploadPage with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
-            await _navigation.PushModalAsync(new UploadPage(ConnectionString, QueueName));
+            // Upload files logic
+            StatusMessage = "Files uploaded successfully.";
         }
+
+        private void OnSubmit()
+        {
+            // Submit logic
+            StatusMessage = "Data submitted successfully.";
+        }
+
+        private void OnAddText()
+        {
+            // Add text logic
+            StatusMessage = "Text added successfully.";
+        }
+
+        private bool CanExecuteCommands()
+        {
+            return IsConnected;
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
