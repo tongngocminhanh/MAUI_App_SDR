@@ -1,17 +1,82 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:AppSDR.ViewModel"
              x:Class="AppSDR.UploadPage"
-             Title="UploadPage">
+             Title="Upload to Blob Storage">
 
-    <StackLayout Padding="10">
-        <Label Text="Configure Storage" FontAttributes="Bold"/>
+    <ContentPage.BindingContext>
+        <local:UploadViewModel />
+    </ContentPage.BindingContext>
 
-        <Label Text="Select files to upload:" FontAttributes="Bold"/>
-        <Button Text="Select Files" Clicked="OnSelectFilesClicked"/>
-        <Button Text="Upload Files" Clicked="OnUploadFilesClicked"/>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Define custom colors -->
+            <Color x:Key="PrimaryColor">#646e78</Color>
+            <!-- (100, 110, 120) -->
+            <Color x:Key="AccentColor">#8d98a7</Color>
+            <!-- (141, 152, 167) -->
+            <Color x:Key="ButtonColor">#eab464</Color>
+            <!-- (220, 204, 187) -->
+            <Color x:Key="ButtonTextColor">#000</Color>
+            <!-- (234, 180, 100) -->
+            <Color x:Key="LabelColor">#011</Color>
+            <Color x:Key="LabelTextColor">#0A0</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-        <!-- Add x:Name here -->
-        <Label Text="Status: Idle" x:Name="statusLabel"/>
+
+    <StackLayout BackgroundColor="{StaticResource PrimaryColor}"
+                 Padding="10" Spacing="10">
+        <Label Text="Configure Storage" 
+               FontAttributes="Bold" 
+               TextColor="{StaticResource LabelTextColor}" />
+        <Entry Placeholder="Connection String" 
+               Text="{Binding ConnectionString}"
+               TextColor="White" 
+               BackgroundColor="{StaticResource AccentColor}" />
+        <Entry Placeholder="Storage Account Name" 
+               Text="{Binding StorageAccount}" 
+               TextColor="White" 
+               BackgroundColor="{StaticResource AccentColor}"  />
+        <Label Text="{Binding StatusMessage}" 
+               FontAttributes="Bold" 
+               TextColor="{StaticResource LabelTextColor}" 
+               Margin="0,10,0,0"/>
+        <Button Text="Connect"
+                Command="{Binding ConnectCommand}"
+                BackgroundColor="{StaticResource ButtonColor}"
+                TextColor="{StaticResource ButtonTextColor}"
+                CornerRadius="5"
+                Margin="5"
+                Padding="10"/>
+
+        <Entry Placeholder="Upload Blob Storage Name" 
+               Text="{Binding UploadBlobStorageName}"
+               TextColor="White" 
+               BackgroundColor="{StaticResource AccentColor}"/>
+        <Entry Placeholder="Download Blob Storage Name" 
+               TextColor="White" 
+               BackgroundColor="{StaticResource AccentColor}"  
+               Text="{Binding DownloadBlobStorageName}" />
+
+        <Button Text="Select and Upload File" 
+                Command="{Binding SelectAndUploadFileCommand}" 
+                BackgroundColor="{StaticResource ButtonColor}"
+                TextColor="{StaticResource ButtonTextColor}"
+                CornerRadius="5"
+                Margin="5"
+                Padding="10"
+                IsEnabled="{Binding IsConnected}"/>
+        
+        <Button Text="Download Files" 
+                Command="{Binding DownloadFilesCommand}" 
+                BackgroundColor="{StaticResource ButtonColor}"
+                TextColor="{StaticResource ButtonTextColor}"
+                CornerRadius="5"
+                Margin="5"
+                Padding="10"
+                IsEnabled="{Binding IsConnected}"/>
+
     </StackLayout>
 </ContentPage>

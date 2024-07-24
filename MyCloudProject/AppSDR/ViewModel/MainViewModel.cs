@@ -138,49 +138,22 @@ namespace AppSDR.ViewModel
                 }
             }
         }
+        // End property change of parameters
 
-        // Changed properties of Azure
-        private bool _isConnected;
-        private string _connectionString;
-        private string _storageAccount;
-        private string _statusMessage;
-
-        public string ConnectionString
-        {
-            get => _connectionString;
-            set { _connectionString = value; OnPropertyChanged(); }
-        }
-
-        public string StorageAccount
-        {
-            get => _storageAccount;
-            set { _storageAccount = value; OnPropertyChanged(); }
-        }
-
-        public bool IsConnected
-        {
-            get => _isConnected;
-            set { _isConnected = value; OnPropertyChanged(); }
-        }
-
-        public string StatusMessage
-        {
-            get => _statusMessage;
-            set { _statusMessage = value; OnPropertyChanged(); }
-        }
-
-        // Azure connection functions
-        public ICommand ConnectCommand { get; }
-        public ICommand UploadFilesCommand { get; }
-
-
-        // Navigation and reading functions
+        // Navigation elements
         private INavigation _navigation;
-        private string _selectedFilePath;
         private string[] _entryCellValues;
+
+        // Without-loud properties definition
+        private string _selectedFilePath;
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
+        public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
         public ICommand AddTextCommand { private set; get; }
+
+        // With-cloud properties definition
+        public ICommand UploadFilesCommand { get; }
+        public ICommand UploadTextCommand { get; }
         public string[] EntryCellValues
         {
             get { return _entryCellValues; }
@@ -195,10 +168,12 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged(nameof(SelectedFilePath));
             }
         }
+
         public MainViewModel(INavigation navigation)
         {
             _navigation = navigation;
-
+            // With-cloud commands
+            ChooseFileCommand = new Command(ChooseFile);
             AddTextCommand = new Command(
                 execute: () =>
                 {
@@ -245,55 +220,76 @@ namespace AppSDR.ViewModel
                 });
 
             // Upload functions
-            ConnectCommand = new Command(async () => await OnConnectAsync());
-            UploadFilesCommand = new Command(OnUploadFiles, CanExecuteCommands);
+            
+            UploadFilesCommand = new Command(UploadFiles);
+            UploadTextCommand = new Command(UploadText);
         }
 
-        private async Task OnConnectAsync()
+        // Navigate to Upload Page
+        private async void UploadFiles()
         {
-            StatusMessage = "Connecting...";
-            await Task.Delay(1000); // Simulate a delay for connecting
-
-            // Here should be your actual connection logic
-            if (!string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(QueueName))
+            try
             {
-                IsConnected = true;
-                StatusMessage = "Connected to storage account.";
+                await _navigation.PushModalAsync(new UploadPage());
             }
-            else
+            catch (Exception ex)
             {
-                IsConnected = false;
-                StatusMessage = "Please provide a valid connection string and queue name.";
+                // Handle exception
+                Console.WriteLine($"File picking error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
             }
-
-            ((Command)UploadFilesCommand).ChangeCanExecute();
-            ((Command)SubmitCommand).ChangeCanExecute();
-            ((Command)AddTextCommand).ChangeCanExecute();
         }
 
-        private void OnUploadFiles()
+        private async void UploadText()
         {
-            // Upload files logic
-            StatusMessage = "Files uploaded successfully.";
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"Navigating error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Navigating error: {ex.Message}", "OK");
+            }
         }
 
-        private void OnSubmit()
+        // Pick a file from local device
+        private async void ChooseFile()
         {
-            // Submit logic
-            StatusMessage = "Data submitted successfully.";
-        }
+            try
+            {
+                // Compatible with Text files and Comma-separated values (csv) files
+                // Define file extension for all supported platforms
+                var customFileType = new FilePickerFileType(
+                new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } },
+                    { DevicePlatform.Android, new[] {".txt", ".csv" } },
+                    { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
+                    { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
+                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }
+                });
 
-        private void OnAddText()
-        {
-            // Add text logic
-            StatusMessage = "Text added successfully.";
-        }
 
-        private bool CanExecuteCommands()
-        {
-            return IsConnected;
-        }
+                var result = await FilePicker.PickAsync(new PickOptions
+                {
+                    FileTypes = customFileType,
 
+                    PickerTitle = "Pick a text file"
+                });
+
+                if (result != null)
+                {
+                    SelectedFilePath = result.FullPath;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"File picking error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -334,7 +330,7 @@ namespace AppSDR.ViewModel
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
                     await NavigateToPage1(EntryCellValues, activeCellsArray);
                 }
-                
+
                 // Exception Alert when no input file is detected 
                 else
                 {

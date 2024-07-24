@@ -14,110 +14,153 @@
             <!-- (100, 110, 120) -->
             <Color x:Key="AccentColor">#8d98a7</Color>
             <!-- (141, 152, 167) -->
-            <Color x:Key="ButtonColor">#eab464
+            <Color x:Key="ButtonColor">#eab464</Color>
                 <!-- (220, 204, 187) -->
-            </Color>
             <Color x:Key="ButtonTextColor">#000</Color>
             <!-- (234, 180, 100) -->
+            <Color x:Key="LabelColor">#011</Color>
+            <Color x:Key="LabelTextColor">#0A0</Color>
+            
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*" ColumnDefinitions="250, *">
-        <!-- Side Menu -->
-        <StackLayout Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                     BackgroundColor="{StaticResource PrimaryColor}"
-                     Padding="10" Spacing="10">
-            <Label Text="Configure Storage" 
+    <ScrollView>
+        <!--Grid Template to locate each component in their size-defined domain-->
+        <Grid RowDefinitions="100, Auto, Auto, *, Auto"
+              ColumnDefinitions=".20*,.20*,.20*, .20*, .20*"
+              Padding="10"
+              RowSpacing="10"
+              ColumnSpacing="10">
+
+            <!-- Image represents SDR definititon -->
+            <Image x:Name="myImage"
+                   Grid.Column="0"
+                   Grid.Row="0"
+                   Grid.ColumnSpan="5"
+                   Source="sdr_represent.jpg"
+                   BackgroundColor="Transparent"/>
+
+            <!-- Create an input table with gradient background -->
+            <TableView Intent="Settings" 
+                       Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                       BackgroundColor="{StaticResource PrimaryColor}"
+                       Margin="5"
+                       >
+                <!-- TableView content taking users' defined parameters -->
+                <TableRoot>
+                    <TableSection>
+                        <EntryCell x:Name="graphNameEntry" 
+                                   Label="Graph name"
+                                   Placeholder="Define the graph name (should in letter)" 
+                                   Text="{Binding GraphName, Mode=TwoWay}"/>
+
+                        <EntryCell x:Name="maxCyclesEntry"
+                                   Label="Max cycles"
+                                   Placeholder="Define number of max cycles" 
+                                   Text="{Binding MaxCycles}" />
+
+                        <EntryCell x:Name="highlightTouchEntry"
+                                   Label="Highlight touch"
+                                   Placeholder="Define the highlight touch column, start with column 0" 
+                                   Text="{Binding HighlightTouch}"/>
+
+                        <EntryCell x:Name="xAxisTitleEntry"
+                                   Label="X axis title"
+                                   Placeholder="Define x axis title" 
+                                   Text="{Binding XaxisTitle}" />
+
+                        <EntryCell x:Name="yAxisTitleEntry"
+                                   Label="Y axis title"
+                                   Placeholder="Define y axis title" 
+                                   Text="{Binding YaxisTitle}" />
+
+                        <EntryCell x:Name="minRangeEntry"
+                                   Label="Min range of cell"
+                                   Placeholder="Assign minimum cell value" 
+                                   Text="{Binding MinRange}" />
+
+                        <EntryCell x:Name="maxRangeEntry"
+                                   Label="Max range of cell"
+                                   Placeholder="Assign maximum cell value" 
+                                   Text="{Binding MaxRange}" />
+
+                        <EntryCell x:Name="savedFigureName"
+                                   Label="Saved figure name"
+                                   Placeholder="Assign a name when save representation" 
+                                   Text="{Binding SavedName}" />
+                    </TableSection>
+                </TableRoot>
+            </TableView>
+
+            <!-- Visualizing locally without using Cloud -->
+            <Label Text="Generating SDR visualizations without Cloud"
                    FontAttributes="Bold" 
-                   TextColor="White"/>
-            <Entry Placeholder="Connection String" 
-                   Text="{Binding ConnectionString}" 
-                   TextColor="White" 
-                   BackgroundColor="#444" />
-            <Entry Placeholder="Storage Account Name" 
-                   Text="{Binding StorageAccount}" 
-                   TextColor="White" 
-                   BackgroundColor="#444" />
-            <Label Text="{Binding StatusMessage}" 
-                   FontAttributes="Bold" 
-                   TextColor="White" 
-                   Margin="0,10,0,0"/>
-            <Button Text="Connect"
-                    Command="{Binding ConnectCommand}"
+                   BackgroundColor="{StaticResource LabelColor}"
+                   TextColor="{StaticResource LabelTextColor}"
+                   Grid.Row="2" Grid.Column="1"
+                   Grid.ColumnSpan="3"/>
+            
+            <!-- Buttons -->
+            <!-- Let user choose a file from local device-->
+            <Button Text="{Binding SelectedFileName}"
                     BackgroundColor="{StaticResource ButtonColor}"
                     TextColor="{StaticResource ButtonTextColor}"
                     CornerRadius="5"
                     Margin="5"
-                    Padding="10"/>
-        </StackLayout>
+                    Padding="10"
+                    Grid.Row="3" Grid.Column="1" 
+                    Grid.ColumnSpan="1" 
+                    Command="{Binding ChooseFileCommand}"/>
 
-        <!-- Main Content -->
-        <ScrollView Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
-            <StackLayout Padding="10" Spacing="10">
-                <Image Source="sdr_represent.jpg"
-                       BackgroundColor="Transparent"
-                       Aspect="AspectFill"/>
+            <!-- Done manipulating inputs, submit to see the outputs -->
+            <Button Text="Submit"
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
+                    Grid.Row="3" Grid.Column="2" 
+                    Grid.ColumnSpan="1" 
+                    Command="{Binding SubmitCommand}"/>
 
-                <TableView Intent="Settings"
-                           BackgroundColor="{StaticResource PrimaryColor}"
-                           IsVisible="{Binding IsConnected}">
-                    <TableRoot>
-                        <TableSection>
-                            <EntryCell Label="Graph name"
-                                       Placeholder="Define the graph name (should be letters)" 
-                                       Text="{Binding GraphName, Mode=TwoWay}"/>
-                            <EntryCell Label="Max cycles"
-                                       Placeholder="Define number of max cycles" 
-                                       Text="{Binding MaxCycles}" />
-                            <EntryCell Label="Highlight touch"
-                                       Placeholder="Define the highlight touch column, start with column 0" 
-                                       Text="{Binding HighlightTouch}"/>
-                            <EntryCell Label="X axis title"
-                                       Placeholder="Define x axis title" 
-                                       Text="{Binding XaxisTitle}" />
-                            <EntryCell Label="Y axis title"
-                                       Placeholder="Define y axis title" 
-                                       Text="{Binding YaxisTitle}" />
-                            <EntryCell Label="Min range of cell"
-                                       Placeholder="Assign minimum cell value" 
-                                       Text="{Binding MinRange}" />
-                            <EntryCell Label="Max range of cell"
-                                       Placeholder="Assign maximum cell value" 
-                                       Text="{Binding MaxRange}" />
-                            <EntryCell Label="Saved figure name"
-                                       Placeholder="Assign a name when saving representation" 
-                                       Text="{Binding SavedName}" />
-                        </TableSection>
-                    </TableRoot>
-                </TableView>
+            <!-- Manually add inputs data instead of a data file -->
+            <Button Text="Add Text"
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
+                    Grid.Row="3" Grid.Column="3"
+                    Grid.ColumnSpan="1"
+                    Command="{Binding AddTextCommand}"/>
 
-                <Button Text="Upload Files" 
-                        BackgroundColor="{StaticResource ButtonColor}"
-                        TextColor="{StaticResource ButtonTextColor}"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="10"
-                        Command="{Binding UploadFilesCommand}" 
-                        IsEnabled="{Binding IsConnected}"/>
+            <!-- Visualizing locally without using Cloud -->
+            <Label Text="Generating SDR visualizations with Cloud"
+                   FontAttributes="Bold" 
+                   BackgroundColor="{StaticResource LabelColor}"
+                   TextColor="{StaticResource LabelTextColor}"
+                   Grid.Row="4" Grid.Column="1"
+                   Grid.ColumnSpan="3"/>
 
-                <Button Text="Submit"
-                        BackgroundColor="{StaticResource ButtonColor}"
-                        TextColor="{StaticResource ButtonTextColor}"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="10"
-                        Command="{Binding SubmitCommand}"
-                        IsEnabled="{Binding IsConnected}"/>
+            <Button Text="Upload Files" 
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
+                    Grid.Row="5" Grid.Column="1"
+                    Grid.ColumnSpan="1"
+                    Command="{Binding UploadFilesCommand}"/>
 
-                <Button Text="Add Text"
-                        BackgroundColor="{StaticResource ButtonColor}"
-                        TextColor="{StaticResource ButtonTextColor}"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="10"
-                        Command="{Binding AddTextCommand}"
-                        IsEnabled="{Binding IsConnected}"/>
-            </StackLayout>
-        </ScrollView>
-    </Grid>
+            <Button Text="Upload Text"
+                    BackgroundColor="{StaticResource ButtonColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
+                    Grid.Row="5" Grid.Column="3"
+                    Grid.ColumnSpan="1"
+                    Command="{Binding UploadTextCommand}"/>
+        </Grid>
+    </ScrollView>
 </ContentPage>
