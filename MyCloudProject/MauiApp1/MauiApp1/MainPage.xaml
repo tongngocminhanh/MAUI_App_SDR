@@ -7,6 +7,7 @@
         <Button Text="Upload Files" Clicked="OnUploadFilesClicked"/>
         <Entry x:Name="ConnectionStringEntry" Placeholder="Enter Queue Connection String"/>
         <Entry x:Name="QueueNameEntry" Placeholder="Enter Queue Name"/>
+        <Entry x:Name="ContainerName" Placeholder="Enter BlobContainer to Save Output File"/>
         <Button Text="Start Listening" Clicked="OnStartListeningClicked"/>
         <Button Text="Stop Listening" Clicked="OnStopListeningClicked"/>
         <Label x:Name="StatusLabel" Text="Status: Stopped" />

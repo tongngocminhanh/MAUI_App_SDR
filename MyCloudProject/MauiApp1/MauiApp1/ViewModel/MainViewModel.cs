@@ -158,56 +158,56 @@ namespace MauiApp1.ViewModel
                 OnPropertyChanged(nameof(SelectedFilePath));
             }
         }
-        public MainViewModel(INavigation navigation)
-        {
-            ChooseFileCommand = new Command(ChooseFile);
-            _navigation = navigation;
+        //public MainViewModel(INavigation navigation)
+        //{
+        //    ChooseFileCommand = new Command(ChooseFile);
+        //    _navigation = navigation;
 
-            AddTextCommand = new Command(
-                execute: () =>
-                {
-                    AddText();
-                },
+        //    AddTextCommand = new Command(
+        //        execute: () =>
+        //        {
+        //            AddText();
+        //        },
 
-                canExecute: () =>
-                {
-                    // Check if the first 7 parameters are not null
-                    bool firstSevenNotNull =
-                        !string.IsNullOrEmpty(GraphName) &&
-                        !string.IsNullOrEmpty(MaxCycles) &&
-                        !string.IsNullOrEmpty(HighlightTouch) &&
-                        !string.IsNullOrEmpty(XaxisTitle) &&
-                        !string.IsNullOrEmpty(YaxisTitle) &&
-                        !string.IsNullOrEmpty(MinRange) &&
-                        !string.IsNullOrEmpty(MaxRange);
+        //        canExecute: () =>
+        //        {
+        //            // Check if the first 7 parameters are not null
+        //            bool firstSevenNotNull =
+        //                !string.IsNullOrEmpty(GraphName) &&
+        //                !string.IsNullOrEmpty(MaxCycles) &&
+        //                !string.IsNullOrEmpty(HighlightTouch) &&
+        //                !string.IsNullOrEmpty(XaxisTitle) &&
+        //                !string.IsNullOrEmpty(YaxisTitle) &&
+        //                !string.IsNullOrEmpty(MinRange) &&
+        //                !string.IsNullOrEmpty(MaxRange);
 
-                    // Return true if the first 7 parameters are not null and SavedName is either null or not null
-                    return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) ||
-                                                !string.IsNullOrEmpty(SavedName));
-                });
+        //            // Return true if the first 7 parameters are not null and SavedName is either null or not null
+        //            return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) ||
+        //                                        !string.IsNullOrEmpty(SavedName));
+        //        });
 
-            SubmitCommand = new Command(
-                execute: () =>
-                {
-                    Submit();
-                },
-                canExecute: () =>
-                {
-                    // Check if the first 7 parameters are not null
-                    bool firstSevenNotNull =
-                        !string.IsNullOrEmpty(GraphName) &&
-                        !string.IsNullOrEmpty(MaxCycles) &&
-                        !string.IsNullOrEmpty(HighlightTouch) &&
-                        !string.IsNullOrEmpty(XaxisTitle) &&
-                        !string.IsNullOrEmpty(YaxisTitle) &&
-                        !string.IsNullOrEmpty(MinRange) &&
-                        !string.IsNullOrEmpty(MaxRange);
+        //    SubmitCommand = new Command(
+        //        execute: () =>
+        //        {
+        //            Submit();
+        //        },
+        //        canExecute: () =>
+        //        {
+        //            // Check if the first 7 parameters are not null
+        //            bool firstSevenNotNull =
+        //                !string.IsNullOrEmpty(GraphName) &&
+        //                !string.IsNullOrEmpty(MaxCycles) &&
+        //                !string.IsNullOrEmpty(HighlightTouch) &&
+        //                !string.IsNullOrEmpty(XaxisTitle) &&
+        //                !string.IsNullOrEmpty(YaxisTitle) &&
+        //                !string.IsNullOrEmpty(MinRange) &&
+        //                !string.IsNullOrEmpty(MaxRange);
 
-                    // Return true if the first 7 parameters are not null and SavedName is either null or not null
-                    return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) || 
-                                                !string.IsNullOrEmpty(SavedName));
-                });
-        }
+        //            // Return true if the first 7 parameters are not null and SavedName is either null or not null
+        //            return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) || 
+        //                                        !string.IsNullOrEmpty(SavedName));
+        //        });
+        //}
 
         // Pick a file from local device
         private async void ChooseFile()
@@ -263,12 +263,12 @@ namespace MauiApp1.ViewModel
             OnPropertyChanged(propertyName);
             return true;
         }
-        private async void AddText()
-        {
-            // Parse EntryCellValues, navigate to Text Editor Page
-            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
-        }
+        //private async void AddText()
+        //{
+        //   // Parse EntryCellValues, navigate to Text Editor Page
+        //     string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
+        //    await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
+        //}
         private async void Submit()
         {
             // Done taking inputs and navigate to the visualisation page (Page1)
@@ -284,7 +284,7 @@ namespace MauiApp1.ViewModel
                     string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
 
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
-                    await NavigateToPage1(EntryCellValues, activeCellsArray);
+                    //await NavigateToPage1(EntryCellValues, activeCellsArray);
                 }
                 
                 // Exception Alert when no input file is detected 
@@ -298,11 +298,11 @@ namespace MauiApp1.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
-        public async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray)
-        {
-            // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
-            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues));
-        }
+        //public async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray)
+        //{
+        //    // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
+        //    await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues));
+        //}
         private int[][] ParseFileContent(string fileContent)
         {
             // Split the content into lines

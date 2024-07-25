@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace MauiApp1
 {
     public class QueueMessageListener
@@ -19,13 +20,15 @@ namespace MauiApp1
         private readonly string _queueName;
         private readonly Label _statusLabel;
         private readonly INavigation _navigation;
+        private readonly string _containerName;
 
-        public QueueMessageListener(string connectionString, string queueName, Label statusLabel, INavigation navigation)
+        public QueueMessageListener(string connectionString, string queueName,string containerName, Label statusLabel, INavigation navigation)
         {
             _connectionString = connectionString;
             _queueName = queueName;
             _statusLabel = statusLabel;
             _navigation = navigation;
+            _containerName = containerName;
         }
 
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
@@ -121,6 +124,7 @@ namespace MauiApp1
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
                         UpdateStatusLabel($"Downloaded file to {localFilePath}");
                         await ProcessDownloadedFileAsync(localFilePath);
+                        
 
                     }
                     catch (Exception ex)
@@ -130,6 +134,7 @@ namespace MauiApp1
                 }
 
                 UpdateStatusLabel("All files have been processed.");
+
             }
             catch (Exception ex)
             {
@@ -176,7 +181,14 @@ namespace MauiApp1
                 // Ensure the navigation to Page1 is awaited and on the main thread
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues));
+                    var page1 = new Page1(activeCellsArray, entryCellValues, _connectionString, _containerName);
+                    //await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues,_connectionString,_containerName
+                    await _navigation.PushModalAsync(page1);
+
+                    // Wait for the screenshot to be captured and uploaded
+                    await page1.SaveScreenshotToBlobStorage();
+           
+
                 });
             }
             catch (Exception ex)

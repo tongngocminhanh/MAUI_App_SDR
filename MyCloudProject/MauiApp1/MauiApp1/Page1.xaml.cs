@@ -1,15 +1,26 @@
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
 using MauiApp1.ViewModel;
 using System.ComponentModel;
+using System.Timers;
 
 namespace MauiApp1;
 public partial class Page1 : ContentPage
 {
     public string[] EntryCellValues { get; set; }
+    private string ConnectionString { get; set; }
+    private string ContainerName { get; set; }
+    
+
+
+
     //double WidthRequest { get; set; }
     //double HeightRequest { get; set; }
-    public Page1(int[][] activeCellsColumn, string[] entryCellValues)
+    public Page1(int[][] activeCellsColumn, string[] entryCellValues, string connectionString, string containerName)
     {
         InitializeComponent();
+        ConnectionString = connectionString;
+        ContainerName = containerName;
 
         // Define source of drawing method
         var graphicsView = this.DrawableView;
@@ -74,6 +85,7 @@ public partial class Page1 : ContentPage
         graphicsdrawable.rectangleWidth = Rectwidth;
         graphicsView.Invalidate();
         //Task task = SaveScreenshot();
+       
 
 
     }
@@ -86,8 +98,44 @@ public partial class Page1 : ContentPage
         base.OnAppearing();
         // Delay to ensure the page is fully loaded
         await Task.Delay(500);
-        await SaveScreenshot();
+
+        await SaveScreenshotToBlobStorage();
     }
+    public async Task SaveScreenshotToBlobStorage()
+    {
+        // Capture the screenshot
+        IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
+
+        if (screenshotResult != null)
+        {
+
+                using (var stream = await screenshotResult.OpenReadAsync())
+                {
+                    // Generate a unique file name using a timestamp
+                    string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+                    string blobName = $"{EntryCellValues[7]}_{timestamp}.png";
+
+                    BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
+                    BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(ContainerName);
+                    BlobClient blobClient = containerClient.GetBlobClient(blobName);
+
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
+                // Optional delay before the next operation
+                //await Task.Delay(2000);
+                await DisplayAlert("Success", "Screenshot has been saved successfully.", "OK");
+
+            }
+
+        }
+               else
+        {
+            // Display a message if no screenshot was captured
+            await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
+        }
+        
+    }
+
+
 
 
     private async Task SaveScreenshot()

@@ -11,7 +11,7 @@ namespace MauiApp1
     {
         private QueueMessageListener _listener;
         private CancellationTokenSource _cts;
-        private MainViewModel _viewModel;
+        
 
         public MainPage()
         {
@@ -28,14 +28,15 @@ namespace MauiApp1
         {
             string connectionString = ConnectionStringEntry.Text;
             string queueName = QueueNameEntry.Text;
+            string containerName = ContainerName.Text;
 
-            if (string.IsNullOrWhiteSpace(connectionString) || string.IsNullOrWhiteSpace(queueName))
+            if (string.IsNullOrWhiteSpace(connectionString) || string.IsNullOrWhiteSpace(queueName) || string.IsNullOrWhiteSpace(containerName))
             {
                 StatusLabel.Text = "Status: Please enter valid connection string and queue name.";
                 return;
             }
-            _viewModel = new MainViewModel(this.Navigation);
-            _listener = new QueueMessageListener(connectionString, queueName, StatusLabel,Navigation);
+            //_viewModel = new MainViewModel(this.Navigation);
+            _listener = new QueueMessageListener(connectionString, queueName, containerName, StatusLabel,Navigation);
          
             _cts = new CancellationTokenSource();
 
