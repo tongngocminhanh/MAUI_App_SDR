@@ -8,7 +8,9 @@ namespace AppSDR.ViewModel
 {
     public class UploadViewModel : INotifyPropertyChanged
     {
-        private List<string> _selectedFiles;
+        // Fields and properties
+        public string AssignedTextFilePath { get; set; }
+        private List<string> _selectedFiles = new List<string>();
         private bool _isConnected;
         private string _connectionString;
         private string _storageAccount;
@@ -72,18 +74,23 @@ namespace AppSDR.ViewModel
         public ICommand DownloadFilesCommand { get; }
         public ICommand ConnectCommand { get; }
 
-        public UploadViewModel()
+        // Default constructor required for XAML instantiation
+        public UploadViewModel(string _assignedTextFilePath)
         {
+            AssignedTextFilePath = _assignedTextFilePath;
+            _selectedFiles = new List<string>(); // Initialize the list here
             ConnectCommand = new Command(async () => await OnConnectAsync());
-            SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync(_selectedFiles));
-            DownloadFilesCommand = new Command(async () => await DownloadFilesAsync());
+            SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync(_selectedFiles, AssignedTextFilePath), CanExecuteCommands);
+            DownloadFilesCommand = new Command(async () => await DownloadFilesAsync(), CanExecuteCommands);
         }
+
+        // Rest of the methods...
         private async Task OnConnectAsync()
         {
             StatusMessage = "Connecting...";
             await Task.Delay(1000); // Simulate a delay for connecting
 
-            // Here should be your actual connection logic
+            // Actual connection logic
             if (!string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(StorageAccount))
             {
                 IsConnected = true;
@@ -92,56 +99,70 @@ namespace AppSDR.ViewModel
             else
             {
                 IsConnected = false;
-                StatusMessage = "Please provide a valid connection string and queue name.";
+                StatusMessage = "Please provide a valid connection string and storage account.";
             }
 
             ((Command)SelectAndUploadFileCommand).ChangeCanExecute();
             ((Command)DownloadFilesCommand).ChangeCanExecute();
         }
+
         private bool CanExecuteCommands()
         {
             return IsConnected;
         }
 
-        private async Task SelectAndUploadFileAsync(List<string> _selectedFiles)
+        private async Task SelectAndUploadFileAsync(List<string> selectedFiles, string _assignedTextFilePath)
         {
             try
             {
-                // Compatible with Text files and Comma-separated values (csv) files
-                // Define file extension for all supported platforms
-                var customFileType = new FilePickerFileType(
-                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                if (_assignedTextFilePath == null)
+                {
+                    // File selection logic
+                    var customFileType = new FilePickerFileType(
+                        new Dictionary<DevicePlatform, IEnumerable<string>>
+                        {
+                            { DevicePlatform.iOS, new[] { ".txt", ".csv" } },
+                            { DevicePlatform.Android, new[] { ".txt", ".csv" } },
+                            { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
+                            { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
+                            { DevicePlatform.macOS, new[] { ".txt", ".csv" } }
+                        });
+
+                    var filePickerResult = await FilePicker.PickMultipleAsync(new PickOptions
                     {
-                        { DevicePlatform.iOS, new[] { ".txt", ".csv" } },
-                        { DevicePlatform.Android, new[] { ".txt", ".csv" } },
-                        { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
-                        { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
-                        { DevicePlatform.macOS, new[] { ".txt", ".csv" } }
+                        FileTypes = customFileType,
+                        PickerTitle = "Select files to upload"
                     });
 
-                var filePickerResult = await FilePicker.PickMultipleAsync(new PickOptions
-                {
-                    FileTypes = customFileType,
-                    PickerTitle = "Select files to upload"
-                });
-
-                if (filePickerResult != null)
-                {
-                    foreach (var file in filePickerResult)
+                    if (filePickerResult != null)
                     {
-                        _selectedFiles.Add(file.FullPath);
+                        foreach (var file in filePickerResult)
+                        {
+                            selectedFiles.Add(file.FullPath);
+                        }
+                        StatusMessage = $"{selectedFiles.Count} files selected.";
+                        var containerClient = new BlobContainerClient(ConnectionString, UploadBlobStorageName);
+                        await containerClient.CreateIfNotExistsAsync();
+
+                        foreach (var file in selectedFiles)
+                        {
+                            var blobClient = containerClient.GetBlobClient(Path.GetFileName(file));
+                            await blobClient.UploadAsync(file, overwrite: true);
+                        }
+
+                        StatusMessage = "Files uploaded successfully.";
                     }
-                    StatusMessage = $"{_selectedFiles.Count} files selected.";
+                }
+                else
+                {
+                    StatusMessage = "The assigned text file is waiting for upload.";
                     var containerClient = new BlobContainerClient(ConnectionString, UploadBlobStorageName);
                     await containerClient.CreateIfNotExistsAsync();
 
-                    foreach (var file in _selectedFiles)
-                    {
-                        var blobClient = containerClient.GetBlobClient(Path.GetFileName(file));
-                        await blobClient.UploadAsync(file, overwrite: true);
-                    }
+                    var blobClient = containerClient.GetBlobClient(Path.GetFileName(_assignedTextFilePath));
+                    await blobClient.UploadAsync(_assignedTextFilePath, overwrite: true);
 
-                    StatusMessage = "Files uploaded successfully.";
+                    StatusMessage = "File uploaded successfully.";
                 }
             }
             catch (Exception ex)
@@ -150,20 +171,11 @@ namespace AppSDR.ViewModel
             }
         }
 
-        private string SanitizeFileName(string fileName)
-        {
-            foreach (char c in Path.GetInvalidFileNameChars())
-            {
-                fileName = fileName.Replace(c, '_');
-            }
-            return fileName;
-        }
-
         private async Task DownloadFilesAsync()
         {
             try
             {
-                StatusMessage = "Processing experiment request";
+                StatusMessage = "Processing download request";
 
                 BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
                 BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(DownloadBlobStorageName);
@@ -188,7 +200,6 @@ namespace AppSDR.ViewModel
                     {
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
                         StatusMessage = $"Downloaded file to {localFilePath}";
-
                     }
                     catch (Exception ex)
                     {
@@ -200,7 +211,7 @@ namespace AppSDR.ViewModel
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error processing experiment request: {ex.Message}";
+                StatusMessage = $"Error processing download request: {ex.Message}";
             }
         }
 
@@ -219,6 +230,15 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
                 throw;
             }
+        }
+
+        private string SanitizeFileName(string fileName)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c, '_');
+            }
+            return fileName;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

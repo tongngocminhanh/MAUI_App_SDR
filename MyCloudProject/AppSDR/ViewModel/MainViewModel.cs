@@ -146,6 +146,7 @@ namespace AppSDR.ViewModel
 
         // Without-cloud properties definition
         private string _selectedFilePath;
+        public string _assignedTextFilePath = null;
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
@@ -220,8 +221,8 @@ namespace AppSDR.ViewModel
                 });
 
             // Upload functions
-            
             UploadFilesCommand = new Command(UploadFiles);
+
         }
 
         // Navigate to Upload Page
@@ -229,7 +230,7 @@ namespace AppSDR.ViewModel
         {
             try
             {
-                await _navigation.PushModalAsync(new UploadPage());
+                await _navigation.PushModalAsync(new UploadPage(_assignedTextFilePath));
             }
             catch (Exception ex)
             {

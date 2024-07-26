@@ -5,14 +5,10 @@
              x:Class="AppSDR.UploadPage"
              Title="Upload to Blob Storage">
 
-    <ContentPage.BindingContext>
-        <local:UploadViewModel/>
-    </ContentPage.BindingContext>
-
     <ContentPage.Resources>
         <ResourceDictionary>
             <!-- Define custom colors -->
-            <Color x:Key="PrimaryColor">#646e78</Color>
+            <Color x:Key="PrimaryColor">#fffff2</Color>
             <!-- (100, 110, 120) -->
             <Color x:Key="AccentColor">#8d98a7</Color>
             <!-- (141, 152, 167) -->
@@ -20,7 +16,7 @@
             <!-- (220, 204, 187) -->
             <Color x:Key="ButtonTextColor">#000</Color>
             <!-- (234, 180, 100) -->
-            <Color x:Key="LabelColor">#011</Color>
+            <Color x:Key="EntryColor">#011</Color>
             <Color x:Key="LabelTextColor">#0A0</Color>
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -33,12 +29,12 @@
                TextColor="{StaticResource LabelTextColor}" />
         <Entry Placeholder="Connection String" 
                Text="{Binding ConnectionString}"
-               TextColor="White" 
-               BackgroundColor="{StaticResource AccentColor}" />
+               TextColor="{StaticResource EntryColor}"
+               BackgroundColor="{StaticResource AccentColor}"/>
         <Entry Placeholder="Storage Account Name" 
                Text="{Binding StorageAccount}" 
-               TextColor="White" 
-               BackgroundColor="{StaticResource AccentColor}"  />
+               TextColor="{StaticResource EntryColor}"
+               BackgroundColor="{StaticResource AccentColor}"/>
         <Label Text="{Binding StatusMessage}" 
                FontAttributes="Bold" 
                TextColor="{StaticResource LabelTextColor}" 
@@ -53,10 +49,10 @@
 
         <Entry Placeholder="SDR values Blob Storage Name" 
                Text="{Binding UploadBlobStorageName}"
-               TextColor="White" 
+               TextColor="{StaticResource EntryColor}"
                BackgroundColor="{StaticResource AccentColor}"/>
         <Entry Placeholder="SDR visualization  Blob Storage Name" 
-               TextColor="White" 
+               TextColor="{StaticResource EntryColor}"
                BackgroundColor="{StaticResource AccentColor}"  
                Text="{Binding DownloadBlobStorageName}" />
 
