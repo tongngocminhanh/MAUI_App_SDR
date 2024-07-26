@@ -6,7 +6,7 @@
              Title="Upload to Blob Storage">
 
     <ContentPage.BindingContext>
-        <local:UploadViewModel />
+        <local:UploadViewModel/>
     </ContentPage.BindingContext>
 
     <ContentPage.Resources>
@@ -51,11 +51,11 @@
                 Margin="5"
                 Padding="10"/>
 
-        <Entry Placeholder="Upload Blob Storage Name" 
+        <Entry Placeholder="SDR values Blob Storage Name" 
                Text="{Binding UploadBlobStorageName}"
                TextColor="White" 
                BackgroundColor="{StaticResource AccentColor}"/>
-        <Entry Placeholder="Download Blob Storage Name" 
+        <Entry Placeholder="SDR visualization  Blob Storage Name" 
                TextColor="White" 
                BackgroundColor="{StaticResource AccentColor}"  
                Text="{Binding DownloadBlobStorageName}" />

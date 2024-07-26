@@ -92,15 +92,15 @@
                 </TableRoot>
             </TableView>
 
-            <!-- Visualizing locally without using Cloud -->
-            <Label Text="Generating SDR visualizations without Cloud"
+        <!-- Visualizing locally without Cloud -->
+            <!-- Specify the corresponding local functions -->
+            <Label Text="Choose a file, generate without Cloud"
                    FontAttributes="Bold" 
                    BackgroundColor="{StaticResource LabelColor}"
                    TextColor="{StaticResource LabelTextColor}"
                    Grid.Row="2" Grid.Column="1"
-                   Grid.ColumnSpan="3"/>
+                   Grid.ColumnSpan="1"/>
             
-            <!-- Buttons -->
             <!-- Let user choose a file from local device-->
             <Button Text="{Binding SelectedFileName}"
                     BackgroundColor="{StaticResource ButtonColor}"
@@ -108,7 +108,7 @@
                     CornerRadius="5"
                     Margin="5"
                     Padding="10"
-                    Grid.Row="3" Grid.Column="1" 
+                    Grid.Row="2" Grid.Column="2" 
                     Grid.ColumnSpan="1" 
                     Command="{Binding ChooseFileCommand}"/>
 
@@ -119,9 +119,18 @@
                     CornerRadius="5"
                     Margin="5"
                     Padding="10"
-                    Grid.Row="3" Grid.Column="2" 
+                    Grid.Row="2" Grid.Column="3" 
                     Grid.ColumnSpan="1" 
                     Command="{Binding SubmitCommand}"/>
+
+        <!-- Visualizing locally with manual SDR values, either with Cloud or without -->
+            <!-- Specify the corresponding hybrid function -->
+            <Label Text="Manually add SDR values"
+                   FontAttributes="Bold" 
+                   BackgroundColor="{StaticResource LabelColor}"
+                   TextColor="{StaticResource LabelTextColor}"
+                   Grid.Row="3" Grid.Column="1"
+                   Grid.ColumnSpan="2"/>
 
             <!-- Manually add inputs data instead of a data file -->
             <Button Text="Add Text"
@@ -134,33 +143,26 @@
                     Grid.ColumnSpan="1"
                     Command="{Binding AddTextCommand}"/>
 
-            <!-- Visualizing locally without using Cloud -->
-            <Label Text="Generating SDR visualizations with Cloud"
+            
+        <!-- Visualizing locally with Cloud -->
+            <!-- Specify the corresponding Cloud functions -->
+            <Label Text="SDR visualizations with Cloud"
                    FontAttributes="Bold" 
                    BackgroundColor="{StaticResource LabelColor}"
                    TextColor="{StaticResource LabelTextColor}"
                    Grid.Row="4" Grid.Column="1"
-                   Grid.ColumnSpan="3"/>
-
+                   Grid.ColumnSpan="2"/>
+            
+            <!-- Upload files-->
             <Button Text="Upload Files" 
                     BackgroundColor="{StaticResource ButtonColor}"
                     TextColor="{StaticResource ButtonTextColor}"
                     CornerRadius="5"
                     Margin="5"
                     Padding="10"
-                    Grid.Row="5" Grid.Column="1"
+                    Grid.Row="4" Grid.Column="3"
                     Grid.ColumnSpan="1"
                     Command="{Binding UploadFilesCommand}"/>
-
-            <Button Text="Upload Text"
-                    BackgroundColor="{StaticResource ButtonColor}"
-                    TextColor="{StaticResource ButtonTextColor}"
-                    CornerRadius="5"
-                    Margin="5"
-                    Padding="10"
-                    Grid.Row="5" Grid.Column="3"
-                    Grid.ColumnSpan="1"
-                    Command="{Binding UploadTextCommand}"/>
         </Grid>
     </ScrollView>
 </ContentPage>

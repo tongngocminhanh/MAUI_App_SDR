@@ -3,40 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AppSDR.TextEditorPage"
              Title="TextEditorPage">
-    
-    <StackLayout>
-        <ScrollView>
-            <Grid>
-                <!-- Define charateristic of all elements in the grid -->
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="250" />
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                
-                <!-- Instruction of manually adding SDR values-->
-                <Label Text="Enter SDR values. Each SDR value is separated by a comma and each SDR column is separated by &quot;Enter&quot; to the new line"
+
+
+    <ScrollView>
+        <Grid Padding="10" RowSpacing="10" ColumnSpacing="10">
+            <!-- Define charateristic of all elements in the grid -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="250" />
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width=".33*"/>
+                <ColumnDefinition Width=".33*"/>
+                <ColumnDefinition Width=".33*"/>
+            </Grid.ColumnDefinitions>
+
+
+            <!-- Instruction of manually adding SDR values-->
+            <Label Text="Enter SDR values. Each SDR value is separated by a comma and each SDR column is separated by &quot;Enter&quot; to the new line"
                        Grid.Row="1"
                        FontSize="15"
                        FontAttributes="Italic"/>
 
-                <!-- Define input holder and let users enter SDR values -->
-                <Editor x:Name="textEditor" Placeholder="Enter your numbers"
+            <!-- Define input holder and let users enter SDR values -->
+            <Editor x:Name="textEditor" Placeholder="Enter your numbers"
                         AutoSize="TextChanges"
                         Keyboard="Numeric"
                         Grid.Row="2"
+                        Grid.ColumnSpan="3"
                         FontSize="15"/>
-                
-                <!-- Save SDR data and navigate to visualisation page (Page1) -->
-                <Button Text="SAVE" Clicked="OnSaveClicked" Grid.Row="3" />
 
-            </Grid>
-        </ScrollView>
-        
-        <!-- Navigate back to Main Page -->
-        <Button Text="BACK TO MAINPAGE" Clicked="OnBackToMainPageClicked" Grid.Row="4" />
-        
-    </StackLayout>
+            <!-- Navigate back to Main Page -->
+            <Button Text="BACK TO MAINPAGE" Clicked="OnBackToMainPageClicked" 
+                    Grid.Row="3" Grid.Column="0"/>
+            
+            <!-- Save SDR data and navigate to visualisation page (Page1) -->
+            <Button Text="Generate an image" Clicked="OnSaveClicked" 
+                    Grid.Row="3" Grid.Column="1"/>
+
+            <!-- Navigate back to Upload Page -->
+            <Button Text="Generate an image" Clicked="OnToUploadPageClicked" 
+                    Grid.Row="3" Grid.Column="3"/>
+
+        </Grid>
+    </ScrollView>
 </ContentPage>

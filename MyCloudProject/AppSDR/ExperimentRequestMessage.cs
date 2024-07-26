@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace AppSDR
 {
-    internal class ExperimentRequestMessage
+    public class ExperimentRequestMessage
     {
+        public string StorageConnectionString { get; set; }
+        public string ContainerName { get; set; }
     }
 }

@@ -89,5 +89,39 @@ namespace AppSDR
         {
             await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
         }
+        private async void OnToUploadPageClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                // Get the content from the text editor
+                string fileContent = textEditor.Text;
+                if (string.IsNullOrEmpty(fileContent))
+                {
+                    // If the content is empty, display an alert
+                    await Application.Current.MainPage.DisplayAlert("Error", "Please type an SDR", "OK");
+                    return; // Exit the method
+                }
+
+                // Get the path to the user's desktop directory
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                // Define the file name and full path
+                string fileName = "SavedSDR.txt";
+                string filePath = Path.Combine(desktopPath, fileName);
+
+                // Write the content to the file
+                File.WriteAllText(filePath, fileContent);
+
+                // Notify the user of success
+                await Application.Current.MainPage.DisplayAlert("Success", "Data saved to desktop successfully", "OK");
+                // Navigate to UploadPage with the file path
+                await Navigation.PushModalAsync(new UploadPage());
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors that occur during the file save process
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "An error occurred while saving the file");
+            }
+        }
     }
 }

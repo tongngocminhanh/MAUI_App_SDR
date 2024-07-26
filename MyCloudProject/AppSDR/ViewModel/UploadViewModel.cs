@@ -8,6 +8,7 @@ namespace AppSDR.ViewModel
 {
     public class UploadViewModel : INotifyPropertyChanged
     {
+        private List<string> _selectedFiles;
         private bool _isConnected;
         private string _connectionString;
         private string _storageAccount;
@@ -74,7 +75,7 @@ namespace AppSDR.ViewModel
         public UploadViewModel()
         {
             ConnectCommand = new Command(async () => await OnConnectAsync());
-            SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync());
+            SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync(_selectedFiles));
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync());
         }
         private async Task OnConnectAsync()
@@ -102,10 +103,12 @@ namespace AppSDR.ViewModel
             return IsConnected;
         }
 
-        private async Task SelectAndUploadFileAsync()
+        private async Task SelectAndUploadFileAsync(List<string> _selectedFiles)
         {
             try
             {
+                // Compatible with Text files and Comma-separated values (csv) files
+                // Define file extension for all supported platforms
                 var customFileType = new FilePickerFileType(
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {
@@ -124,13 +127,18 @@ namespace AppSDR.ViewModel
 
                 if (filePickerResult != null)
                 {
+                    foreach (var file in filePickerResult)
+                    {
+                        _selectedFiles.Add(file.FullPath);
+                    }
+                    StatusMessage = $"{_selectedFiles.Count} files selected.";
                     var containerClient = new BlobContainerClient(ConnectionString, UploadBlobStorageName);
                     await containerClient.CreateIfNotExistsAsync();
 
-                    foreach (var file in filePickerResult)
+                    foreach (var file in _selectedFiles)
                     {
-                        var blobClient = containerClient.GetBlobClient(Path.GetFileName(file.FullPath));
-                        await blobClient.UploadAsync(file.FullPath, overwrite: true);
+                        var blobClient = containerClient.GetBlobClient(Path.GetFileName(file));
+                        await blobClient.UploadAsync(file, overwrite: true);
                     }
 
                     StatusMessage = "Files uploaded successfully.";

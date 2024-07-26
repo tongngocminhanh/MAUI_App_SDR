@@ -144,7 +144,7 @@ namespace AppSDR.ViewModel
         private INavigation _navigation;
         private string[] _entryCellValues;
 
-        // Without-loud properties definition
+        // Without-cloud properties definition
         private string _selectedFilePath;
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
         public ICommand ChooseFileCommand { get; }
@@ -153,7 +153,6 @@ namespace AppSDR.ViewModel
 
         // With-cloud properties definition
         public ICommand UploadFilesCommand { get; }
-        public ICommand UploadTextCommand { get; }
         public string[] EntryCellValues
         {
             get { return _entryCellValues; }
@@ -172,7 +171,8 @@ namespace AppSDR.ViewModel
         public MainViewModel(INavigation navigation)
         {
             _navigation = navigation;
-            // With-cloud commands
+
+            // Without-cloud commands
             ChooseFileCommand = new Command(ChooseFile);
             AddTextCommand = new Command(
                 execute: () =>
@@ -222,7 +222,6 @@ namespace AppSDR.ViewModel
             // Upload functions
             
             UploadFilesCommand = new Command(UploadFiles);
-            UploadTextCommand = new Command(UploadText);
         }
 
         // Navigate to Upload Page
@@ -240,20 +239,7 @@ namespace AppSDR.ViewModel
             }
         }
 
-        private async void UploadText()
-        {
-            try
-            {
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
-                Console.WriteLine($"Navigating error: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Error", $"Navigating error: {ex.Message}", "OK");
-            }
-        }
-
-        // Pick a file from local device
+        // Pick a file from a local device
         private async void ChooseFile()
         {
             try
