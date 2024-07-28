@@ -17,6 +17,9 @@ namespace AppSDR.ViewModel
         private string _uploadBlobStorageName;
         private string _downloadBlobStorageName;
         private string _statusMessage;
+        private string _listenMessage = "Message mode: Off";
+        private QueueMessageListener _listener;
+        private CancellationTokenSource _cts;
 
         public string ConnectionString
         {
@@ -69,10 +72,25 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged();
             }
         }
+        public string ListenMessage
+        {
+            get => _listenMessage;
+            set
+            {
+                if (_listenMessage != value)
+                {
+                    _listenMessage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public ICommand SelectAndUploadFileCommand { get; }
         public ICommand DownloadFilesCommand { get; }
         public ICommand ConnectCommand { get; }
+        public ICommand GenerateOutputCommand { get; }
+        public ICommand StartListeningCommand { get; }
+        public ICommand StopListeningCommand { get; }
 
         // Default constructor required for XAML instantiation
         public UploadViewModel(string _assignedTextFilePath)
@@ -82,6 +100,8 @@ namespace AppSDR.ViewModel
             ConnectCommand = new Command(async () => await OnConnectAsync());
             SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync(_selectedFiles, AssignedTextFilePath), CanExecuteCommands);
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync(), CanExecuteCommands);
+            StartListeningCommand = new Command(async () => await OnStartListening());
+            StopListeningCommand = new Command(async () => await OnStopListening());
         }
 
         // Rest of the methods...
@@ -239,6 +259,31 @@ namespace AppSDR.ViewModel
                 fileName = fileName.Replace(c, '_');
             }
             return fileName;
+        }
+
+        public void UpdateMessage(string newMessage)
+        {
+            ListenMessage = newMessage;
+        }
+
+        private async Task OnStartListening()
+        {
+            if (IsConnected == false && string.IsNullOrEmpty(DownloadBlobStorageName))
+            {
+                StatusMessage = "Please provide a valid connection string, storage account and blob storage name.";
+            }
+            else
+            {
+                UpdateMessage("Status: Start Listening");
+                _listener = new QueueMessageListener(ConnectionString, StorageAccount, DownloadBlobStorageName, ListenMessage);
+                _cts = new CancellationTokenSource();
+                Task.Run(async () => await _listener.ListenToMessagesAsync(_cts.Token));
+            }
+        }
+        private async Task OnStopListening()
+        {
+            _cts?.Cancel();
+            UpdateMessage("Status: Stopped");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

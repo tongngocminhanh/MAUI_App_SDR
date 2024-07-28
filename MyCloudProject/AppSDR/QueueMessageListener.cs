@@ -1,5 +1,4 @@
-﻿/*
-using Azure.Storage.Blobs.Models;
+﻿using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
@@ -11,15 +10,15 @@ namespace AppSDR
     public class QueueMessageListener
     {
         private readonly string _connectionString;
-        private readonly string _queueName;
-        private readonly Label _statusLabel;
-        private readonly INavigation _navigation;
-        private readonly string _containerName;
+        private readonly string _storageName;
+        private readonly string _downloadBlobStorage;
+        private readonly string _listenMessage;
 
-        public QueueMessageListener(string connectionString, string queueName, string containerName, Label statusLabel, INavigation navigation)
+
+        public QueueMessageListener(string connectionString, string storageName, string containerName, string statusLabel)
         {
             _connectionString = connectionString;
-            _queueName = queueName;
+            _storageName = storageName;
             _statusLabel = statusLabel;
             _navigation = navigation;
             _containerName = containerName;
@@ -27,7 +26,7 @@ namespace AppSDR
 
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
         {
-            QueueClient queueClient = new QueueClient(_connectionString, _queueName);
+            QueueClient queueClient = new QueueClient(_connectionString, _storageName);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -246,7 +245,6 @@ namespace AppSDR
             return activeCellsColumn.ToArray();
         }
 
-
         private void UpdateStatusLabel(string message)
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -256,4 +254,3 @@ namespace AppSDR
         }
     }
 }
-*/

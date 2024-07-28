@@ -40,11 +40,11 @@
                     Grid.Row="3" Grid.Column="0"/>
             
             <!-- Save SDR data and navigate to visualisation page (Page1) -->
-            <Button Text="Generate an image" Clicked="OnSaveClicked" 
+            <Button Text="Generate an image locally" Clicked="OnSaveClicked" 
                     Grid.Row="3" Grid.Column="1"/>
 
             <!-- Navigate back to Upload Page -->
-            <Button Text="Generate an image" Clicked="OnToUploadPageClicked" 
+            <Button Text="Generate an image with Cloud" Clicked="OnToUploadPageClicked" 
                     Grid.Row="3" Grid.Column="3"/>
 
         </Grid>
