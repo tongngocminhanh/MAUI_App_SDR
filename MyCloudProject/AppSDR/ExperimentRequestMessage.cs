@@ -9,6 +9,6 @@ namespace AppSDR
     public class ExperimentRequestMessage
     {
         public string StorageConnectionString { get; set; }
-        public string ContainerName { get; set; }
+        public string DownloadBlobStorage { get; set; }
     }
 }

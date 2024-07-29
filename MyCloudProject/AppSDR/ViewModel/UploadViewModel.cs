@@ -9,7 +9,8 @@ namespace AppSDR.ViewModel
     public class UploadViewModel : INotifyPropertyChanged
     {
         // Fields and properties
-        public string AssignedTextFilePath { get; set; }
+        private INavigation _navigation;
+        public string _assignedTextFilePath { get; set; }
         private List<string> _selectedFiles = new List<string>();
         private bool _isConnected;
         private string _connectionString;
@@ -93,14 +94,18 @@ namespace AppSDR.ViewModel
         public ICommand StopListeningCommand { get; }
 
         // Default constructor required for XAML instantiation
-        public UploadViewModel(string _assignedTextFilePath)
+        public UploadViewModel(string AssignedTextFilePath, INavigation Navigation)
         {
-            AssignedTextFilePath = _assignedTextFilePath;
+            _assignedTextFilePath = AssignedTextFilePath;
+            _navigation = Navigation;
             _selectedFiles = new List<string>(); // Initialize the list here
             ConnectCommand = new Command(async () => await OnConnectAsync());
-            SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync(_selectedFiles, AssignedTextFilePath), CanExecuteCommands);
+            SelectAndUploadFileCommand = new Command(async () 
+                => await SelectAndUploadFileAsync(_selectedFiles, _assignedTextFilePath), CanExecuteCommands);
+            GenerateOutputCommand = new Command(async () 
+                => await GenerateOutput(ConnectionString, UploadBlobStorageName, DownloadBlobStorageName, _navigation));
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync(), CanExecuteCommands);
-            StartListeningCommand = new Command(async () => await OnStartListening());
+            StartListeningCommand = new Command(async () => await OnStartListening(_navigation));
             StopListeningCommand = new Command(async () => await OnStopListening());
         }
 
@@ -124,11 +129,121 @@ namespace AppSDR.ViewModel
 
             ((Command)SelectAndUploadFileCommand).ChangeCanExecute();
             ((Command)DownloadFilesCommand).ChangeCanExecute();
+            ((Command)GenerateOutputCommand).ChangeCanExecute();
         }
 
         private bool CanExecuteCommands()
         {
             return IsConnected;
+        }
+
+        public async Task GenerateOutput(string ConnectionString, string UploadBlobStorageName, string DownloadBlobStorageName, INavigation navigation)
+        {
+            try
+            {
+                // Initialize the BlobServiceClient with the connection string
+                var blobServiceClient = new BlobServiceClient(ConnectionString);
+                var containerClient = blobServiceClient.GetBlobContainerClient(UploadBlobStorageName);
+
+                // Ensure the container exists
+                if (!await containerClient.ExistsAsync())
+                {
+                    StatusMessage = "The specified container does not exist.";
+                    return;
+                }
+
+                // Iterate through each blob in the container
+                await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+                {
+                    var blobClient = containerClient.GetBlobClient(blobItem.Name);
+                    StatusMessage = $"Processing blob: {blobItem.Name}";
+
+                    // Download the blob's content as a string
+                    var blobDownloadInfo = await blobClient.DownloadAsync();
+                    using (var streamReader = new StreamReader(blobDownloadInfo.Value.Content))
+                    {
+                        string fileContent = await streamReader.ReadToEndAsync();
+
+                        // Parse the file content into a 2D integer array
+                        int[][] activeCellsArray = ParseFileContent(fileContent);
+                        string[] entryCellValues = { "GraphName", "100", "1", "XaxisTitle", "YaxisTitle", "1", "5000", "SDR" };
+
+                        // Navigate to the new page and wait for the screenshot capture
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            var page1 = new Page1(activeCellsArray, entryCellValues, ConnectionString, DownloadBlobStorageName);
+                            await navigation.PushModalAsync(page1);
+
+                            // Wait for the screenshot to be captured and uploaded
+                            await page1.SaveScreenshotToBlobStorage();
+                            StatusMessage = "Successfully generate and upload";
+                        });
+
+                        // Close the modal page after the screenshot is saved
+                        await navigation.PopModalAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error processing blobs: {ex.Message}";
+            }
+        }
+
+        // Helper method to parse the file content into a 2D integer array
+        private int[][] ParseFileContent(string fileContent)
+        {
+            string[] lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            List<int[]> activeCellsColumn = new List<int[]>();
+
+            foreach (string line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+
+                string[] numbers = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                List<int> parsedNumbers = new List<int>();
+                bool hasNonZeroValue = false;
+
+                foreach (string numberString in numbers)
+                {
+                    string trimmedNumberString = numberString.Trim();
+                    if (string.IsNullOrEmpty(trimmedNumberString))
+                    {
+                        continue;
+                    }
+
+                    if (int.TryParse(trimmedNumberString, out int parsedNumber))
+                    {
+                        if (parsedNumbers.Count == 0 && parsedNumber == 0)
+                        {
+                            hasNonZeroValue = false;
+                            break;
+                        }
+
+                        parsedNumbers.Add(parsedNumber);
+
+                        if (!hasNonZeroValue && parsedNumber != 0)
+                        {
+                            hasNonZeroValue = true;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error parsing line: '{line}'. Value: '{trimmedNumberString}' is not a valid number.");
+                        StatusMessage = "The specified container does not exist.";
+                    }
+                }
+
+                if (hasNonZeroValue)
+                {
+                    activeCellsColumn.Add(parsedNumbers.ToArray());
+                }
+            }
+
+            return activeCellsColumn.ToArray();
         }
 
         private async Task SelectAndUploadFileAsync(List<string> selectedFiles, string _assignedTextFilePath)
@@ -189,6 +304,7 @@ namespace AppSDR.ViewModel
             {
                 StatusMessage = $"Error: {ex.Message}";
             }
+            ((Command)GenerateOutputCommand).ChangeCanExecute();
         }
 
         private async Task DownloadFilesAsync()
@@ -266,7 +382,7 @@ namespace AppSDR.ViewModel
             ListenMessage = newMessage;
         }
 
-        private async Task OnStartListening()
+        private async Task OnStartListening(INavigation _navigation)
         {
             if (IsConnected == false && string.IsNullOrEmpty(DownloadBlobStorageName))
             {
@@ -275,7 +391,7 @@ namespace AppSDR.ViewModel
             else
             {
                 UpdateMessage("Status: Start Listening");
-                _listener = new QueueMessageListener(ConnectionString, StorageAccount, DownloadBlobStorageName, ListenMessage);
+                _listener = new QueueMessageListener(ConnectionString, StorageAccount, DownloadBlobStorageName, _navigation);
                 _cts = new CancellationTokenSource();
                 Task.Run(async () => await _listener.ListenToMessagesAsync(_cts.Token));
             }

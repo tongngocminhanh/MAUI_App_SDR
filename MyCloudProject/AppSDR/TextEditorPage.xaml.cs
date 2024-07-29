@@ -3,10 +3,15 @@ namespace AppSDR
     public partial class TextEditorPage : ContentPage
     {
         public string[] EntryCellValues { get; set; }
-        public TextEditorPage(string[] entryCellValues)
+        public string ConnectionString { get; set; }
+        public string DownloadBlobStorage { get; set; }
+
+        public TextEditorPage(string[] entryCellValues, string connectionString, string downloadBlobStorage)
         {
             InitializeComponent();
             EntryCellValues = entryCellValues;
+            ConnectionString = connectionString;
+            DownloadBlobStorage = downloadBlobStorage;  
         }
         private async void OnSaveClicked(object sender, EventArgs e)
         {
@@ -77,7 +82,7 @@ namespace AppSDR
                 int[][] activeCellsArray = activeCellsColumn.ToArray();
 
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues));
+                await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues, ConnectionString, DownloadBlobStorage));
             }
             catch (Exception ex)
             {
@@ -115,7 +120,7 @@ namespace AppSDR
                 // Notify the user of success
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved to desktop successfully", "OK");
                 // Navigate to UploadPage with the file path
-                await Navigation.PushModalAsync(new UploadPage(filePath));
+                await Navigation.PushModalAsync(new UploadPage(filePath, Navigation));
             }
             catch (Exception ex)
             {

@@ -1,4 +1,6 @@
 using AppSDR.ViewModel;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
 using System.ComponentModel;
 
 namespace AppSDR;
@@ -7,9 +9,13 @@ public partial class Page1 : ContentPage
     public string[] EntryCellValues { get; set; }
     //double WidthRequest { get; set; }
     //double HeightRequest { get; set; }
-    public Page1(int[][] activeCellsColumn, string[] entryCellValues)
+    private string ConnectionString { get; set; }
+    private string DownloadBlobStorage { get; set; }
+    public Page1(int[][] activeCellsColumn, string[] entryCellValues, string connectionString, string downloadBlobStorage)
     {
         InitializeComponent();
+        ConnectionString = connectionString;
+        DownloadBlobStorage = downloadBlobStorage;
 
         // Define source of drawing method
         var graphicsView = this.DrawableView;
@@ -74,7 +80,92 @@ public partial class Page1 : ContentPage
         graphicsdrawable.rectangleWidth = Rectwidth;
         graphicsView.Invalidate();
     }
+    //private async void Save(object sender, EventArgs e)
+    //{
+    //    // Capture the screenshot
+    //    IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
+
+    //    if (screenshotResult != null)
+    //    {
+    //        // Create an output filename
+    //        string targetFile = Path.Combine(FileSystem.AppDataDirectory, "test4.png");
+
+    //        try
+    //        {
+    //            using (FileStream outputStream = File.Create(targetFile))
+    //            {
+    //                await screenshotResult.CopyToAsync(outputStream);
+    //            }
+
+    //            string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+    //            string desktopFilePath = Path.Combine(desktopDirectory, $"{EntryCellValues[7]}.png");
+
+    //            // Copy the file from the AppDataDirectory to the desktop
+    //            File.Copy(targetFile, desktopFilePath, true);
+
+    //            // Display a success message
+    //            await DisplayAlert("Success", "Screenshot saved to desktop successfully.", "OK");
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            // Display an error message if saving fails
+    //            await DisplayAlert("Error", $"Failed to save screenshot to desktop: {ex.Message}", "OK");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // Display a message if no screenshot was captured
+    //        await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
+    //    }
+    //}
+
     private async void Save(object sender, EventArgs e)
+    {
+        await SaveScreenshot();
+    }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        // Delay to ensure the page is fully loaded
+        await Task.Delay(500);
+
+        await SaveScreenshotToBlobStorage();
+    }
+    public async Task SaveScreenshotToBlobStorage()
+    {
+        // Capture the screenshot
+        IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
+
+        if (screenshotResult != null)
+        {
+
+            using (var stream = await screenshotResult.OpenReadAsync())
+            {
+                // Generate a unique file name using a timestamp
+                string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+                string blobName = $"{EntryCellValues[7]}_{timestamp}.png";
+
+                BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(DownloadBlobStorage);
+                BlobClient blobClient = containerClient.GetBlobClient(blobName);
+
+                await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
+                // Optional delay before the next operation
+                //await Task.Delay(2000);
+                await DisplayAlert("Success", "Screenshot has been saved successfully.", "OK");
+
+            }
+
+        }
+        else
+        {
+            // Display a message if no screenshot was captured
+            await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
+        }
+
+    }
+
+    private async Task SaveScreenshot()
     {
         // Capture the screenshot
         IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
@@ -95,7 +186,7 @@ public partial class Page1 : ContentPage
                 string desktopFilePath = Path.Combine(desktopDirectory, $"{EntryCellValues[7]}.png");
 
                 // Copy the file from the AppDataDirectory to the desktop
-                File.Copy(targetFile, desktopFilePath, true);
+                File.Move(targetFile, desktopFilePath, true);
 
                 // Display a success message
                 await DisplayAlert("Success", "Screenshot saved to desktop successfully.", "OK");
@@ -112,6 +203,7 @@ public partial class Page1 : ContentPage
             await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
         }
     }
+
     private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
     {
         await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage

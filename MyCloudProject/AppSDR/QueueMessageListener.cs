@@ -12,16 +12,17 @@ namespace AppSDR
         private readonly string _connectionString;
         private readonly string _storageName;
         private readonly string _downloadBlobStorage;
-        private readonly string _listenMessage;
+        private INavigation _navigation;
+        // private readonly string _listenMessage;
 
 
-        public QueueMessageListener(string connectionString, string storageName, string containerName, string statusLabel)
+        public QueueMessageListener(string connectionString, string storageName, string downloadBlobStorage, INavigation navigation)
         {
             _connectionString = connectionString;
             _storageName = storageName;
-            _statusLabel = statusLabel;
+            //_statusLabel = statusLabel;
             _navigation = navigation;
-            _containerName = containerName;
+            _downloadBlobStorage = downloadBlobStorage;
         }
 
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
@@ -56,7 +57,7 @@ namespace AppSDR
                             catch (JsonException ex)
                             {
                                 Console.WriteLine($"JSON Deserialization Error: {ex.Message}");
-                                UpdateStatusLabel($"JSON Deserialization Error: {ex.Message}");
+                                //UpdateStatusLabel($"JSON Deserialization Error: {ex.Message}");
                             }
 
                             if (experimentRequestMessage != null)
@@ -72,7 +73,8 @@ namespace AppSDR
                 }
                 catch (Exception ex)
                 {
-                    UpdateStatusLabel($"Error receiving messages: {ex.Message}");
+                    //UpdateStatusLabel($"Error receiving messages: {ex.Message}");
+                    Console.WriteLine($"Error receiving messages: {ex.Message}");
                 }
             }
         }
@@ -87,21 +89,21 @@ namespace AppSDR
         {
             try
             {
-                UpdateStatusLabel($"Processing experiment request: {request.ContainerName}");
+                //UpdateStatusLabel($"Processing experiment request: {request.downloadBlobStorage}");
 
                 BlobServiceClient blobServiceClient = new BlobServiceClient(request.StorageConnectionString);
-                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.ContainerName);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.DownloadBlobStorage);
 
                 if (!await containerClient.ExistsAsync())
                 {
-                    UpdateStatusLabel("Container does not exist.");
+                    //UpdateStatusLabel("Container does not exist.");
                     return;
                 }
 
                 await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
                 {
                     string blobName = blobItem.Name;
-                    UpdateStatusLabel($"Found blob: {blobName}");
+                    //UpdateStatusLabel($"Found blob: {blobName}");
 
                     BlobClient blobClient = containerClient.GetBlobClient(blobName);
                     string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -116,23 +118,27 @@ namespace AppSDR
                     try
                     {
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
-                        UpdateStatusLabel($"Downloaded file to {localFilePath}");
+                        //UpdateStatusLabel($"Downloaded file to {localFilePath}");
+                        Console.WriteLine($"Downloaded file to {localFilePath}");
                         await ProcessDownloadedFileAsync(localFilePath);
 
 
                     }
                     catch (Exception ex)
                     {
-                        UpdateStatusLabel($"Error downloading or processing blob '{blobName}': {ex.Message}");
+                        //UpdateStatusLabel($"Error downloading or processing blob '{blobName}': {ex.Message}");
+                        Console.WriteLine($"Error downloading or processing blob '{blobName}': {ex.Message}");
                     }
                 }
 
-                UpdateStatusLabel("All files have been processed.");
+                //UpdateStatusLabel("All files have been processed.");
+                Console.WriteLine($"All files have been processed.");
 
             }
             catch (Exception ex)
             {
-                UpdateStatusLabel($"Error processing experiment request: {ex.Message}");
+                //UpdateStatusLabel($"Error processing experiment request: {ex.Message}");
+                Console.WriteLine($"Error processing experiment request: {ex.Message}");
             }
         }
 
@@ -167,7 +173,8 @@ namespace AppSDR
             try
             {
                 string fileContent = await File.ReadAllTextAsync(filePath);
-                UpdateStatusLabel($"Processing file: {Path.GetFileName(filePath)}");
+                //UpdateStatusLabel($"Processing file: {Path.GetFileName(filePath)}");
+                Console.WriteLine($"Processing file: {Path.GetFileName(filePath)}");
 
                 int[][] activeCellsArray = ParseFileContent(fileContent);
                 string[] entryCellValues = { "GraphName", "100", "1", "XaxisTitle", "YaxisTitle", "1", "5000", "SDR" };
@@ -175,8 +182,7 @@ namespace AppSDR
                 // Ensure the navigation to Page1 is awaited and on the main thread
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    var page1 = new Page1(activeCellsArray, entryCellValues, _connectionString, _containerName);
-                    //await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues,_connectionString,_containerName
+                    var page1 = new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage);
                     await _navigation.PushModalAsync(page1);
 
                     // Wait for the screenshot to be captured and uploaded
@@ -187,7 +193,8 @@ namespace AppSDR
             }
             catch (Exception ex)
             {
-                UpdateStatusLabel($"Error processing file {filePath}: {ex.Message}");
+                //UpdateStatusLabel($"Error processing file {filePath}: {ex.Message}");
+                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
             }
         }
 
@@ -245,12 +252,13 @@ namespace AppSDR
             return activeCellsColumn.ToArray();
         }
 
-        private void UpdateStatusLabel(string message)
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                _statusLabel.Text = $"Status: {message}";
-            });
-        }
+        //private void UpdateStatusLabel(string message)
+        //{
+        //    MainThread.BeginInvokeOnMainThread(() =>
+        //    {
+        //        //_statusLabel.Text = $"Status: {message}";
+
+        //    });
+        //}
     }
 }
