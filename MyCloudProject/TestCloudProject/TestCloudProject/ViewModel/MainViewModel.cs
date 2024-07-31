@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Data.Tables;
 
 namespace TestCloudProject.ViewModel
 {
@@ -11,6 +12,7 @@ namespace TestCloudProject.ViewModel
         private string _connectionString;
         private string _uploadBlobStorageName;
         private string _downloadBlobStorageName;
+        private string _tableStorageName;
         private string _statusMessage;
 
         public string ConnectionString
@@ -42,6 +44,15 @@ namespace TestCloudProject.ViewModel
                 OnPropertyChanged();
             }
         }
+        public string TableStorageName
+        {
+            get => _tableStorageName;
+            set
+            {
+                _tableStorageName = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string StatusMessage
         {
@@ -55,11 +66,13 @@ namespace TestCloudProject.ViewModel
 
         public ICommand SelectAndUploadFileCommand { get; }
         public ICommand DownloadFilesCommand { get; }
+        public ICommand UploadParametersCommand { get; }
 
         public MainViewModel()
         {
             SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync());
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync());
+            UploadParametersCommand = new Command(async () => await UploadParameters());
         }
 
         private async Task SelectAndUploadFileAsync()
@@ -171,6 +184,33 @@ namespace TestCloudProject.ViewModel
                 Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
                 throw;
             }
+        }
+        private async Task UploadParameters()
+        {
+            string[] EntryCellValues = { "GraphName", "100", "1", "XaxisTitle", "YaxisTitle", "1", "5000", "SDR" };
+            // Create a table client
+            TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
+
+            // Create the table if it doesn't exist
+            await tableClient.CreateIfNotExistsAsync();
+
+            // Create an instance of the ConfigurationEntity
+            var entity = new ConfigurationEntity
+            {
+                PartitionKey = "Configuration",
+                RowKey = Guid.NewGuid().ToString(), // Unique identifier for the entity
+                GraphName = EntryCellValues[0],
+                MaxCycles = EntryCellValues[1],
+                HighlightTouch = EntryCellValues[2],
+                XaxisTitle = EntryCellValues[3],
+                YaxisTitle = EntryCellValues[4],
+                MinRange = EntryCellValues[5],
+                MaxRange = EntryCellValues[6],
+                SavedName = EntryCellValues[7]
+            };
+
+            // Insert or update the entity
+            await tableClient.UpsertEntityAsync(entity);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

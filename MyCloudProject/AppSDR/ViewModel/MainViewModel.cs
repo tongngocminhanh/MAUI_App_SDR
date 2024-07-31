@@ -302,7 +302,7 @@ namespace AppSDR.ViewModel
         {
             // Parse EntryCellValues, navigate to Text Editor Page
             string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _connectionString, _downloadBlobStorage));
+            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _connectionString, _downloadBlobStorage, _navigation));
         }
         private async void Submit()
         {
@@ -336,7 +336,7 @@ namespace AppSDR.ViewModel
         private async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray, string _connectionString, string _downloadBlobStorage)
         {
             // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
-            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage));
+            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage, _navigation));
         }
         private int[][] ParseFileContent(string fileContent)
         {

@@ -15,9 +15,11 @@
         <Entry Placeholder="Connection String" Text="{Binding ConnectionString}" />
         <Entry Placeholder="Upload Blob Storage Name" Text="{Binding UploadBlobStorageName}" />
         <Entry Placeholder="Download Blob Storage Name" Text="{Binding DownloadBlobStorageName}" />
+        <Entry Placeholder="Entity Table Storage Name" Text="{Binding TableStorageName}" />
 
         <Button Text="Select and Upload File" Command="{Binding SelectAndUploadFileCommand}" />
         <Button Text="Download Files" Command="{Binding DownloadFilesCommand}" />
+        <Button Text="Upload parameters" Command="{Binding UploadParametersCommand}" />
 
         <Label Text="{Binding StatusMessage}" />
     </StackLayout>

@@ -171,7 +171,7 @@ namespace AppSDR.ViewModel
                         // Navigate to the new page and wait for the screenshot capture
                         await MainThread.InvokeOnMainThreadAsync(async () =>
                         {
-                            var page1 = new Page1(activeCellsArray, entryCellValues, ConnectionString, DownloadBlobStorageName);
+                            var page1 = new Page1(activeCellsArray, entryCellValues, ConnectionString, DownloadBlobStorageName, _navigation);
                             await navigation.PushModalAsync(page1);
 
                             // Wait for the screenshot to be captured and uploaded

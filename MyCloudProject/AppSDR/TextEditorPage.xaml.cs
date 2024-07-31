@@ -2,16 +2,18 @@ namespace AppSDR
 {
     public partial class TextEditorPage : ContentPage
     {
+        private INavigation Navigation;
         public string[] EntryCellValues { get; set; }
         public string ConnectionString { get; set; }
         public string DownloadBlobStorage { get; set; }
 
-        public TextEditorPage(string[] entryCellValues, string connectionString, string downloadBlobStorage)
+        public TextEditorPage(string[] entryCellValues, string connectionString, string downloadBlobStorage, INavigation navigation)
         {
             InitializeComponent();
             EntryCellValues = entryCellValues;
             ConnectionString = connectionString;
             DownloadBlobStorage = downloadBlobStorage;  
+            Navigation = navigation;    
         }
         private async void OnSaveClicked(object sender, EventArgs e)
         {
@@ -82,7 +84,7 @@ namespace AppSDR
                 int[][] activeCellsArray = activeCellsColumn.ToArray();
 
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues, ConnectionString, DownloadBlobStorage));
+                await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues, ConnectionString, DownloadBlobStorage, Navigation));
             }
             catch (Exception ex)
             {
