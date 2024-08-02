@@ -122,7 +122,7 @@ namespace AppSDR
                 // Notify the user of success
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved to desktop successfully", "OK");
                 // Navigate to UploadPage with the file path
-                await Navigation.PushModalAsync(new UploadPage(filePath, Navigation));
+                await Navigation.PushModalAsync(new UploadPage(filePath, Navigation, EntryCellValues));
             }
             catch (Exception ex)
             {

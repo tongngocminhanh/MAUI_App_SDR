@@ -20,6 +20,7 @@
         <Button Text="Select and Upload File" Command="{Binding SelectAndUploadFileCommand}" />
         <Button Text="Download Files" Command="{Binding DownloadFilesCommand}" />
         <Button Text="Upload parameters" Command="{Binding UploadParametersCommand}" />
+        <Button Text="Download tabel entitites" Command="{Binding DownloadEntityCommand}"/>
 
         <Label Text="{Binding StatusMessage}" />
     </StackLayout>

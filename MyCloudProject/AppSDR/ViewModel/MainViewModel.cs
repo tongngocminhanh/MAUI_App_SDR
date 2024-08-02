@@ -155,9 +155,6 @@ namespace AppSDR.ViewModel
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
         public ICommand AddTextCommand { private set; get; }
-
-        // With-cloud properties definition
-        public ICommand UploadFilesCommand { get; }
         public string[] EntryCellValues
         {
             get { return _entryCellValues; }
@@ -173,6 +170,8 @@ namespace AppSDR.ViewModel
             }
         }
 
+        // With-cloud properties definition
+        public ICommand UploadFilesCommand { get; }
         public MainViewModel(INavigation navigation)
         {
             _navigation = navigation;
@@ -234,7 +233,8 @@ namespace AppSDR.ViewModel
         {
             try
             {
-                await _navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, _navigation));
+                string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
+                await _navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, _navigation, EntryCellValues));
             }
             catch (Exception ex)
             {

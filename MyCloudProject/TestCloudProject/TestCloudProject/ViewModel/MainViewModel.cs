@@ -4,6 +4,8 @@ using System.Windows.Input;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Data.Tables;
+using System.Collections.Concurrent;
+using Azure;
 
 namespace TestCloudProject.ViewModel
 {
@@ -67,12 +69,14 @@ namespace TestCloudProject.ViewModel
         public ICommand SelectAndUploadFileCommand { get; }
         public ICommand DownloadFilesCommand { get; }
         public ICommand UploadParametersCommand { get; }
+        public ICommand DownloadEntityCommand { get; }
 
         public MainViewModel()
         {
             SelectAndUploadFileCommand = new Command(async () => await SelectAndUploadFileAsync());
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync());
             UploadParametersCommand = new Command(async () => await UploadParameters());
+            DownloadEntityCommand = new Command(async () => await DownloadEntity());
         }
 
         private async Task SelectAndUploadFileAsync()
@@ -211,6 +215,41 @@ namespace TestCloudProject.ViewModel
 
             // Insert or update the entity
             await tableClient.UpsertEntityAsync(entity);
+        }
+
+        private async Task DownloadEntity()
+        {
+            // Create a table client
+            TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
+
+            // Query all entities
+            Pageable<ConfigurationEntity> queryResults = tableClient.Query<ConfigurationEntity>();
+
+            // Convert to a list and order by Timestamp in descending order
+            List<ConfigurationEntity> entities = queryResults.ToList();
+            var mostRecentEntity = entities.OrderByDescending(ent => ent.Timestamp).FirstOrDefault();
+
+            if (mostRecentEntity != null)
+            {
+                // Convert the entity properties back to a string array
+                string[] EntryCellValues = new string[]
+                {
+                mostRecentEntity.GraphName,
+                mostRecentEntity.MaxCycles,
+                mostRecentEntity.HighlightTouch,
+                mostRecentEntity.XaxisTitle,
+                mostRecentEntity.YaxisTitle,
+                mostRecentEntity.MinRange,
+                mostRecentEntity.MaxRange,
+                mostRecentEntity.SavedName
+                };
+                StatusMessage = $"Highlight touch: {EntryCellValues[2]}, Ytitlte: {EntryCellValues[4]}";
+            }
+            else
+            {
+                // Handle case when no entities are found
+                throw new InvalidOperationException("No entities found in the table.");
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

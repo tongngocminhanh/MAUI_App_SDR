@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Azure;
+using Azure.Data.Tables;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -10,17 +12,29 @@ namespace AppSDR.ViewModel
     {
         // Fields and properties
         private INavigation _navigation;
-        public string _assignedTextFilePath { get; set; }
+        public string _assignedTextFilePath;
         private List<string> _selectedFiles = new List<string>();
+        private string[] _entryCellValues;
         private bool _isConnected;
         private string _connectionString;
         private string _storageAccount;
         private string _uploadBlobStorageName;
         private string _downloadBlobStorageName;
+        private string _tableStorageName;
         private string _statusMessage;
         private string _listenMessage = "Message mode: Off";
         private QueueMessageListener _listener;
         private CancellationTokenSource _cts;
+
+        public string[] EntryCellValues
+        {
+            get => _entryCellValues;
+            set
+            {
+                _entryCellValues = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string ConnectionString
         {
@@ -63,6 +77,15 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged();
             }
         }
+        public string TableStorageName
+        {
+            get => _tableStorageName;
+            set
+            {
+                _tableStorageName = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string StatusMessage
         {
@@ -89,20 +112,24 @@ namespace AppSDR.ViewModel
         public ICommand SelectAndUploadFileCommand { get; }
         public ICommand DownloadFilesCommand { get; }
         public ICommand ConnectCommand { get; }
+        public ICommand UploadParametersCommand { get; }
         public ICommand GenerateOutputCommand { get; }
         public ICommand StartListeningCommand { get; }
         public ICommand StopListeningCommand { get; }
 
         // Default constructor required for XAML instantiation
-        public UploadViewModel(string AssignedTextFilePath, INavigation Navigation)
+        public UploadViewModel(string AssignedTextFilePath, INavigation Navigation, string[] EntryCellValues)
         {
             _assignedTextFilePath = AssignedTextFilePath;
             _navigation = Navigation;
+            _entryCellValues = EntryCellValues;
+
             _selectedFiles = new List<string>(); // Initialize the list here
             ConnectCommand = new Command(async () => await OnConnectAsync());
-            SelectAndUploadFileCommand = new Command(async () 
+            UploadParametersCommand = new Command(async () => await UploadParameters(ConnectionString, TableStorageName, _entryCellValues));
+            SelectAndUploadFileCommand = new Command(async ()
                 => await SelectAndUploadFileAsync(_selectedFiles, _assignedTextFilePath), CanExecuteCommands);
-            GenerateOutputCommand = new Command(async () 
+            GenerateOutputCommand = new Command(async ()
                 => await GenerateOutput(ConnectionString, UploadBlobStorageName, DownloadBlobStorageName, _navigation));
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync(), CanExecuteCommands);
             StartListeningCommand = new Command(async () => await OnStartListening(_navigation));
@@ -130,13 +157,104 @@ namespace AppSDR.ViewModel
             ((Command)SelectAndUploadFileCommand).ChangeCanExecute();
             ((Command)DownloadFilesCommand).ChangeCanExecute();
             ((Command)GenerateOutputCommand).ChangeCanExecute();
+            ((Command)UploadParametersCommand).ChangeCanExecute();
         }
 
         private bool CanExecuteCommands()
         {
             return IsConnected;
         }
+        //private async Task<string[]> GetParameters()
+        //{
+        //}
+        public async Task UploadParameters(string ConnectionString, string TableStorageName, string[] EntryCellValues)
+        {
 
+            if ((EntryCellValues != null) && (EntryCellValues.Length >7))
+            {
+                await UploadWhenExist(ConnectionString, TableStorageName, EntryCellValues);
+            }
+            else
+            {
+                // Display a warning message to the user
+                StatusMessage = "Warning: Entry cell values are empty or null. Cannot upload parameters.";
+            }
+
+        }
+
+        private async Task UploadWhenExist(string ConnectionString, string TableStorageName, string[] EntryCellValues)
+        {
+            try
+            {
+                // Ensure that entryCellValues is not null and has the correct number of elements
+                if (EntryCellValues == null || EntryCellValues.Length < 8)
+                {
+                    StatusMessage = "Entry cell values are invalid. Ensure all required values are provided.";
+                    return;
+                }
+                // Create a table client
+                TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
+
+                // Create the table if it doesn't exist
+                await tableClient.CreateIfNotExistsAsync();
+
+                // Create an instance of the ConfigurationEntity
+                var entity = new TableConfigurationEntity
+                {
+                    PartitionKey = "Configuration",
+                    RowKey = Guid.NewGuid().ToString(), // Unique identifier for the entity
+                    GraphName = EntryCellValues[0],
+                    MaxCycles = EntryCellValues[1],
+                    HighlightTouch = EntryCellValues[2],
+                    XaxisTitle = EntryCellValues[3],
+                    YaxisTitle = EntryCellValues[4],
+                    MinRange = EntryCellValues[5],
+                    MaxRange = EntryCellValues[6],
+                    SavedName = EntryCellValues[7]
+                };
+
+                // Insert or update the entity
+                await tableClient.UpsertEntityAsync(entity);
+                StatusMessage = $"Successfully upload entities";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error uploading Entities: {ex.Message}";
+            }
+        }
+        public async void DownloadEntity(string ConnectionString, string TableStorageName)
+        {
+            // Create a table client
+            TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
+
+            // Query all entities
+            Pageable<TableConfigurationEntity> queryResults = tableClient.Query<TableConfigurationEntity>();
+
+            // Convert to a list and order by Timestamp in descending order
+            List<TableConfigurationEntity> entities = queryResults.ToList();
+            var mostRecentEntity = entities.OrderByDescending(ent => ent.Timestamp).FirstOrDefault();
+
+            if (mostRecentEntity != null)
+            {
+                // Convert the entity properties back to a string array
+                _entryCellValues =  new string[]
+                {
+                mostRecentEntity.GraphName,
+                mostRecentEntity.MaxCycles,
+                mostRecentEntity.HighlightTouch,
+                mostRecentEntity.XaxisTitle,
+                mostRecentEntity.YaxisTitle,
+                mostRecentEntity.MinRange,
+                mostRecentEntity.MaxRange,
+                mostRecentEntity.SavedName
+                };
+            }
+            else
+            {
+                // Handle case when no entities are found
+                throw new InvalidOperationException("No entities found in the table.");
+            }
+        }
         public async Task GenerateOutput(string ConnectionString, string UploadBlobStorageName, string DownloadBlobStorageName, INavigation navigation)
         {
             try
@@ -166,12 +284,11 @@ namespace AppSDR.ViewModel
 
                         // Parse the file content into a 2D integer array
                         int[][] activeCellsArray = ParseFileContent(fileContent);
-                        string[] entryCellValues = { "GraphName", "100", "1", "XaxisTitle", "YaxisTitle", "1", "5000", "SDR" };
 
                         // Navigate to the new page and wait for the screenshot capture
                         await MainThread.InvokeOnMainThreadAsync(async () =>
                         {
-                            var page1 = new Page1(activeCellsArray, entryCellValues, ConnectionString, DownloadBlobStorageName, _navigation);
+                            var page1 = new Page1(activeCellsArray, _entryCellValues, ConnectionString, DownloadBlobStorageName, _navigation);
                             await navigation.PushModalAsync(page1);
 
                             // Wait for the screenshot to be captured and uploaded
