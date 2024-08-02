@@ -8,7 +8,7 @@ namespace AppSDR.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        // Start property change
+        // Start property change of parameters
         private string _graphName;
         public string GraphName
         {
@@ -138,12 +138,19 @@ namespace AppSDR.ViewModel
                 }
             }
         }
-        // End property change
+        // End property change of parameters
 
-        // Navigation and reading functions
+        // Navigation elements
         private INavigation _navigation;
-        private string _selectedFilePath;
         private string[] _entryCellValues;
+
+        // Null pre-defined values
+        private string _assignedTextFilePath = null;
+        private string _connectionString = null;
+        private string _downloadBlobStorage = null;
+
+        // Without-cloud properties definition
+        private string _selectedFilePath;
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
         public ICommand ChooseFileCommand { get; }
         public ICommand SubmitCommand { private set; get; }
@@ -162,11 +169,15 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged(nameof(SelectedFilePath));
             }
         }
+
+        // With-cloud properties definition
+        public ICommand UploadFilesCommand { get; }
         public MainViewModel(INavigation navigation)
         {
-            ChooseFileCommand = new Command(ChooseFile);
             _navigation = navigation;
 
+            // Without-cloud commands
+            ChooseFileCommand = new Command(ChooseFile);
             AddTextCommand = new Command(
                 execute: () =>
                 {
@@ -211,9 +222,29 @@ namespace AppSDR.ViewModel
                     return firstSevenNotNull && (string.IsNullOrEmpty(SavedName) || 
                                                 !string.IsNullOrEmpty(SavedName));
                 });
+
+            // Upload functions
+            UploadFilesCommand = new Command(UploadFiles);
+
         }
 
-        // Pick a file from local device
+        // Navigate to Upload Page
+        private async void UploadFiles()
+        {
+            try
+            {
+                string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
+                await _navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, _navigation, EntryCellValues));
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"File picking error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
+            }
+        }
+
+        // Pick a file from a local device
         private async void ChooseFile()
         {
             try
@@ -223,11 +254,11 @@ namespace AppSDR.ViewModel
                 var customFileType = new FilePickerFileType(
                 new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
-                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } }, 
-                    { DevicePlatform.Android, new[] {".txt", ".csv" } }, 
+                    { DevicePlatform.iOS, new[] { ".txt", ".csv" } },
+                    { DevicePlatform.Android, new[] {".txt", ".csv" } },
                     { DevicePlatform.WinUI, new[] { ".txt", ".csv" } },
                     { DevicePlatform.Tizen, new[] { ".txt", ".csv" } },
-                    { DevicePlatform.macOS, new[] {".txt", ".csv" } } 
+                    { DevicePlatform.macOS, new[] {".txt", ".csv" } }
                 });
 
 
@@ -271,7 +302,7 @@ namespace AppSDR.ViewModel
         {
             // Parse EntryCellValues, navigate to Text Editor Page
             string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues));
+            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _connectionString, _downloadBlobStorage, _navigation));
         }
         private async void Submit()
         {
@@ -288,9 +319,9 @@ namespace AppSDR.ViewModel
                     string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
 
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
-                    await NavigateToPage1(EntryCellValues, activeCellsArray);
+                    await NavigateToPage1(EntryCellValues, activeCellsArray, _connectionString, _downloadBlobStorage);
                 }
-                
+
                 // Exception Alert when no input file is detected 
                 else
                 {
@@ -302,10 +333,10 @@ namespace AppSDR.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
-        private async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray)
+        private async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray, string _connectionString, string _downloadBlobStorage)
         {
             // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
-            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues));
+            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage, _navigation));
         }
         private int[][] ParseFileContent(string fileContent)
         {

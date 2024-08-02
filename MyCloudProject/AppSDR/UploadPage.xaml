@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:AppSDR.ViewModel"
+             x:Class="AppSDR.UploadPage"
+             Title="Upload to Blob Storage"
+             BackgroundColor="{StaticResource PageBackgroundColor}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Background Colors -->
+            <!-- Light gray background for the page -->
+            <Color x:Key="PageBackgroundColor">#F5F5F5</Color>
+            <!-- Darker blue for the left panel -->
+            <Color x:Key="LeftPanelBackgroundColor">#2C3E50</Color>
+            <!-- Light gray for the right panel -->
+            <Color x:Key="RightPanelBackgroundColor">#8d98a7</Color>
+
+            <!-- Accent and Highlight Colors -->
+            <!-- Blue for highlights and accents -->
+            <Color x:Key="AccentColor">#3498DB</Color>
+            <!-- Red for important highlights or actions -->
+            <Color x:Key="HighlightColor">#E74C3C</Color>
+
+            <!-- Text Colors -->
+            <!-- White text for dark backgrounds -->
+            <Color x:Key="PrimaryTextColor">#FFFFFF</Color>
+            <!-- Dark blue text for light backgrounds -->
+            <Color x:Key="SecondaryTextColor">#011111</Color>
+            <!-- Black text for entry fields -->
+            <Color x:Key="EntryTextColor">#000000</Color>
+
+            <!-- Button Colors -->
+            <!-- Green for buttons -->
+            <Color x:Key="ButtonBackgroundColor">#eab464</Color>
+            <!-- White text on buttons -->
+            <Color x:Key="ButtonTextColor">#000000</Color>
+            
+            <!-- Entry Background -->
+            <!-- Light gray for entry fields -->
+            <Color x:Key="EntryBackgroundColor">#ECF0F1</Color>
+            
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="250,*,*,*,*,*">
+        <!-- Left Panel with Storage Configuration Options -->
+        <StackLayout Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                     BackgroundColor="{StaticResource LeftPanelBackgroundColor}"
+                     Padding="10" Spacing="10">
+
+            <!-- Storage Account Configuration Options -->
+            <Label Text="Configure Storage" 
+                   FontAttributes="Bold" 
+                   TextColor="{StaticResource PrimaryTextColor}" />
+            <Entry Placeholder="Connection String" 
+                   Text="{Binding ConnectionString}"
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+            <Entry Placeholder="Storage Account Name" 
+                   Text="{Binding StorageAccount}" 
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+            <Button Text="Connect"
+                    Command="{Binding ConnectCommand}"
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"/>
+
+            <!-- Blob Storage Configuration for Inputs and Outputs -->
+            <Label Text="Configure Blob Storage " 
+                   FontAttributes="Bold" 
+                   TextColor="{StaticResource PrimaryTextColor}" />
+            <Entry Placeholder="SDR values Blob Name" 
+                   Text="{Binding UploadBlobStorageName}"
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+            <Entry Placeholder="Outputs Blob Name" 
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"  
+                   Text="{Binding DownloadBlobStorageName}" />
+            
+            <!-- Table Storage to get parameters -->
+            <Entry Placeholder="Table Storage Name" 
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"  
+                   Text="{Binding TableStorageName}" />
+
+            <Button Text="Upload defined parameters"
+                    Command="{Binding UploadParametersCommand}"
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"/>
+            
+            <Label Text="{Binding StatusMessage}" 
+                   FontAttributes="Bold" 
+                   TextColor="{StaticResource HighlightColor}" 
+                   Margin="0,10,0,0"/>
+        </StackLayout>
+
+        <!-- Right Panel with SDR Visualization -->
+        <ScrollView Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5"
+                    BackgroundColor="{StaticResource RightPanelBackgroundColor}"
+                    Padding="10">
+            <StackLayout Spacing="20">
+                <Label Text="GENERATE SDR VISUALIZATION" 
+                       FontAttributes="Bold" 
+                       TextColor="{StaticResource PrimaryTextColor}" />
+
+                <!-- Manual Output generation -->
+                <Label Text="Manual generation"
+                       FontAttributes="Bold" 
+                       TextColor="{StaticResource SecondaryTextColor}" />
+
+                <Button Text="Select and Upload File"
+                        Command="{Binding SelectAndUploadFileCommand}"
+                        BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                        TextColor="{StaticResource ButtonTextColor}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="10"/>
+
+                <Button Text="Generate and upload Output Files"
+                        Command="{Binding GenerateOutputCommand}"
+                        BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                        TextColor="{StaticResource ButtonTextColor}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="10"/>
+
+                <Button Text="Download Output Files"
+                        Command="{Binding DownloadFilesCommand}"
+                        BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                        TextColor="{StaticResource ButtonTextColor}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="10"/>
+
+                <!-- Message Output generation -->
+                <Label Text="Message generatiion"
+                       FontAttributes="Bold" 
+                       TextColor="{StaticResource SecondaryTextColor}" />
+
+                <Button Text="Start Listening"
+                        Command="{Binding StartListeningCommand}"
+                        BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                        TextColor="{StaticResource ButtonTextColor}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="10"/>
+                
+                <Button Text="Stop Listening"
+                        Command="{Binding StopListeningCommand}"
+                        BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                        TextColor="{StaticResource ButtonTextColor}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="10"/>
+
+                <Label Text="{Binding ListenMessage}" 
+                       FontAttributes="Bold" 
+                       TextColor="{StaticResource HighlightColor}" 
+                       Margin="0,10,0,0"/>
+
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

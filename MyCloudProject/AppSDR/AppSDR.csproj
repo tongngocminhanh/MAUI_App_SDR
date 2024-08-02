@@ -54,11 +54,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
+		<PackageReference Include="Azure.Data.Tables" Version="12.9.0" />
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.21.1" />
+		<PackageReference Include="Azure.Storage.Queues" Version="12.19.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.14" />
 		<PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.14" />
+		<Compile Update="UploadPage.xaml.cs">
+			<DependentUpon>UploadPage.xaml</DependentUpon>
+		</Compile>
 		<Compile Update="TextEditorPage.xaml.cs">
 			<DependentUpon>TextEditorPage.xaml</DependentUpon>
 		</Compile>
@@ -70,6 +75,9 @@
 		</MauiXaml>
 		<MauiXaml Update="Page1.xaml">
 			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="UploadPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<PackageReference Update="Microsoft.Maui.Controls" Version="8.0.14" />
 	</ItemGroup>

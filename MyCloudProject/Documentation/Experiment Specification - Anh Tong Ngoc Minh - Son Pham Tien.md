@@ -17,6 +17,13 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
 7. [References](#references)
 
 ## Introduction
+Microsoft Azure is an open and flexible cloud-computing platform. The scope of this project is to apply Azure Cloud to the Software Project of .NET MAUI (AppSDR), using Azure storage containers for storing inputs and outputs of the app. In general, the project involves:
+
+* Modifying the current .NET MAUI app to access the Azure storage account. The main idea is to create the *BlobStorageService* class, holding the input storage account information, and which type of storage is used. 
+* Creating a new page with new functions to interact with the Azure storage account, including uploading and downloading files. Users on this page specify the storage information calling the *BlobStorageService* to access the provided storage account.
+* Adding a button for *Listening Mode* which waits for messages indicating that CSV files are ready for processing in a specified container. Users can manually upload messages, and when ready, a message can be sent programmatically. The app initiates file processing on-demand without waiting for the message, ensuring flexibility in operation.
+
+AppSDR is operated locally, not dockerized, to receive the user's input interaction. The app accesses the specific cloud storage and saves the user's input. The SDR representation is saved on the storage and can be downloaded to the local machine.
 
 ## SE Project links
 1. SE Project Documentation: [PDF](../../../MySEProject/Documentation/ML22-23-8-Implement%20the%20SDR%20representation%20in%20the%20MAUI%20application_MAUI_App_SDR-Paper.pdf)<br/>
@@ -30,15 +37,6 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
 ## Project specifications
 
 ## Overview of the cloud architecture
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/architecture.png" title="general-architecture-of-cloud" width=60%></img>
-</div><br>
-
-
-
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/app-architecture.jpg" title="general-architecture-of-app-architecture" width=60%></img>
-</div><br>
 
 ### Experiment specifications
 * Improvise the App SDR into MVC web application.
