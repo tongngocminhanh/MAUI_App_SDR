@@ -6,27 +6,64 @@ using System.ComponentModel;
 namespace AppSDR;
 public partial class Page1 : ContentPage
 {
-    private INavigation Navigation;
-    public string[] EntryCellValues { get; set; }
-    //double WidthRequest { get; set; }
-    //double HeightRequest { get; set; }
-    private string ConnectionString { get; set; }
-    private string DownloadBlobStorage { get; set; }
-    public Page1(int[][] activeCellsColumn, string[] entryCellValues, string connectionString, string downloadBlobStorage, INavigation navigation)
+    private INavigation _navigation;
+    private int[][] _activeCellsColumn;
+    private string[] _entryCellValues;
+    private string _connectionString;
+    private string _downloadBlobStorage; 
+    public int[][] ActiveCellsColumn
+    {
+        get => _activeCellsColumn;
+        set
+        {
+            _activeCellsColumn = value;
+            OnPropertyChanged();
+        }
+    }
+    public string[] EntryCellValues
+    {
+        get => _entryCellValues;
+        set
+        {
+            _entryCellValues = value;
+            OnPropertyChanged();
+        }
+    }
+    public string ConnectionString
+    {
+        get => _connectionString;
+        set
+        {
+            _connectionString = value;
+            OnPropertyChanged();
+        }
+    }
+    public string DownloadBlobStorage
+    {
+        get => _downloadBlobStorage;
+        set
+        {
+            _downloadBlobStorage = value;
+            OnPropertyChanged();
+        }
+    }
+    public Page1(int[][] ActiveCellsColumn, string[] EntryCellValues, string ConnectionString, string DownloadBlobStorage, INavigation navigation)
     {
         InitializeComponent();
-        ConnectionString = connectionString;
-        DownloadBlobStorage = downloadBlobStorage;
-        Navigation = navigation;    
+        _activeCellsColumn = ActiveCellsColumn;
+        _entryCellValues = EntryCellValues;
+        _connectionString = ConnectionString;
+        _downloadBlobStorage = DownloadBlobStorage;
+        _navigation = navigation; 
+
 
         // Define source of drawing method
         var graphicsView = this.DrawableView;
         var graphicsdrawable = (Page1ViewModel)graphicsView.Drawable;
 
         // Parse a list of parameters and a matrix of SDR values
-        EntryCellValues = entryCellValues;
-        graphicsdrawable.Vectors = activeCellsColumn;
-        graphicsdrawable.GraphPara = entryCellValues;
+        graphicsdrawable.Vectors = _activeCellsColumn;
+        graphicsdrawable.GraphPara = _entryCellValues;
 
         // Define vertical screen size based on maximum cell value
         // Take the maximum value to set upper limit of the height
@@ -34,7 +71,7 @@ public partial class Page1 : ContentPage
         float Rectspacing;
         int maxCellValue = 0;
 
-        foreach (var column in activeCellsColumn)
+        foreach (var column in _activeCellsColumn)
         {
             foreach (var value in column)
             {
@@ -49,7 +86,7 @@ public partial class Page1 : ContentPage
         HeightRequest = graphicsView.HeightRequest;
 
         // Define horizontal screen size based on total SDR columns
-        int max_xvalue = activeCellsColumn.Length;
+        int max_xvalue = _activeCellsColumn.Length;
 
         if (max_xvalue < 31)
         {
@@ -107,17 +144,25 @@ public partial class Page1 : ContentPage
             {
                 // Generate a unique file name using a timestamp
                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-                string blobName = $"{EntryCellValues[7]}_{timestamp}.png";
+                string blobName;
 
+                if (EntryCellValues[7] != null)
+                {
+                    blobName = $"{EntryCellValues[7]}_{timestamp}.png";
+                }
+                else
+                {
+                    blobName = $"{timestamp}.png";
+                }
+                
                 BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
                 BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(DownloadBlobStorage);
                 BlobClient blobClient = containerClient.GetBlobClient(blobName);
 
                 await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
                 // Optional delay before the next operation
-                //await Task.Delay(2000);
                 await DisplayAlert("Success", "Screenshot has been saved successfully.", "OK");
-                await Navigation.PopAsync();
+                await _navigation.PopAsync();
             }
         }
         else
@@ -169,6 +214,6 @@ public partial class Page1 : ContentPage
 
     private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
+        await _navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
     }
 }

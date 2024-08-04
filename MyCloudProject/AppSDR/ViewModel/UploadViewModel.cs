@@ -15,6 +15,7 @@ namespace AppSDR.ViewModel
         public string _assignedTextFilePath;
         private List<string> _selectedFiles = new List<string>();
         private string[] _entryCellValues;
+        private string[] _azureEntryCellValues;
         private bool _isConnected;
         private string _connectionString;
         private string _storageAccount;
@@ -25,13 +26,30 @@ namespace AppSDR.ViewModel
         private string _listenMessage = "Message mode: Off";
         private QueueMessageListener _listener;
         private CancellationTokenSource _cts;
-
+        public List<string> SelectedFiles
+        {
+            get { return _selectedFiles; }
+            set
+            {
+                _selectedFiles = value;
+                OnPropertyChanged(nameof(SelectedFiles));
+            }
+        }
         public string[] EntryCellValues
         {
             get => _entryCellValues;
             set
             {
                 _entryCellValues = value;
+                OnPropertyChanged();
+            }
+        }
+        public string[] AzureEntryCellValues
+        {
+            get => _azureEntryCellValues;
+            set
+            {
+                _azureEntryCellValues = value;
                 OnPropertyChanged();
             }
         }
@@ -128,9 +146,9 @@ namespace AppSDR.ViewModel
             ConnectCommand = new Command(async () => await OnConnectAsync());
             UploadParametersCommand = new Command(async () => await UploadParameters(ConnectionString, TableStorageName, _entryCellValues));
             SelectAndUploadFileCommand = new Command(async ()
-                => await SelectAndUploadFileAsync(_selectedFiles, _assignedTextFilePath), CanExecuteCommands);
+                => await SelectAndUploadFileAsync(_selectedFiles, AssignedTextFilePath), CanExecuteCommands);
             GenerateOutputCommand = new Command(async ()
-                => await GenerateOutput(ConnectionString, UploadBlobStorageName, DownloadBlobStorageName, _navigation));
+                => await GenerateOutput(ConnectionString, UploadBlobStorageName, DownloadBlobStorageName, TableStorageName, _navigation));
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync(), CanExecuteCommands);
             StartListeningCommand = new Command(async () => await OnStartListening(_navigation));
             StopListeningCommand = new Command(async () => await OnStopListening());
@@ -170,28 +188,22 @@ namespace AppSDR.ViewModel
         public async Task UploadParameters(string ConnectionString, string TableStorageName, string[] EntryCellValues)
         {
 
-            if ((EntryCellValues != null) && (EntryCellValues.Length >7))
-            {
-                await UploadWhenExist(ConnectionString, TableStorageName, EntryCellValues);
-            }
-            else
+            if ((EntryCellValues == null) && (EntryCellValues.Length <7))
             {
                 // Display a warning message to the user
                 StatusMessage = "Warning: Entry cell values are empty or null. Cannot upload parameters.";
             }
 
+            else
+            {
+                await UploadWhenExist(ConnectionString, TableStorageName, EntryCellValues);
+            }
         }
 
         private async Task UploadWhenExist(string ConnectionString, string TableStorageName, string[] EntryCellValues)
         {
             try
             {
-                // Ensure that entryCellValues is not null and has the correct number of elements
-                if (EntryCellValues == null || EntryCellValues.Length < 8)
-                {
-                    StatusMessage = "Entry cell values are invalid. Ensure all required values are provided.";
-                    return;
-                }
                 // Create a table client
                 TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
 
@@ -222,23 +234,25 @@ namespace AppSDR.ViewModel
                 StatusMessage = $"Error uploading Entities: {ex.Message}";
             }
         }
-        public async void DownloadEntity(string ConnectionString, string TableStorageName)
+        public async Task<string[]> DownloadEntity(string ConnectionString, string TableStorageName)
         {
-            // Create a table client
-            TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
-
-            // Query all entities
-            Pageable<TableConfigurationEntity> queryResults = tableClient.Query<TableConfigurationEntity>();
-
-            // Convert to a list and order by Timestamp in descending order
-            List<TableConfigurationEntity> entities = queryResults.ToList();
-            var mostRecentEntity = entities.OrderByDescending(ent => ent.Timestamp).FirstOrDefault();
-
-            if (mostRecentEntity != null)
+            try
             {
-                // Convert the entity properties back to a string array
-                _entryCellValues =  new string[]
+                // Create a table client
+                TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
+
+                // Query all entities
+                Pageable<TableConfigurationEntity> queryResults = tableClient.Query<TableConfigurationEntity>();
+
+                // Convert to a list and order by Timestamp in descending order
+                List<TableConfigurationEntity> entities = queryResults.ToList();
+                var mostRecentEntity = entities.OrderByDescending(ent => ent.Timestamp).FirstOrDefault();
+
+                if (mostRecentEntity != null)
                 {
+                    // Convert the entity properties back to a string array
+                    EntryCellValues = new string[]
+                    {
                 mostRecentEntity.GraphName,
                 mostRecentEntity.MaxCycles,
                 mostRecentEntity.HighlightTouch,
@@ -247,15 +261,25 @@ namespace AppSDR.ViewModel
                 mostRecentEntity.MinRange,
                 mostRecentEntity.MaxRange,
                 mostRecentEntity.SavedName
-                };
+                    };
+
+                    return EntryCellValues;
+                }
+                else
+                {
+                    // Handle case when no entities are found
+                    throw new InvalidOperationException("No entities found in the table.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // Handle case when no entities are found
-                throw new InvalidOperationException("No entities found in the table.");
+                // Handle exceptions
+                StatusMessage = $"Error downloading entity: {ex.Message}";
+                throw; // Optionally rethrow the exception or return a default value
             }
         }
-        public async Task GenerateOutput(string ConnectionString, string UploadBlobStorageName, string DownloadBlobStorageName, INavigation navigation)
+
+        public async Task GenerateOutput(string ConnectionString, string UploadBlobStorageName, string DownloadBlobStorageName, string TableStorageName, INavigation Navigation)
         {
             try
             {
@@ -284,12 +308,13 @@ namespace AppSDR.ViewModel
 
                         // Parse the file content into a 2D integer array
                         int[][] activeCellsArray = ParseFileContent(fileContent);
+                        string[] entryCellValues = await DownloadEntity(ConnectionString, TableStorageName);
 
                         // Navigate to the new page and wait for the screenshot capture
                         await MainThread.InvokeOnMainThreadAsync(async () =>
                         {
-                            var page1 = new Page1(activeCellsArray, _entryCellValues, ConnectionString, DownloadBlobStorageName, _navigation);
-                            await navigation.PushModalAsync(page1);
+                            var page1 = new Page1(activeCellsArray, EntryCellValues, ConnectionString, DownloadBlobStorageName, Navigation);
+                            await Navigation.PushModalAsync(page1);
 
                             // Wait for the screenshot to be captured and uploaded
                             await page1.SaveScreenshotToBlobStorage();
@@ -297,7 +322,7 @@ namespace AppSDR.ViewModel
                         });
 
                         // Close the modal page after the screenshot is saved
-                        await navigation.PopModalAsync();
+                        await Navigation.PopModalAsync();
                     }
                 }
             }

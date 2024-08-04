@@ -20,7 +20,6 @@ namespace AppSDR
         {
             _connectionString = connectionString;
             _storageName = storageName;
-            //_statusLabel = statusLabel;
             _navigation = navigation;
             _downloadBlobStorage = downloadBlobStorage;
         }
