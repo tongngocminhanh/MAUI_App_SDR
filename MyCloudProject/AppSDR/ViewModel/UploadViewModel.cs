@@ -318,7 +318,7 @@ namespace AppSDR.ViewModel
 
                             // Wait for the screenshot to be captured and uploaded
                             await page1.SaveScreenshotToBlobStorage();
-                            StatusMessage = "Successfully generate and upload";
+                            //StatusMessage = "Successfully generate and upload";
                         });
 
                         // Close the modal page after the screenshot is saved
