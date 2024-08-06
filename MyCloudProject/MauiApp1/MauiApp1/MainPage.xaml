@@ -11,6 +11,12 @@
         <Button Text="Start Listening" Clicked="OnStartListeningClicked"/>
         <Button Text="Stop Listening" Clicked="OnStopListeningClicked"/>
         <Label x:Name="StatusLabel" Text="Status: Stopped" />
+        <!-- Entry for user to input message -->
+        <Editor x:Name="MessageEditor" Placeholder="Enter your message here" HeightRequest="100" />
+
+        <!-- Button to send message to queue -->
+        <Button Text="Send Message to Queue"
+           Clicked="OnSendMessageButtonClicked" />
 
     </StackLayout>
 
