@@ -1,14 +1,13 @@
 ﻿using System.Windows.Input;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
+using Azure.Storage.Queues;
 
 namespace AppSDR.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        // Start property change of parameters
+        // Start property change of parameters without Cloud
         private string _graphName;
         public string GraphName
         {
@@ -138,23 +137,6 @@ namespace AppSDR.ViewModel
                 }
             }
         }
-        // End property change of parameters
-
-        // Navigation elements
-        private INavigation _navigation;
-        private string[] _entryCellValues;
-
-        // Null pre-defined values
-        private string _assignedTextFilePath = null;
-        private string _connectionString = null;
-        private string _downloadBlobStorage = null;
-
-        // Without-cloud properties definition
-        private string _selectedFilePath;
-        public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
-        public ICommand ChooseFileCommand { get; }
-        public ICommand SubmitCommand { private set; get; }
-        public ICommand AddTextCommand { private set; get; }
         public string[] EntryCellValues
         {
             get { return _entryCellValues; }
@@ -169,12 +151,77 @@ namespace AppSDR.ViewModel
                 OnPropertyChanged(nameof(SelectedFilePath));
             }
         }
+        // End property change of parameters without Cloud
+
+        // Without-cloud properties definition
+        private string _selectedFilePath;
+        public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
+        public ICommand ChooseFileCommand { get; }
+        public ICommand SubmitCommand { private set; get; }
+        public ICommand AddTextCommand { private set; get; }
+
+        // Navigation elements
+        private INavigation _navigation;
+        public INavigation Navigation
+        {
+            get { return _navigation; }
+            set
+            {
+                _navigation = value;
+                OnPropertyChanged(nameof(Navigation));
+            }
+        }
+        private string[] _entryCellValues;
+
+        // Null pre-defined values
+        private string _assignedTextFilePath = null;
+        private string _connectionString = null;
+        private string _downloadBlobStorage = null;
+        private string[] _messageConfig = null;
+        private string[] _cloudConfig = null;
+
+        // Start property change of Message parameters with Cloud
+        private string _queueStorageName;
+        public string QueueStorageName
+        {
+            get => _queueStorageName;
+            set
+            {
+                _queueStorageName = value;
+                OnPropertyChanged();;
+                (UploadMessageCommand as Command).ChangeCanExecute();
+            }
+        }
+        private string _messageConnectionString;
+        public string MessageConnectionString
+        {
+            get => _messageConnectionString;
+            set
+            {
+                _messageConnectionString = value;
+                OnPropertyChanged();
+                (UploadMessageCommand as Command).ChangeCanExecute();
+            }
+        }
+        private string _messageContent;
+        public string MessageContent
+        {
+            get => _messageContent;
+            set
+            {
+                _messageContent = value;
+                OnPropertyChanged();
+                (UploadMessageCommand as Command).ChangeCanExecute();
+            }
+        }
+        // End property change of Message parameters with Cloud
 
         // With-cloud properties definition
-        public ICommand UploadFilesCommand { get; }
-        public MainViewModel(INavigation navigation)
+        public ICommand NavigateToUploadPageCommand { get; }
+        public ICommand UploadMessageCommand { get; }
+        public MainViewModel(INavigation Navigation)
         {
-            _navigation = navigation;
+            _navigation = Navigation;
 
             // Without-cloud commands
             ChooseFileCommand = new Command(ChooseFile);
@@ -223,25 +270,25 @@ namespace AppSDR.ViewModel
                                                 !string.IsNullOrEmpty(SavedName));
                 });
 
-            // Upload functions
-            UploadFilesCommand = new Command(UploadFiles);
+            // Cloud Upload functions
+            NavigateToUploadPageCommand = new Command(NavigateToUploadPage);
+            UploadMessageCommand = new Command(
+                execute: () =>
+                {
+                    UploadMessage();
+                },
 
-        }
+                canExecute: () =>
+                {
+                    // Check if the first 7 parameters are not null
+                    bool definedParaNotNull =
+                        !string.IsNullOrEmpty(MessageConnectionString) &&
+                        !string.IsNullOrEmpty(QueueStorageName) &&
+                        !string.IsNullOrEmpty(MessageContent);
 
-        // Navigate to Upload Page
-        private async void UploadFiles()
-        {
-            try
-            {
-                string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-                await _navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, _navigation, EntryCellValues));
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
-                Console.WriteLine($"File picking error: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
-            }
+                    return definedParaNotNull;
+                });
+
         }
 
         // Pick a file from a local device
@@ -282,28 +329,6 @@ namespace AppSDR.ViewModel
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            // Handle any changed property, here is entry parameters
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            // Update and save any changed property
-            if (Object.Equals(storage, value))
-                return false;
-
-            storage = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
-        private async void AddText()
-        {
-            // Parse EntryCellValues, navigate to Text Editor Page
-            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-            await _navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _connectionString, _downloadBlobStorage, _navigation));
-        }
         private async void Submit()
         {
             // Done taking inputs and navigate to the visualisation page (Page1)
@@ -317,9 +342,9 @@ namespace AppSDR.ViewModel
                     // Parse the file content and construct activeCellsArray
                     int[][] activeCellsArray = ParseFileContent(fileContent);
                     string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-
+                    _cloudConfig = [_connectionString, _downloadBlobStorage];
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
-                    await NavigateToPage1(EntryCellValues, activeCellsArray, _connectionString, _downloadBlobStorage);
+                    await NavigateToPage1(EntryCellValues, activeCellsArray);
                 }
 
                 // Exception Alert when no input file is detected 
@@ -333,10 +358,10 @@ namespace AppSDR.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
-        private async Task NavigateToPage1(string[] entryCellValues, int[][] activeCellsArray, string _connectionString, string _downloadBlobStorage)
+        private async Task NavigateToPage1(string[] _entryCellValues, int[][] _activeCellsArray)
         {
             // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
-            await _navigation.PushModalAsync(new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage, _navigation));
+            await Navigation.PushModalAsync(new Page1(_activeCellsArray, _entryCellValues, _cloudConfig, Navigation));
         }
         private int[][] ParseFileContent(string fileContent)
         {
@@ -393,6 +418,90 @@ namespace AppSDR.ViewModel
             }
             // Convert the list to a 2D array
             return activeCellsColumn.ToArray();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            // Handle any changed property, here is entry parameters
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            // Update and save any changed property
+            if (Object.Equals(storage, value))
+                return false;
+
+            storage = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        // Cloud-related functions
+        // Add manually SDR values
+        private async void AddText()
+        {
+            // Parse EntryCellValues, navigate to Text Editor Page
+            string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
+            _cloudConfig = [_connectionString, _downloadBlobStorage];
+            await Navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _cloudConfig, Navigation));
+        }
+        
+        // Navigate to Upload Page
+        private async void NavigateToUploadPage()
+        {
+            try
+            {
+                string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
+                await Navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, Navigation, EntryCellValues));
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"File picking error: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
+            }
+        }
+
+        // Handle Message used for automatically generating outputs
+        private async void UploadMessage()
+        {
+            try
+            {
+                await SendMessageToQueue();
+                _messageConfig = [MessageConnectionString, QueueStorageName];
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Upload message error: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task SendMessageToQueue()
+        {
+            // Instantiate a QueueClient which will be used to create and manipulate the queue
+            QueueClient queueClient = new QueueClient(MessageConnectionString, QueueStorageName);
+
+            try
+            {
+                // Create the queue if it doesn't already exist
+                await queueClient.CreateIfNotExistsAsync();
+
+                if (await queueClient.ExistsAsync())
+                {
+                    // Send a message to the queue
+                    await queueClient.SendMessageAsync(MessageContent);
+                    await Application.Current.MainPage.DisplayAlert("Success", "Message sent to queue", "OK");
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Queue does not exist", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", $"Failed to send message: {ex.Message}", "OK");
+            }
         }
     }
 }

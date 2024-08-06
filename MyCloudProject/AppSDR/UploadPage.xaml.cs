@@ -14,8 +14,7 @@ namespace AppSDR
             EntryCellValue = _entryCellValue;
 
             InitializeComponent();
-            var viewModel = new UploadViewModel(AssignedTextFilePath, Navigation, EntryCellValue);
-            BindingContext = viewModel;
+            BindingContext = new UploadViewModel(AssignedTextFilePath, Navigation, EntryCellValue);
         }
     }
 }

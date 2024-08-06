@@ -179,7 +179,8 @@ namespace AppSDR
                 // Ensure the navigation to Page1 is awaited and on the main thread
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    var page1 = new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage, _navigation);
+                    string[] _cloudConfig = [_connectionString, _downloadBlobStorage];
+                    var page1 = new Page1(activeCellsArray, entryCellValues, _cloudConfig, _navigation);
                     await _navigation.PushModalAsync(page1);
 
                     // Wait for the screenshot to be captured and uploaded

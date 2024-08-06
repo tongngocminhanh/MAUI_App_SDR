@@ -11,50 +11,14 @@ public partial class Page1 : ContentPage
     private string[] _entryCellValues;
     private string _connectionString;
     private string _downloadBlobStorage; 
-    public int[][] ActiveCellsColumn
-    {
-        get => _activeCellsColumn;
-        set
-        {
-            _activeCellsColumn = value;
-            OnPropertyChanged();
-        }
-    }
-    public string[] EntryCellValues
-    {
-        get => _entryCellValues;
-        set
-        {
-            _entryCellValues = value;
-            OnPropertyChanged();
-        }
-    }
-    public string ConnectionString
-    {
-        get => _connectionString;
-        set
-        {
-            _connectionString = value;
-            OnPropertyChanged();
-        }
-    }
-    public string DownloadBlobStorage
-    {
-        get => _downloadBlobStorage;
-        set
-        {
-            _downloadBlobStorage = value;
-            OnPropertyChanged();
-        }
-    }
-    public Page1(int[][] ActiveCellsColumn, string[] EntryCellValues, string ConnectionString, string DownloadBlobStorage, INavigation navigation)
+    public Page1(int[][] ActiveCellsColumn, string[] EntryCellValues, string[] CloudConfig, INavigation Navigation)
     {
         InitializeComponent();
         _activeCellsColumn = ActiveCellsColumn;
         _entryCellValues = EntryCellValues;
-        _connectionString = ConnectionString;
-        _downloadBlobStorage = DownloadBlobStorage;
-        _navigation = navigation; 
+        _connectionString = CloudConfig[0];
+        _downloadBlobStorage = CloudConfig[1];
+        _navigation = Navigation; 
 
 
         // Define source of drawing method
@@ -131,6 +95,7 @@ public partial class Page1 : ContentPage
         // Delay to ensure the page is fully loaded
         await Task.Delay(500);
         await SaveScreenshotToBlobStorage();
+        
     }
     public async Task SaveScreenshotToBlobStorage()
     {
@@ -146,17 +111,17 @@ public partial class Page1 : ContentPage
                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
                 string blobName;
 
-                if (EntryCellValues[7] != null)
+                if (_entryCellValues[7] != null)
                 {
-                    blobName = $"{EntryCellValues[7]}_{timestamp}.png";
+                    blobName = $"{_entryCellValues[7]}_{timestamp}.png";
                 }
                 else
                 {
                     blobName = $"{timestamp}.png";
                 }
-                
-                BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
-                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(DownloadBlobStorage);
+
+                BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_downloadBlobStorage);
                 BlobClient blobClient = containerClient.GetBlobClient(blobName);
 
                 await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
@@ -169,7 +134,6 @@ public partial class Page1 : ContentPage
             // Display a message if no screenshot was captured
             await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
         }
-
     }
 
     private async Task SaveScreenshot()
@@ -190,7 +154,7 @@ public partial class Page1 : ContentPage
                 }
 
                 string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string desktopFilePath = Path.Combine(desktopDirectory, $"{EntryCellValues[7]}.png");
+                string desktopFilePath = Path.Combine(desktopDirectory, $"{_entryCellValues[7]}.png");
 
                 // Copy the file from the AppDataDirectory to the desktop
                 File.Move(targetFile, desktopFilePath, true);

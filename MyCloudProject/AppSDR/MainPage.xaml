@@ -9,24 +9,33 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Define custom colors -->
-            <Color x:Key="PrimaryColor">#646e78</Color>
-            <!-- (100, 110, 120) -->
-            <Color x:Key="AccentColor">#8d98a7</Color>
-            <!-- (141, 152, 167) -->
-            <Color x:Key="ButtonColor">#eab464</Color>
-                <!-- (220, 204, 187) -->
-            <Color x:Key="ButtonTextColor">#000</Color>
-            <!-- (234, 180, 100) -->
-            <Color x:Key="LabelColor">#011</Color>
-            <Color x:Key="LabelTextColor">#0A0</Color>
-            
+            <!-- Background Colors -->
+            <!-- Darker blue for the page -->
+            <Color x:Key="PageBackgroundColor">#2C3E50</Color>
+            <!-- Light gray for the table -->
+            <Color x:Key="TableBackgroundColor">#8d98a7</Color>
+
+            <!-- Button Colors -->
+            <!-- Green for buttons -->
+            <Color x:Key="ButtonBackgroundColor">#eab464</Color>
+            <!-- White text on buttons -->
+            <Color x:Key="ButtonTextColor">#000000</Color>
+
+            <!-- Entry colors-->
+            <!-- Light gray for entry fields -->
+            <Color x:Key="EntryBackgroundColor">#ECF0F1</Color>
+            <!-- Black text for entry fields -->
+            <Color x:Key="EntryTextColor">#000000</Color>
+
+            <!-- Label colors -->
+            <Color x:Key="LabelTextColor">#ECF0F1</Color>
+
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
+    <ScrollView BackgroundColor="{StaticResource PageBackgroundColor}">
         <!--Grid Template to locate each component in their size-defined domain-->
-        <Grid RowDefinitions="100, Auto, Auto, *, Auto"
+        <Grid RowDefinitions="100,*,*,*,*,*,*,*,*,*"
               ColumnDefinitions=".20*,.20*,.20*, .20*, .20*"
               Padding="10"
               RowSpacing="10"
@@ -43,7 +52,7 @@
             <!-- Create an input table with gradient background -->
             <TableView Intent="Settings" 
                        Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
-                       BackgroundColor="{StaticResource PrimaryColor}"
+                       BackgroundColor="{StaticResource TableBackgroundColor}"
                        Margin="5"
                        >
                 <!-- TableView content taking users' defined parameters -->
@@ -94,16 +103,15 @@
 
         <!-- Visualizing locally without Cloud -->
             <!-- Specify the corresponding local functions -->
-            <Label Text="Choose a file, generate without Cloud"
+            <Label Text="Choose a file, without Cloud"
                    FontAttributes="Bold" 
-                   BackgroundColor="{StaticResource LabelColor}"
                    TextColor="{StaticResource LabelTextColor}"
                    Grid.Row="2" Grid.Column="1"
                    Grid.ColumnSpan="1"/>
             
             <!-- Let user choose a file from local device-->
             <Button Text="{Binding SelectedFileName}"
-                    BackgroundColor="{StaticResource ButtonColor}"
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
                     TextColor="{StaticResource ButtonTextColor}"
                     CornerRadius="5"
                     Margin="5"
@@ -113,8 +121,8 @@
                     Command="{Binding ChooseFileCommand}"/>
 
             <!-- Done manipulating inputs, submit to see the outputs -->
-            <Button Text="Submit"
-                    BackgroundColor="{StaticResource ButtonColor}"
+            <Button Text="Generate without Cloud"
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
                     TextColor="{StaticResource ButtonTextColor}"
                     CornerRadius="5"
                     Margin="5"
@@ -127,42 +135,81 @@
             <!-- Specify the corresponding hybrid function -->
             <Label Text="Manually add SDR values"
                    FontAttributes="Bold" 
-                   BackgroundColor="{StaticResource LabelColor}"
                    TextColor="{StaticResource LabelTextColor}"
                    Grid.Row="3" Grid.Column="1"
                    Grid.ColumnSpan="2"/>
 
             <!-- Manually add inputs data instead of a data file -->
             <Button Text="Add Text"
-                    BackgroundColor="{StaticResource ButtonColor}"
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
                     TextColor="{StaticResource ButtonTextColor}"
                     CornerRadius="5"
                     Margin="5"
                     Padding="10"
-                    Grid.Row="3" Grid.Column="3"
-                    Grid.ColumnSpan="1"
+                    Grid.Row="3" Grid.Column="2"
+                    Grid.ColumnSpan="2"
                     Command="{Binding AddTextCommand}"/>
 
             
-        <!-- Visualizing locally with Cloud -->
+            <!-- Visualizing locally with Cloud -->
             <!-- Specify the corresponding Cloud functions -->
             <Label Text="SDR visualizations with Cloud"
                    FontAttributes="Bold" 
-                   BackgroundColor="{StaticResource LabelColor}"
                    TextColor="{StaticResource LabelTextColor}"
                    Grid.Row="4" Grid.Column="1"
                    Grid.ColumnSpan="2"/>
-            
-            <!-- Upload files-->
-            <Button Text="Upload Files" 
-                    BackgroundColor="{StaticResource ButtonColor}"
+
+            <!-- Cloud configuration-->
+            <Button Text="Cloud configuration" 
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
                     TextColor="{StaticResource ButtonTextColor}"
                     CornerRadius="5"
                     Margin="5"
                     Padding="10"
-                    Grid.Row="4" Grid.Column="3"
-                    Grid.ColumnSpan="1"
-                    Command="{Binding UploadFilesCommand}"/>
+                    Grid.Row="4" Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    Command="{Binding NavigateToUploadPageCommand}"/>
+
+
+            <!-- Message Queue Configuration-->
+            <Label Text="Message Configuration"
+                   FontAttributes="Bold" 
+                   Grid.Row="5" Grid.Column="1"
+                   Grid.ColumnSpan="1"
+                   TextColor="{StaticResource LabelTextColor}" />
+
+            <Entry Placeholder="Connection String" 
+                   Text="{Binding MessageConnectionString}"
+                   Grid.Row="6" Grid.Column="1"
+                   Grid.ColumnSpan="3"
+                   HeightRequest="100"
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+
+            <Entry Placeholder="Queue Storage Name" 
+                   Text="{Binding QueueStorageName}" 
+                   Grid.Row="7" Grid.Column="1"
+                   Grid.ColumnSpan="3"
+                   TextColor="{StaticResource EntryTextColor}"
+                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+
+            <Editor Text="{Binding MessageContent}" 
+                    Placeholder="Enter your message here" 
+                    HeightRequest="100"
+                    Grid.Row="8" Grid.Column="1"
+                    Grid.ColumnSpan="3"
+                    BackgroundColor="{StaticResource EntryBackgroundColor}"
+                    TextColor="{StaticResource EntryTextColor}"/>
+
+            <Button Text="Upload Message"
+                    Command="{Binding UploadMessageCommand}"
+                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                    TextColor="{StaticResource ButtonTextColor}"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="10"
+                    Grid.Row="9" Grid.Column="1"
+                    Grid.ColumnSpan="3"/>
         </Grid>
     </ScrollView>
 </ContentPage>

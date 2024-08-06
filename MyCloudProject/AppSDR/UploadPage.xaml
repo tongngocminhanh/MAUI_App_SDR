@@ -27,8 +27,6 @@
             <Color x:Key="PrimaryTextColor">#FFFFFF</Color>
             <!-- Dark blue text for light backgrounds -->
             <Color x:Key="SecondaryTextColor">#011111</Color>
-            <!-- Black text for entry fields -->
-            <Color x:Key="EntryTextColor">#000000</Color>
 
             <!-- Button Colors -->
             <!-- Green for buttons -->
@@ -39,7 +37,9 @@
             <!-- Entry Background -->
             <!-- Light gray for entry fields -->
             <Color x:Key="EntryBackgroundColor">#ECF0F1</Color>
-            
+            <!-- Black text for entry fields -->
+            <Color x:Key="EntryTextColor">#000000</Color>
+
         </ResourceDictionary>
     </ContentPage.Resources>
 

@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Azure;
 using Azure.Data.Tables;
+using Azure.Messaging;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
@@ -12,10 +13,9 @@ namespace AppSDR.ViewModel
     {
         // Fields and properties
         private INavigation _navigation;
-        public string _assignedTextFilePath;
+        private string _assignedTextFilePath;
         private List<string> _selectedFiles = new List<string>();
         private string[] _entryCellValues;
-        private string[] _azureEntryCellValues;
         private bool _isConnected;
         private string _connectionString;
         private string _storageAccount;
@@ -26,6 +26,24 @@ namespace AppSDR.ViewModel
         private string _listenMessage = "Message mode: Off";
         private QueueMessageListener _listener;
         private CancellationTokenSource _cts;
+        public INavigation Navigation
+        {
+            get { return _navigation; }
+            set
+            {
+                _navigation = value;
+                OnPropertyChanged(nameof(Navigation));
+            }
+        }
+        public string AssignedTextFilePath
+        {
+            get { return _assignedTextFilePath; }
+            set
+            {
+                _assignedTextFilePath = value;
+                OnPropertyChanged(nameof(AssignedTextFilePath));
+            }
+        }
         public List<string> SelectedFiles
         {
             get { return _selectedFiles; }
@@ -41,15 +59,6 @@ namespace AppSDR.ViewModel
             set
             {
                 _entryCellValues = value;
-                OnPropertyChanged();
-            }
-        }
-        public string[] AzureEntryCellValues
-        {
-            get => _azureEntryCellValues;
-            set
-            {
-                _azureEntryCellValues = value;
                 OnPropertyChanged();
             }
         }
@@ -142,15 +151,45 @@ namespace AppSDR.ViewModel
             _navigation = Navigation;
             _entryCellValues = EntryCellValues;
 
-            _selectedFiles = new List<string>(); // Initialize the list here
             ConnectCommand = new Command(async () => await OnConnectAsync());
-            UploadParametersCommand = new Command(async () => await UploadParameters(ConnectionString, TableStorageName, _entryCellValues));
+            GenerateOutputCommand = new Command(
+                execute: async() =>
+                {
+                    await GenerateOutput();
+                },
+                canExecute: () =>
+                {
+                    // Check if the first 7 parameters are not null
+                    bool definedParaNotNull =
+                        !string.IsNullOrEmpty(ConnectionString) &&
+                        !string.IsNullOrEmpty(TableStorageName) &&
+                        !string.IsNullOrEmpty(DownloadBlobStorageName) &&
+                        !string.IsNullOrEmpty(UploadBlobStorageName);
+
+                    return definedParaNotNull;
+                });
+
+            UploadParametersCommand = new Command(
+                execute: async() =>
+                {
+                    await UploadParameters();
+                },
+                canExecute: () =>
+                {
+                    // Check if the first 7 parameters are not null
+                    bool definedParaNotNull =
+                        !string.IsNullOrEmpty(ConnectionString) &&
+                        !string.IsNullOrEmpty(TableStorageName) &&
+                        _entryCellValues != null && _entryCellValues.Length >= 7 &&
+                        !_entryCellValues.Take(7).Any(string.IsNullOrEmpty);
+
+                    return definedParaNotNull;
+                });
+            
             SelectAndUploadFileCommand = new Command(async ()
-                => await SelectAndUploadFileAsync(_selectedFiles, AssignedTextFilePath), CanExecuteCommands);
-            GenerateOutputCommand = new Command(async ()
-                => await GenerateOutput(ConnectionString, UploadBlobStorageName, DownloadBlobStorageName, TableStorageName, _navigation));
+                => await SelectAndUploadFileAsync(), CanExecuteCommands);
             DownloadFilesCommand = new Command(async () => await DownloadFilesAsync(), CanExecuteCommands);
-            StartListeningCommand = new Command(async () => await OnStartListening(_navigation));
+            StartListeningCommand = new Command(async () => await OnStartListening());
             StopListeningCommand = new Command(async () => await OnStopListening());
         }
 
@@ -185,7 +224,7 @@ namespace AppSDR.ViewModel
         //private async Task<string[]> GetParameters()
         //{
         //}
-        public async Task UploadParameters(string ConnectionString, string TableStorageName, string[] EntryCellValues)
+        public async Task UploadParameters()
         {
 
             if ((EntryCellValues == null) && (EntryCellValues.Length <7))
@@ -196,11 +235,11 @@ namespace AppSDR.ViewModel
 
             else
             {
-                await UploadWhenExist(ConnectionString, TableStorageName, EntryCellValues);
+                await UploadWhenExist();
             }
         }
 
-        private async Task UploadWhenExist(string ConnectionString, string TableStorageName, string[] EntryCellValues)
+        private async Task UploadWhenExist()
         {
             try
             {
@@ -234,7 +273,7 @@ namespace AppSDR.ViewModel
                 StatusMessage = $"Error uploading Entities: {ex.Message}";
             }
         }
-        public async Task<string[]> DownloadEntity(string ConnectionString, string TableStorageName)
+        public async Task<string[]> DownloadEntity()
         {
             try
             {
@@ -279,7 +318,7 @@ namespace AppSDR.ViewModel
             }
         }
 
-        public async Task GenerateOutput(string ConnectionString, string UploadBlobStorageName, string DownloadBlobStorageName, string TableStorageName, INavigation Navigation)
+        public async Task GenerateOutput()
         {
             try
             {
@@ -313,9 +352,7 @@ namespace AppSDR.ViewModel
                     {
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
                         
-                        await ProcessDownloadedFileAsync(localFilePath, ConnectionString, DownloadBlobStorageName, TableStorageName, Navigation);
-
-
+                        await ProcessDownloadedFileAsync(localFilePath);
                     }
                     catch (Exception ex)
                     {
@@ -323,8 +360,6 @@ namespace AppSDR.ViewModel
                         Console.WriteLine($"Error downloading or processing blob '{blobName}': {ex.Message}");
                     }
                 }
-
-                //UpdateStatusLabel("All files have been processed.");
                 Console.WriteLine($"All files have been processed.");
 
             }
@@ -352,7 +387,7 @@ namespace AppSDR.ViewModel
             }
         }
 
-        private async Task ProcessDownloadedFileAsync(string filePath, string connectionString, string downloadBlobStorageName, string tableStorageName, INavigation navigation)
+        private async Task ProcessDownloadedFileAsync(string filePath)
         {
             try
             {
@@ -361,23 +396,21 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"Processing file: {Path.GetFileName(filePath)}");
 
                 int[][] activeCellsArray = ParseFileContent(fileContent);
-                string[] entryCellValues = await DownloadEntity(ConnectionString, TableStorageName);
+                string[] entryCellValues = await DownloadEntity();
 
                 // Ensure the navigation to Page1 is awaited and on the main thread
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    var page1 = new Page1(activeCellsArray, entryCellValues, connectionString, downloadBlobStorageName, navigation);
-                    await navigation.PushModalAsync(page1);
+                    string[] cloudConfig = [ConnectionString, DownloadBlobStorageName];
+                    var page1 = new Page1(activeCellsArray, entryCellValues, cloudConfig, Navigation);
+                    await Navigation.PushModalAsync(page1);
 
                     // Wait for the screenshot to be captured and uploaded
                     await page1.SaveScreenshotToBlobStorage();
-
-
                 });
             }
             catch (Exception ex)
             {
-                //UpdateStatusLabel($"Error processing file {filePath}: {ex.Message}");
                 Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
             }
         }
@@ -438,11 +471,11 @@ namespace AppSDR.ViewModel
             return activeCellsColumn.ToArray();
         }
 
-        private async Task SelectAndUploadFileAsync(List<string> selectedFiles, string _assignedTextFilePath)
+        private async Task SelectAndUploadFileAsync()
         {
             try
             {
-                if (_assignedTextFilePath == null)
+                if (AssignedTextFilePath == null)
                 {
                     // File selection logic
                     var customFileType = new FilePickerFileType(
@@ -465,13 +498,13 @@ namespace AppSDR.ViewModel
                     {
                         foreach (var file in filePickerResult)
                         {
-                            selectedFiles.Add(file.FullPath);
+                            SelectedFiles.Add(file.FullPath);
                         }
-                        StatusMessage = $"{selectedFiles.Count} files selected.";
+                        StatusMessage = $"{SelectedFiles.Count} files selected.";
                         var containerClient = new BlobContainerClient(ConnectionString, UploadBlobStorageName);
                         await containerClient.CreateIfNotExistsAsync();
 
-                        foreach (var file in selectedFiles)
+                        foreach (var file in SelectedFiles)
                         {
                             var blobClient = containerClient.GetBlobClient(Path.GetFileName(file));
                             await blobClient.UploadAsync(file, overwrite: true);
@@ -486,8 +519,8 @@ namespace AppSDR.ViewModel
                     var containerClient = new BlobContainerClient(ConnectionString, UploadBlobStorageName);
                     await containerClient.CreateIfNotExistsAsync();
 
-                    var blobClient = containerClient.GetBlobClient(Path.GetFileName(_assignedTextFilePath));
-                    await blobClient.UploadAsync(_assignedTextFilePath, overwrite: true);
+                    var blobClient = containerClient.GetBlobClient(Path.GetFileName(AssignedTextFilePath));
+                    await blobClient.UploadAsync(AssignedTextFilePath, overwrite: true);
 
                     StatusMessage = "File uploaded successfully.";
                 }
@@ -557,7 +590,7 @@ namespace AppSDR.ViewModel
             ListenMessage = newMessage;
         }
 
-        private async Task OnStartListening(INavigation _navigation)
+        private async Task OnStartListening()
         {
             if (IsConnected == false && string.IsNullOrEmpty(DownloadBlobStorageName))
             {
@@ -567,7 +600,7 @@ namespace AppSDR.ViewModel
             {
                 UpdateMessage("Status: Start Listening");
                 string QueueName = "trigger";
-                _listener = new QueueMessageListener(ConnectionString, QueueName, DownloadBlobStorageName, _navigation);
+                _listener = new QueueMessageListener(ConnectionString, QueueName, DownloadBlobStorageName, Navigation);
                 _cts = new CancellationTokenSource();
                 Task.Run(async () => await _listener.ListenToMessagesAsync(_cts.Token));
             }
