@@ -284,8 +284,8 @@ namespace AppSDR.ViewModel
             try
             {
                 // Initialize the BlobServiceClient with the connection string
-                var blobServiceClient = new BlobServiceClient(ConnectionString);
-                var containerClient = blobServiceClient.GetBlobContainerClient(UploadBlobStorageName);
+                BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(UploadBlobStorageName);
 
                 // Ensure the container exists
                 if (!await containerClient.ExistsAsync())
@@ -297,38 +297,88 @@ namespace AppSDR.ViewModel
                 // Iterate through each blob in the container
                 await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
                 {
-                    var blobClient = containerClient.GetBlobClient(blobItem.Name);
-                    StatusMessage = $"Processing blob: {blobItem.Name}";
+                    string blobName = blobItem.Name;
 
-                    // Download the blob's content as a string
-                    var blobDownloadInfo = await blobClient.DownloadAsync();
-                    using (var streamReader = new StreamReader(blobDownloadInfo.Value.Content))
+                    BlobClient blobClient = containerClient.GetBlobClient(blobName);
+                    string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                    string localFilePath = Path.Combine(desktopPath, SanitizeFileName(blobName));
+                    string directoryPath = Path.GetDirectoryName(localFilePath);
+
+                    if (!Directory.Exists(directoryPath))
                     {
-                        string fileContent = await streamReader.ReadToEndAsync();
-
-                        // Parse the file content into a 2D integer array
-                        int[][] activeCellsArray = ParseFileContent(fileContent);
-                        string[] entryCellValues = await DownloadEntity(ConnectionString, TableStorageName);
-
-                        // Navigate to the new page and wait for the screenshot capture
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var page1 = new Page1(activeCellsArray, EntryCellValues, ConnectionString, DownloadBlobStorageName, Navigation);
-                            await Navigation.PushModalAsync(page1);
-
-                            // Wait for the screenshot to be captured and uploaded
-                            await page1.SaveScreenshotToBlobStorage();
-                            //StatusMessage = "Successfully generate and upload";
-                        });
-
-                        // Close the modal page after the screenshot is saved
-                        await Navigation.PopModalAsync();
+                        Directory.CreateDirectory(directoryPath);
                     }
+
+                    try
+                    {
+                        await DownloadBlobToFileAsync(blobClient, localFilePath);
+                        
+                        await ProcessDownloadedFileAsync(localFilePath, ConnectionString, DownloadBlobStorageName, TableStorageName, Navigation);
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //UpdateStatusLabel($"Error downloading or processing blob '{blobName}': {ex.Message}");
+                        Console.WriteLine($"Error downloading or processing blob '{blobName}': {ex.Message}");
+                    }
+                }
+
+                //UpdateStatusLabel("All files have been processed.");
+                Console.WriteLine($"All files have been processed.");
+
+            }
+            catch (Exception ex)
+            {
+                //UpdateStatusLabel($"Error processing experiment request: {ex.Message}");
+                Console.WriteLine($"Error processing experiment request: {ex.Message}");
+            }
+        }
+
+        private async Task DownloadBlobToFileAsync(BlobClient blobClient, string filePath)
+        {
+            try
+            {
+                BlobDownloadInfo download = await blobClient.DownloadAsync();
+                using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await download.Content.CopyToAsync(fs);
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error processing blobs: {ex.Message}";
+                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task ProcessDownloadedFileAsync(string filePath, string connectionString, string downloadBlobStorageName, string tableStorageName, INavigation navigation)
+        {
+            try
+            {
+                string fileContent = await File.ReadAllTextAsync(filePath);
+                //UpdateStatusLabel($"Processing file: {Path.GetFileName(filePath)}");
+                Console.WriteLine($"Processing file: {Path.GetFileName(filePath)}");
+
+                int[][] activeCellsArray = ParseFileContent(fileContent);
+                string[] entryCellValues = await DownloadEntity(ConnectionString, TableStorageName);
+
+                // Ensure the navigation to Page1 is awaited and on the main thread
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var page1 = new Page1(activeCellsArray, entryCellValues, connectionString, downloadBlobStorageName, navigation);
+                    await navigation.PushModalAsync(page1);
+
+                    // Wait for the screenshot to be captured and uploaded
+                    await page1.SaveScreenshotToBlobStorage();
+
+
+                });
+            }
+            catch (Exception ex)
+            {
+                //UpdateStatusLabel($"Error processing file {filePath}: {ex.Message}");
+                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
             }
         }
 
@@ -493,23 +543,6 @@ namespace AppSDR.ViewModel
             }
         }
 
-        private async Task DownloadBlobToFileAsync(BlobClient blobClient, string filePath)
-        {
-            try
-            {
-                BlobDownloadInfo download = await blobClient.DownloadAsync();
-                using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    await download.Content.CopyToAsync(fs);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
-                throw;
-            }
-        }
-
         private string SanitizeFileName(string fileName)
         {
             foreach (char c in Path.GetInvalidFileNameChars())
@@ -533,7 +566,8 @@ namespace AppSDR.ViewModel
             else
             {
                 UpdateMessage("Status: Start Listening");
-                _listener = new QueueMessageListener(ConnectionString, StorageAccount, DownloadBlobStorageName, _navigation);
+                string QueueName = "trigger";
+                _listener = new QueueMessageListener(ConnectionString, QueueName, DownloadBlobStorageName, _navigation);
                 _cts = new CancellationTokenSource();
                 Task.Run(async () => await _listener.ListenToMessagesAsync(_cts.Token));
             }

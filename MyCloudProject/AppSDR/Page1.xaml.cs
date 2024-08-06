@@ -162,7 +162,6 @@ public partial class Page1 : ContentPage
                 await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
                 // Optional delay before the next operation
                 await DisplayAlert("Success", "Screenshot has been saved successfully.", "OK");
-                //await _navigation.PopAsync();
             }
         }
         else

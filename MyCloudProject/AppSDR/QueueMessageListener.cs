@@ -10,23 +10,22 @@ namespace AppSDR
     public class QueueMessageListener
     {
         private readonly string _connectionString;
-        private readonly string _storageName;
+        private readonly string _queueName;
         private readonly string _downloadBlobStorage;
         private INavigation _navigation;
-        // private readonly string _listenMessage;
 
 
-        public QueueMessageListener(string connectionString, string storageName, string downloadBlobStorage, INavigation navigation)
+        public QueueMessageListener(string connectionString, string queueName, string downloadBlobStorage,  INavigation navigation)
         {
             _connectionString = connectionString;
-            _storageName = storageName;
+            _queueName = queueName;
             _navigation = navigation;
             _downloadBlobStorage = downloadBlobStorage;
         }
 
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
         {
-            QueueClient queueClient = new QueueClient(_connectionString, _storageName);
+            QueueClient queueClient = new QueueClient(_connectionString, _queueName);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -91,7 +90,7 @@ namespace AppSDR
                 //UpdateStatusLabel($"Processing experiment request: {request.downloadBlobStorage}");
 
                 BlobServiceClient blobServiceClient = new BlobServiceClient(request.StorageConnectionString);
-                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.DownloadBlobStorage);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.BlobStorageName);
 
                 if (!await containerClient.ExistsAsync())
                 {
@@ -102,7 +101,6 @@ namespace AppSDR
                 await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
                 {
                     string blobName = blobItem.Name;
-                    //UpdateStatusLabel($"Found blob: {blobName}");
 
                     BlobClient blobClient = containerClient.GetBlobClient(blobName);
                     string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -251,13 +249,5 @@ namespace AppSDR
             return activeCellsColumn.ToArray();
         }
 
-        //private void UpdateStatusLabel(string message)
-        //{
-        //    MainThread.BeginInvokeOnMainThread(() =>
-        //    {
-        //        //_statusLabel.Text = $"Status: {message}";
-
-        //    });
-        //}
     }
 }
