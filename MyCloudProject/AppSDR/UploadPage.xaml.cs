@@ -4,18 +4,23 @@ namespace AppSDR
 {
     public partial class UploadPage : ContentPage
     {
-        public string AssignedTextFilePath { get; set; }
-        public INavigation Navigation { get; set; }
-        public string[] EntryCellValue { get; set; }
-        public UploadPage(string _assignedTextFilePath, INavigation _navigation, string[] _entryCellValue)
+        private string AssignedTextFilePath { get; set; }
+        private INavigation Navigation { get; set; }
+        private string[] EntryCellValue { get; set; }
+        private string[] MessageConfig { get; set; }
+        public UploadPage(string assignedTextFilePath, string[] messageConfig, INavigation navigation, string[] entryCellValue)
         {
-            AssignedTextFilePath = _assignedTextFilePath;
-            Navigation = _navigation;
-            EntryCellValue = _entryCellValue;
+            AssignedTextFilePath = assignedTextFilePath;
+            MessageConfig = messageConfig;
+            Navigation = navigation;
+            EntryCellValue = entryCellValue;
 
             InitializeComponent();
-            var viewModel = new UploadViewModel(AssignedTextFilePath, Navigation, EntryCellValue);
-            BindingContext = viewModel;
+            BindingContext = new UploadViewModel(AssignedTextFilePath, MessageConfig, Navigation, EntryCellValue);
+        }
+        private async void OnBackToMainPageClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
         }
     }
 }

@@ -1,32 +1,34 @@
 using AppSDR.ViewModel;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs;
-using System.ComponentModel;
 
 namespace AppSDR;
 public partial class Page1 : ContentPage
 {
-    private INavigation Navigation;
-    public string[] EntryCellValues { get; set; }
-    //double WidthRequest { get; set; }
-    //double HeightRequest { get; set; }
-    private string ConnectionString { get; set; }
-    private string DownloadBlobStorage { get; set; }
-    public Page1(int[][] activeCellsColumn, string[] entryCellValues, string connectionString, string downloadBlobStorage, INavigation navigation)
+    private INavigation _navigation;
+    private readonly Type _sourcePageType;
+    private int[][] _activeCellsColumn;
+    private string[] _entryCellValues;
+    private string _connectionString;
+    private string _downloadBlobStorage; 
+    public Page1(int[][] ActiveCellsColumn, string[] EntryCellValues, string[] CloudConfig, INavigation Navigation, Type SourcePageType)
     {
         InitializeComponent();
-        ConnectionString = connectionString;
-        DownloadBlobStorage = downloadBlobStorage;
-        Navigation = navigation;    
+        _activeCellsColumn = ActiveCellsColumn;
+        _entryCellValues = EntryCellValues;
+        _connectionString = CloudConfig[0];
+        _downloadBlobStorage = CloudConfig[1];
+        _navigation = Navigation; 
+        _sourcePageType = SourcePageType;
+
 
         // Define source of drawing method
         var graphicsView = this.DrawableView;
         var graphicsdrawable = (Page1ViewModel)graphicsView.Drawable;
 
         // Parse a list of parameters and a matrix of SDR values
-        EntryCellValues = entryCellValues;
-        graphicsdrawable.Vectors = activeCellsColumn;
-        graphicsdrawable.GraphPara = entryCellValues;
+        graphicsdrawable.Vectors = _activeCellsColumn;
+        graphicsdrawable.GraphPara = _entryCellValues;
 
         // Define vertical screen size based on maximum cell value
         // Take the maximum value to set upper limit of the height
@@ -34,7 +36,7 @@ public partial class Page1 : ContentPage
         float Rectspacing;
         int maxCellValue = 0;
 
-        foreach (var column in activeCellsColumn)
+        foreach (var column in _activeCellsColumn)
         {
             foreach (var value in column)
             {
@@ -49,7 +51,7 @@ public partial class Page1 : ContentPage
         HeightRequest = graphicsView.HeightRequest;
 
         // Define horizontal screen size based on total SDR columns
-        int max_xvalue = activeCellsColumn.Length;
+        int max_xvalue = _activeCellsColumn.Length;
 
         if (max_xvalue < 31)
         {
@@ -91,9 +93,15 @@ public partial class Page1 : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
         // Delay to ensure the page is fully loaded
         await Task.Delay(500);
-        await SaveScreenshotToBlobStorage();
+
+        // Check if the source page is not MainPage or TestEditorPage
+        if (_sourcePageType != typeof(MainPage) && _sourcePageType != typeof(TextEditorPage))
+        {
+            await SaveScreenshotToBlobStorage();
+        }
     }
     public async Task SaveScreenshotToBlobStorage()
     {
@@ -107,17 +115,24 @@ public partial class Page1 : ContentPage
             {
                 // Generate a unique file name using a timestamp
                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-                string blobName = $"{EntryCellValues[7]}_{timestamp}.png";
+                string blobName;
 
-                BlobServiceClient blobServiceClient = new BlobServiceClient(ConnectionString);
-                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(DownloadBlobStorage);
+                if (_entryCellValues[7] != null)
+                {
+                    blobName = $"{_entryCellValues[7]}_{timestamp}.png";
+                }
+                else
+                {
+                    blobName = $"{timestamp}.png";
+                }
+
+                BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_downloadBlobStorage);
                 BlobClient blobClient = containerClient.GetBlobClient(blobName);
 
                 await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
                 // Optional delay before the next operation
-                //await Task.Delay(2000);
                 await DisplayAlert("Success", "Screenshot has been saved successfully.", "OK");
-                await Navigation.PopAsync();
             }
         }
         else
@@ -125,7 +140,6 @@ public partial class Page1 : ContentPage
             // Display a message if no screenshot was captured
             await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
         }
-
     }
 
     private async Task SaveScreenshot()
@@ -146,7 +160,7 @@ public partial class Page1 : ContentPage
                 }
 
                 string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string desktopFilePath = Path.Combine(desktopDirectory, $"{EntryCellValues[7]}.png");
+                string desktopFilePath = Path.Combine(desktopDirectory, $"{_entryCellValues[7]}.png");
 
                 // Copy the file from the AppDataDirectory to the desktop
                 File.Move(targetFile, desktopFilePath, true);
@@ -169,6 +183,6 @@ public partial class Page1 : ContentPage
 
     private async void BackToMainPageButton_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
+        await _navigation.PushModalAsync(new MainPage()); // Navigate back to the MainPage
     }
 }

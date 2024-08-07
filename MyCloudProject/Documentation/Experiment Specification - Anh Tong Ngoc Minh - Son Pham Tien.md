@@ -8,12 +8,12 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
 3. [Important Cloud Project links](#important-cloud-project-links)
 4. [Project specifications](#project-specifications)
 5. [Overview of the cloud architecture](#overview-of-the-cloud-architecture)
-  * [Experiment description](#experiment-description)
-  * [Azure Container Registry](#azure-container-registry)
+    * [Experiment description](#experiment-description)
+    * [Azure Container Registry](#azure-container-registry)
 6. [Experiment and evaluation](#experiment-and-evaluation)
-  * [How to run experiment](#how-to-run-experiment)
-  * [Azure deployment](#azure-deployment)
-  * [Evaluation](#evaluation)
+    * [How to run experiment](#how-to-run-experiment)
+    * [Azure deployment](#azure-deployment)
+    * [Evaluation](#evaluation)
 7. [References](#references)
 
 ## Introduction

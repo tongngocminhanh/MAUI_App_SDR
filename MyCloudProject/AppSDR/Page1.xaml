@@ -30,7 +30,7 @@
             <!-- Navigate to Main Page-->
             <Button Text="BACK TO MAINPAGE" Clicked="BackToMainPageButton_Clicked"
                     Grid.Row="1" Grid.Column="1" />
-            
+
             <!-- Save method-->
             <Button Text="Save as Picture" Clicked="Save"
                     Grid.Row="2" Grid.Column="1" />

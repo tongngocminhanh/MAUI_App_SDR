@@ -2,18 +2,18 @@ namespace AppSDR
 {
     public partial class TextEditorPage : ContentPage
     {
-        private INavigation Navigation;
-        public string[] EntryCellValues { get; set; }
-        public string ConnectionString { get; set; }
-        public string DownloadBlobStorage { get; set; }
+        private INavigation _navigation;
+        private string[] _entryCellValues;
+        private string[] _cloudConfig;
+        private string[] _messageConfig;
 
-        public TextEditorPage(string[] entryCellValues, string connectionString, string downloadBlobStorage, INavigation navigation)
+        public TextEditorPage(string[] EntryCellValues, string[] CloudConfig, string[] MessageConfig, INavigation Navigation)
         {
             InitializeComponent();
-            EntryCellValues = entryCellValues;
-            ConnectionString = connectionString;
-            DownloadBlobStorage = downloadBlobStorage;  
-            Navigation = navigation;    
+            _cloudConfig = CloudConfig;
+            _entryCellValues = EntryCellValues;
+            _messageConfig = MessageConfig;
+            _navigation = Navigation;    
         }
         private async void OnSaveClicked(object sender, EventArgs e)
         {
@@ -84,7 +84,8 @@ namespace AppSDR
                 int[][] activeCellsArray = activeCellsColumn.ToArray();
 
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved successfully", "OK");
-                await Navigation.PushModalAsync(new Page1(activeCellsArray, EntryCellValues, ConnectionString, DownloadBlobStorage, Navigation));
+                var page1FromTextEditorPage = new Page1(activeCellsArray, _entryCellValues, _cloudConfig, _navigation, typeof(TextEditorPage));
+                await Navigation.PushModalAsync(page1FromTextEditorPage);
             }
             catch (Exception ex)
             {
@@ -122,7 +123,7 @@ namespace AppSDR
                 // Notify the user of success
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved to desktop successfully", "OK");
                 // Navigate to UploadPage with the file path
-                await Navigation.PushModalAsync(new UploadPage(filePath, Navigation, EntryCellValues));
+                await Navigation.PushModalAsync(new UploadPage(filePath, _messageConfig, _navigation, _entryCellValues));
             }
             catch (Exception ex)
             {

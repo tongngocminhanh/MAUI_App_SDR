@@ -4,30 +4,28 @@ using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 using System.Text;
 using System.Text.Json;
+using Azure.Data.Tables;
+using Azure;
 
 namespace AppSDR
 {
     public class QueueMessageListener
     {
         private readonly string _connectionString;
-        private readonly string _storageName;
-        private readonly string _downloadBlobStorage;
+        private readonly string _queueName;
         private INavigation _navigation;
-        // private readonly string _listenMessage;
 
 
-        public QueueMessageListener(string connectionString, string storageName, string downloadBlobStorage, INavigation navigation)
+        public QueueMessageListener(string[]messageConfig,  INavigation navigation)
         {
-            _connectionString = connectionString;
-            _storageName = storageName;
-            //_statusLabel = statusLabel;
+            _connectionString = messageConfig[0];
+            _queueName = messageConfig[1];
             _navigation = navigation;
-            _downloadBlobStorage = downloadBlobStorage;
         }
 
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
         {
-            QueueClient queueClient = new QueueClient(_connectionString, _storageName);
+            QueueClient queueClient = new QueueClient(_connectionString, _queueName);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -47,8 +45,6 @@ namespace AppSDR
                                 messageText = Encoding.UTF8.GetString(data);
                             }
 
-                            Console.WriteLine($"Message Content: {messageText}");
-
                             ExperimentRequestMessage experimentRequestMessage = null;
                             try
                             {
@@ -56,8 +52,7 @@ namespace AppSDR
                             }
                             catch (JsonException ex)
                             {
-                                Console.WriteLine($"JSON Deserialization Error: {ex.Message}");
-                                //UpdateStatusLabel($"JSON Deserialization Error: {ex.Message}");
+                                await Application.Current.MainPage.DisplayAlert("Error", $"JSON Deserialization Error: {ex.Message}", "OK");
                             }
 
                             if (experimentRequestMessage != null)
@@ -73,8 +68,8 @@ namespace AppSDR
                 }
                 catch (Exception ex)
                 {
-                    //UpdateStatusLabel($"Error receiving messages: {ex.Message}");
                     Console.WriteLine($"Error receiving messages: {ex.Message}");
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Fail to receive messages: {ex.Message}", "OK");
                 }
             }
         }
@@ -89,21 +84,18 @@ namespace AppSDR
         {
             try
             {
-                //UpdateStatusLabel($"Processing experiment request: {request.downloadBlobStorage}");
-
                 BlobServiceClient blobServiceClient = new BlobServiceClient(request.StorageConnectionString);
-                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.DownloadBlobStorage);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.UploadBlobStorageName);
 
                 if (!await containerClient.ExistsAsync())
                 {
-                    //UpdateStatusLabel("Container does not exist.");
+                    await Application.Current.MainPage.DisplayAlert("Error", "Container does not exist.", "OK");
                     return;
                 }
 
                 await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
                 {
                     string blobName = blobItem.Name;
-                    //UpdateStatusLabel($"Found blob: {blobName}");
 
                     BlobClient blobClient = containerClient.GetBlobClient(blobName);
                     string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -118,16 +110,13 @@ namespace AppSDR
                     try
                     {
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
-                        //UpdateStatusLabel($"Downloaded file to {localFilePath}");
-                        Console.WriteLine($"Downloaded file to {localFilePath}");
-                        await ProcessDownloadedFileAsync(localFilePath);
+                        await ProcessDownloadedFileAsync(localFilePath, request);
 
 
                     }
                     catch (Exception ex)
                     {
-                        //UpdateStatusLabel($"Error downloading or processing blob '{blobName}': {ex.Message}");
-                        Console.WriteLine($"Error downloading or processing blob '{blobName}': {ex.Message}");
+                        await Application.Current.MainPage.DisplayAlert("Error", $"Error downloading or processing blob '{blobName}': {ex.Message}", "OK");
                     }
                 }
 
@@ -137,8 +126,7 @@ namespace AppSDR
             }
             catch (Exception ex)
             {
-                //UpdateStatusLabel($"Error processing experiment request: {ex.Message}");
-                Console.WriteLine($"Error processing experiment request: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Error processing experiment request: {ex.Message}", "OK");
             }
         }
 
@@ -154,7 +142,7 @@ namespace AppSDR
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Error downloading blob to file {filePath}: {ex.Message}", "OK");
                 throw;
             }
         }
@@ -168,36 +156,78 @@ namespace AppSDR
             return fileName;
         }
 
-        private async Task ProcessDownloadedFileAsync(string filePath)
+        private async Task ProcessDownloadedFileAsync(string filePath, ExperimentRequestMessage request)
         {
             try
             {
                 string fileContent = await File.ReadAllTextAsync(filePath);
-                //UpdateStatusLabel($"Processing file: {Path.GetFileName(filePath)}");
-                Console.WriteLine($"Processing file: {Path.GetFileName(filePath)}");
 
                 int[][] activeCellsArray = ParseFileContent(fileContent);
-                string[] entryCellValues = { "GraphName", "100", "1", "XaxisTitle", "YaxisTitle", "1", "5000", "SDR" };
+                string[] entryCellValues = await DownloadEntity(_connectionString, request.TableStorageName);
 
                 // Ensure the navigation to Page1 is awaited and on the main thread
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    var page1 = new Page1(activeCellsArray, entryCellValues, _connectionString, _downloadBlobStorage, _navigation);
-                    await _navigation.PushModalAsync(page1);
+                    string[] _cloudConfig = [_connectionString, request.DownloadBlobStorageName];
+                    var page1FromUploadPage = new Page1(activeCellsArray, entryCellValues, _cloudConfig, _navigation, typeof(UploadPage));
+                    await _navigation.PushModalAsync(page1FromUploadPage);
 
                     // Wait for the screenshot to be captured and uploaded
-                    await page1.SaveScreenshotToBlobStorage();
+                    await page1FromUploadPage.SaveScreenshotToBlobStorage();
 
 
                 });
             }
             catch (Exception ex)
             {
-                //UpdateStatusLabel($"Error processing file {filePath}: {ex.Message}");
-                Console.WriteLine($"Error downloading blob to file {filePath}: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", $"Error downloading blob to file {filePath}: {ex.Message}", "OK");
             }
         }
 
+        // Access to Table Storage, and get Entry Cell Values
+        private async Task<string[]> DownloadEntity(string ConnectionString, string TableStorageName)
+        {
+            try
+            {
+                // Create a table client
+                TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
+
+                // Query all entities
+                Pageable<TableEntityConfiguration> queryResults = tableClient.Query<TableEntityConfiguration>();
+
+                // Convert to a list and order by Timestamp in descending order
+                List<TableEntityConfiguration> entities = queryResults.ToList();
+                var mostRecentEntity = entities.OrderByDescending(ent => ent.Timestamp).FirstOrDefault();
+
+                if (mostRecentEntity != null)
+                {
+                    // Convert the entity properties back to a string array
+                    string []EntryCellValues = new string[]
+                    {
+                        mostRecentEntity.GraphName,
+                        mostRecentEntity.MaxCycles,
+                        mostRecentEntity.HighlightTouch,
+                        mostRecentEntity.XaxisTitle,
+                        mostRecentEntity.YaxisTitle,
+                        mostRecentEntity.MinRange,
+                        mostRecentEntity.MaxRange,
+                        mostRecentEntity.SavedName
+                    };
+
+                    return EntryCellValues;
+                }
+                else
+                {
+                    // Handle case when no entities are found
+                    throw new InvalidOperationException("No entities found in the table.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                throw; // Optionally rethrow the exception or return a default value
+            }
+        }
         private int[][] ParseFileContent(string fileContent)
         {
             string[] lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
@@ -248,17 +278,7 @@ namespace AppSDR
                     activeCellsColumn.Add(parsedNumbers.ToArray());
                 }
             }
-
             return activeCellsColumn.ToArray();
         }
-
-        //private void UpdateStatusLabel(string message)
-        //{
-        //    MainThread.BeginInvokeOnMainThread(() =>
-        //    {
-        //        //_statusLabel.Text = $"Status: {message}";
-
-        //    });
-        //}
     }
 }

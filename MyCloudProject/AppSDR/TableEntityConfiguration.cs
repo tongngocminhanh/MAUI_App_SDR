@@ -3,7 +3,7 @@ using Azure.Data.Tables;
 
 namespace AppSDR
 {
-    public class TableConfigurationEntity : ITableEntity
+    public class TableEntityConfiguration : ITableEntity
     {
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
