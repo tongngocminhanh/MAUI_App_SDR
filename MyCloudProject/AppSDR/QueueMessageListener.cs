@@ -169,11 +169,11 @@ namespace AppSDR
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     string[] _cloudConfig = [_connectionString, request.DownloadBlobStorageName];
-                    var page1 = new Page1(activeCellsArray, entryCellValues, _cloudConfig, _navigation);
-                    await _navigation.PushModalAsync(page1);
+                    var page1FromUploadPage = new Page1(activeCellsArray, entryCellValues, _cloudConfig, _navigation, typeof(UploadPage));
+                    await _navigation.PushModalAsync(page1FromUploadPage);
 
                     // Wait for the screenshot to be captured and uploaded
-                    await page1.SaveScreenshotToBlobStorage();
+                    await page1FromUploadPage.SaveScreenshotToBlobStorage();
 
 
                 });

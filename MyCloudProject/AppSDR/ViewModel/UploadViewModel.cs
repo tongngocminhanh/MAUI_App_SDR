@@ -184,10 +184,7 @@ namespace AppSDR.ViewModel
                 {
                     // Check if the defined parameters are not null
                     bool canExecuteCommand = CanExecuteCommands();
-                    bool definedParaNotNull =
-                        !string.IsNullOrEmpty(DownloadBlobStorageName) &&
-                        !string.IsNullOrEmpty(UploadBlobStorageName);
-                    return canExecuteCommand && definedParaNotNull;
+                    return canExecuteCommand;
                 });
 
             DownloadFilesCommand = new Command(
@@ -200,8 +197,7 @@ namespace AppSDR.ViewModel
                     // Check if the defined parameters are not null
                     bool canExecuteCommand = CanExecuteCommands();
                     bool definedParaNotNull =
-                        !string.IsNullOrEmpty(DownloadBlobStorageName) &&
-                        !string.IsNullOrEmpty(UploadBlobStorageName);
+                        !string.IsNullOrEmpty(DownloadBlobStorageName);
                     return canExecuteCommand && definedParaNotNull;
                 });
 
@@ -441,11 +437,11 @@ namespace AppSDR.ViewModel
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     string[] cloudConfig = [ConnectionString, DownloadBlobStorageName];
-                    var page1 = new Page1(activeCellsArray, entryCellValues, cloudConfig, Navigation);
-                    await Navigation.PushModalAsync(page1);
+                    var page1FromUploadPage = new Page1(activeCellsArray, entryCellValues, cloudConfig, Navigation, typeof(UploadPage));
+                    await Navigation.PushModalAsync(page1FromUploadPage);
 
                     // Wait for the screenshot to be captured and uploaded
-                    await page1.SaveScreenshotToBlobStorage();
+                    await page1FromUploadPage.SaveScreenshotToBlobStorage();
                 });
             }
             catch (Exception ex)

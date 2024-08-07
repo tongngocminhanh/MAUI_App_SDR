@@ -6,11 +6,12 @@ namespace AppSDR;
 public partial class Page1 : ContentPage
 {
     private INavigation _navigation;
+    private readonly Type _sourcePageType;
     private int[][] _activeCellsColumn;
     private string[] _entryCellValues;
     private string _connectionString;
     private string _downloadBlobStorage; 
-    public Page1(int[][] ActiveCellsColumn, string[] EntryCellValues, string[] CloudConfig, INavigation Navigation)
+    public Page1(int[][] ActiveCellsColumn, string[] EntryCellValues, string[] CloudConfig, INavigation Navigation, Type SourcePageType)
     {
         InitializeComponent();
         _activeCellsColumn = ActiveCellsColumn;
@@ -18,6 +19,7 @@ public partial class Page1 : ContentPage
         _connectionString = CloudConfig[0];
         _downloadBlobStorage = CloudConfig[1];
         _navigation = Navigation; 
+        _sourcePageType = SourcePageType;
 
 
         // Define source of drawing method
@@ -91,10 +93,15 @@ public partial class Page1 : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
         // Delay to ensure the page is fully loaded
         await Task.Delay(500);
-        await SaveScreenshotToBlobStorage();
-        
+
+        // Check if the source page is not MainPage or TestEditorPage
+        if (_sourcePageType != typeof(MainPage) && _sourcePageType != typeof(TextEditorPage))
+        {
+            await SaveScreenshotToBlobStorage();
+        }
     }
     public async Task SaveScreenshotToBlobStorage()
     {

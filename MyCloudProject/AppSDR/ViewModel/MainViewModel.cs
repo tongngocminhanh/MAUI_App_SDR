@@ -345,7 +345,7 @@ namespace AppSDR.ViewModel
                     _cloudConfig = [_connectionString, _downloadBlobStorage];
 
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
-                    await NavigateToPage1(EntryCellValues, activeCellsArray);
+                    await NavigateToPage1(EntryCellValues, activeCellsArray, _cloudConfig);
                 }
 
                 // Exception Alert when no input file is detected 
@@ -359,10 +359,11 @@ namespace AppSDR.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
-        private async Task NavigateToPage1(string[] _entryCellValues, int[][] _activeCellsArray)
+        private async Task NavigateToPage1(string[] _entryCellValues, int[][] _activeCellsArray, string[] _cloudConfig)
         {
             // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
-            await Navigation.PushModalAsync(new Page1(_activeCellsArray, _entryCellValues, _cloudConfig, Navigation));
+            var page1FromMainPage = new Page1(_activeCellsArray, _entryCellValues, _cloudConfig, Navigation, typeof(MainPage));
+            await Navigation.PushModalAsync(page1FromMainPage);
         }
         private int[][] ParseFileContent(string fileContent)
         {
