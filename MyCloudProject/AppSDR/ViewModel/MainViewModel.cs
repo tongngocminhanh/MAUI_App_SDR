@@ -343,6 +343,7 @@ namespace AppSDR.ViewModel
                     int[][] activeCellsArray = ParseFileContent(fileContent);
                     string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
                     _cloudConfig = [_connectionString, _downloadBlobStorage];
+
                     // Navigate to Page1 with the updated EntryCellValues and activeCellsArray
                     await NavigateToPage1(EntryCellValues, activeCellsArray);
                 }
@@ -444,7 +445,7 @@ namespace AppSDR.ViewModel
             // Parse EntryCellValues, navigate to Text Editor Page
             string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
             _cloudConfig = [_connectionString, _downloadBlobStorage];
-            await Navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _cloudConfig, Navigation));
+            await Navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _cloudConfig, _messageConfig, Navigation));
         }
         
         // Navigate to Upload Page
@@ -453,12 +454,11 @@ namespace AppSDR.ViewModel
             try
             {
                 string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
-                await Navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, Navigation, EntryCellValues));
+                await Navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, _messageConfig, Navigation, EntryCellValues));
             }
             catch (Exception ex)
             {
                 // Handle exception
-                Console.WriteLine($"File picking error: {ex.Message}");
                 await Application.Current.MainPage.DisplayAlert("Error", $"File picking error: {ex.Message}", "OK");
             }
         }

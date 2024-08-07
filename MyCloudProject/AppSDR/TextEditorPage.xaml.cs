@@ -4,17 +4,15 @@ namespace AppSDR
     {
         private INavigation _navigation;
         private string[] _entryCellValues;
-        private string _connectionString;
-        private string _downloadBlobStorage;
-        private string[] _cloudConfig;   
+        private string[] _cloudConfig;
+        private string[] _messageConfig;
 
-        public TextEditorPage(string[] EntryCellValues, string[] CloudConfig, INavigation Navigation)
+        public TextEditorPage(string[] EntryCellValues, string[] CloudConfig, string[] MessageConfig, INavigation Navigation)
         {
             InitializeComponent();
             _cloudConfig = CloudConfig;
             _entryCellValues = EntryCellValues;
-            _connectionString = CloudConfig[0];
-            _downloadBlobStorage = CloudConfig[1]; 
+            _messageConfig = MessageConfig;
             _navigation = Navigation;    
         }
         private async void OnSaveClicked(object sender, EventArgs e)
@@ -124,7 +122,7 @@ namespace AppSDR
                 // Notify the user of success
                 await Application.Current.MainPage.DisplayAlert("Success", "Data saved to desktop successfully", "OK");
                 // Navigate to UploadPage with the file path
-                await Navigation.PushModalAsync(new UploadPage(filePath, _navigation, _entryCellValues));
+                await Navigation.PushModalAsync(new UploadPage(filePath, _messageConfig, _navigation, _entryCellValues));
             }
             catch (Exception ex)
             {
