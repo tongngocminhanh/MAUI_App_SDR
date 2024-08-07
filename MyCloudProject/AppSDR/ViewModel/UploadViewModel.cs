@@ -611,9 +611,26 @@ namespace AppSDR.ViewModel
 
                 _listener = new QueueMessageListener(MessageConfig, Navigation);
                 _cts = new CancellationTokenSource();
-                Task.Run(async () => await _listener.ListenToMessagesAsync(_cts.Token));
+
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _listener.ListenToMessagesAsync(_cts.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions here
+                        Console.WriteLine($"Error: {ex.Message}");
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            Application.Current.MainPage.DisplayAlert("Error", $"Fail to receive messages: {ex.Message}", "OK");
+                        });
+                    }
+                });
             }
         }
+
         private async Task OnStopListening()
         {
             _cts?.Cancel();
