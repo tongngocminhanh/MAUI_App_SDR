@@ -4,19 +4,45 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
 
 ## Table of contents
 1. [Introduction](#introduction)
-2. [SE Project links](#se-project-links)
-3. [Important Cloud Project links](#important-cloud-project-links)
-4. [Project specifications](#project-specifications)
+2. [Important Project Links](#important-project-links)
+    * [SE Project links](#se-project-links)
+    * [Cloud Project links](#cloud-project-links)
+3. [Goal of Cloud Project](#goal-of-cloud-project)
+4. [Implementation of new properties in AppSDR](#implementation-of-new-properties-in-appsdr)
+    * [UI implementation](#ui-implementation)
+    * [Logic implementation](#logic-implementation)
 5. [Overview of the cloud architecture](#overview-of-the-cloud-architecture)
-    * [Experiment description](#experiment-description)
-    * [Azure Container Registry](#azure-container-registry)
 6. [Experiment and evaluation](#experiment-and-evaluation)
     * [How to run experiment](#how-to-run-experiment)
-    * [Azure deployment](#azure-deployment)
     * [Evaluation](#evaluation)
 7. [References](#references)
 
 ## Introduction
+AppSDR is the .NET MAUI app visualizing the Sparse Distribution Representations (SDR) with the user's SDR values and drawing specifications. The map's primary functions are taking the parameters for graph visualization, and the SDR values with local files or manually set. For Cloud implementation on the AppSDR, the following are created.
+
+* Modify the original pages with new variables and properties to navigate to a new page.
+* Add a new *UploadPage* to handle the cloud properties, with new UI elements to specify the pointed Azure data objects (Storage Account, Blob, Queue, and Table Storage).
+* Add two new classes to handle the *Message operation* functions, working as the automatic generation when users want outputs with the Azure platform.
+
+The new version of AppSDR can be operated manually and automatically, depending on users' purpose. This project mainly works on Azure Storage Account. Dockers and Azure Services are not included in this implementation.
+
+## Important Project Links
+### SE Project links
+1. SE Project Documentation: [PDF](../../MySEProject/Documentation/ML22-23-8-Implement%20the%20SDR%20representation%20in%20the%20MAUI%20application_MAUI_App_SDR-Paper.pdf)<br/>
+2. README files: [Description](../../MySEProject/Documentation/Readme.md), [User Manual](../../MySEProject/Documentation/UserManual.md)
+3. Implemented classes: [MainViewModel()](../../MySEProject/AppSDR/ViewModel/MainViewModel.cs), [Page1ViewModel()](../../MySEProject/AppSDR/ViewModel/Page1ViewModel.cs), [MainPage()](../../MySEProject/AppSDR/MainPage.xaml.cs), [TextEditorPage()](../../MySEProject/AppSDR/TextEditorPage.xaml.cs), [Page1()](../../MySEProject/AppSDR/Page1.xaml.cs)<br/>
+4. SDR drawing library: [SdrDrawerable()](../../MySEProject/AppSDR/SdrDrawerLib/SdrDrawable.cs)<br/>
+5. Sample SDR inputs: [Folder](../../MySEProject/Documentation/TestSamples/)
+
+### Cloud Project links
+1. Cloud Project Documentation: [Experiment Specification](./Experiment%20Specification%20-%20Anh%20Tong%20Ngoc%20Minh%20-%20Son%20Pham%20Tien.md)
+2. Other README file: [User Manual](User%20Manual.md)
+3. UI implemenation of Cloud Configuration Page: [UploadPage.cs](../AppSDR/UploadPage.xaml)
+4. Logic implementation class of Cloud Configuration Page: [UploadPage()](../AppSDR/UploadPage.xaml.cs), [UploadViewModel()](../AppSDR/ViewModel/UploadViewModel.cs)
+5. Message handle class: [ExperimentRequestMessage()](../AppSDR/ExperimentRequestMessage.cs), [QueueMessageListener()](../AppSDR/QueueMessageListener.cs)
+6. Project solution: [MyCloudProject.sln](../MyCloudProject.sln)
+
+## Goal of Cloud Project
 Microsoft Azure is an open and flexible cloud-computing platform. The scope of this project is to apply Azure Cloud to the Software Project of .NET MAUI (AppSDR), using Azure storage containers for storing inputs and outputs of the app. In general, the project involves:
 
 * Modifying the current .NET MAUI app to access the Azure storage account. The main idea is to create the *BlobStorageService* class, holding the input storage account information, and which type of storage is used. 
@@ -25,60 +51,32 @@ Microsoft Azure is an open and flexible cloud-computing platform. The scope of t
 
 AppSDR is operated locally, not dockerized, to receive the user's input interaction. The app accesses the specific cloud storage and saves the user's input. The SDR representation is saved on the storage and can be downloaded to the local machine.
 
-## SE Project links
-1. SE Project Documentation: [PDF](../../../MySEProject/Documentation/ML22-23-8-Implement%20the%20SDR%20representation%20in%20the%20MAUI%20application_MAUI_App_SDR-Paper.pdf)<br/>
-2. README files: [Description](../../../MySEProject/Documentation/Readme.md), [User Manual](../../../MySEProject/Documentation/UserManual.md)
-3. Implemented classes: [MainViewModel()](../../../MySEProject/AppSDR/ViewModel/MainViewModel.cs), [Page1ViewModel()](../../../MySEProject/AppSDR/ViewModel/Page1ViewModel.cs), [MainPage()](../../../MySEProject/AppSDR/MainPage.xaml.cs), [TextEditorPage()](../../../MySEProject/AppSDR/TextEditorPage.xaml.cs), [Page1.xaml.cs](../../../MySEProject/AppSDR/Page1.xaml.cs)<br/>
-4. SDR drawing library: [SdrDrawerable()](../../../MySEProject/AppSDR/SdrDrawerLib/SdrDrawable.cs)<br/>
-5. Sample SDR inputs: [Folder](../../../MySEProject/Documentation/TestSamples/)
+## Implementation of new properties in AppSDR
+The primary AppSDR's architecture from the SE Project remains, adding the Cloud-configuration *Upload Page*, and additional functions in existing pages to handle Azure Cloud components. The visualization for the new application described in the figure below has black and blue components representing the original AppSDR and red components for the Cloud Project implementation.
 
-## Important Cloud Project links
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/NewAppSDRStructure.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
 
-## Project specifications
+The new properties are implemented with the following specifications.
+* Besides the specified inputs in the SE project to *Main Page*, a new handling place is created to take the *Message Configuration* used for automatic SDR visualization generation. This input is optional, so when users want to proceed with the operation manually, they can ignore this input area.
+* A New *Upload Page* is created to take *Cloud Configuration* for Cloud accession. *Upload Page* is navigable from *Main Page, Text Editor Page*, and points to *Page 1*. This page calls additional classes to proceed with the *Message* from *Main Page*.
 
-## Overview of the cloud architecture
+### UI implementation
 
-### Experiment specifications
-* Improvise the App SDR into MVC web application.
-* Use Blobs container to store SDR values in Queue storage, and save output Images.
-* Create a new class to access the blob containers.
-* The app deployment could be in docker or normal.
+### Logic implementation
 
-1. What is the **input**?
-- SDR values in Queues
-- Parameters to define the graph from keyboards, saved in Table.
-- Text files, CSV files stored in containers.
 
-2. What is the **output**?
-- Graphs shown on web app
-- Saved pictures in containers
-
-3. What your algorithmas does? How ?
-
-### Azure Container Registry
-
+## Overview of the Cloud Architecture
 
 ## Experiment and evaluation
 
 ### How to run experiment
 
 Describe Your Cloud Experiment based on the Input/Output you gave in the Previous Section.
+### Evaluation
 
-**_Describe the Queue Json Message you used to trigger the experiment:_**  
-
-~~~json
-{
-     ExperimentId = "123",
-     InputFile = "https://beststudents2.blob.core.windows.net/documents2/daenet.mp4",
-     .. // see project sample for more information 
-};
-~~~
-
-- ExperimentId : Id of the experiment which is run  
-- InputFile: The video file used for trainign process  
-
-**_Describe your blob container registry:**  
-
+**Describe your blob container registry:**  
 what are the blob containers you used e.g.:  
 - 'training_container' : for saving training dataset  
   - the file provided for training:  
@@ -87,23 +85,4 @@ what are the blob containers you used e.g.:
   - The file inside are result from the experiment, for example:  
   - **file Example** screenshot, file, code  
 
-
-**_Describe the Result Table_**
-
- What is expected ?
- 
- How many tables are there ? 
- 
- How are they arranged ?
- 
- What do the columns of the table mean ?
- 
- Include a screenshot of your table from the portal or ASX (Azure Storage Explorer) in case the entity is too long, cut it in half or use another format
- 
- - Column1 : explaination
- - Column2 : ...
-Some columns are obligatory to the ITableEntities and don't need Explaination e.g. ETag, ...
- 
-### Azure deployment
-
-### Evaluation
+## References
