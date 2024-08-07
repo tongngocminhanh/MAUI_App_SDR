@@ -196,9 +196,7 @@ namespace AppSDR.ViewModel
                 {
                     // Check if the defined parameters are not null
                     bool canExecuteCommand = CanExecuteCommands();
-                    bool definedParaNotNull =
-                        !string.IsNullOrEmpty(DownloadBlobStorageName);
-                    return canExecuteCommand && definedParaNotNull;
+                    return canExecuteCommand;
                 });
 
             StartListeningCommand = new Command(
