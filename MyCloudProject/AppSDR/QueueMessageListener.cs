@@ -15,8 +15,7 @@ namespace AppSDR
         private readonly string _queueName;
         private INavigation _navigation;
 
-
-        public QueueMessageListener(string[]messageConfig,  INavigation navigation)
+        public QueueMessageListener(string[] messageConfig, INavigation navigation)
         {
             _connectionString = messageConfig[0];
             _queueName = messageConfig[1];
@@ -52,7 +51,10 @@ namespace AppSDR
                             }
                             catch (JsonException ex)
                             {
-                                await Application.Current.MainPage.DisplayAlert("Error", $"JSON Deserialization Error: {ex.Message}", "OK");
+                                await MainThread.InvokeOnMainThreadAsync(() =>
+                                {
+                                    Application.Current.MainPage.DisplayAlert("Error", $"JSON Deserialization Error: {ex.Message}", "OK");
+                                });
                             }
 
                             if (experimentRequestMessage != null)
@@ -69,7 +71,10 @@ namespace AppSDR
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error receiving messages: {ex.Message}");
-                    await Application.Current.MainPage.DisplayAlert("Error", $"Fail to receive messages: {ex.Message}", "OK");
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        Application.Current.MainPage.DisplayAlert("Error", $"Fail to receive messages: {ex.Message}", "OK");
+                    });
                 }
             }
         }
@@ -89,7 +94,10 @@ namespace AppSDR
 
                 if (!await containerClient.ExistsAsync())
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Container does not exist.", "OK");
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        Application.Current.MainPage.DisplayAlert("Error", "Container does not exist.", "OK");
+                    });
                     return;
                 }
 
@@ -111,22 +119,24 @@ namespace AppSDR
                     {
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
                         await ProcessDownloadedFileAsync(localFilePath, request);
-
-
                     }
                     catch (Exception ex)
                     {
-                        await Application.Current.MainPage.DisplayAlert("Error", $"Error downloading or processing blob '{blobName}': {ex.Message}", "OK");
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            Application.Current.MainPage.DisplayAlert("Error", $"Error downloading or processing blob '{blobName}': {ex.Message}", "OK");
+                        });
                     }
                 }
 
-                //UpdateStatusLabel("All files have been processed.");
                 Console.WriteLine($"All files have been processed.");
-
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Error processing experiment request: {ex.Message}", "OK");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Application.Current.MainPage.DisplayAlert("Error", $"Error processing experiment request: {ex.Message}", "OK");
+                });
             }
         }
 
@@ -142,7 +152,10 @@ namespace AppSDR
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Error downloading blob to file {filePath}: {ex.Message}", "OK");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Application.Current.MainPage.DisplayAlert("Error", $"Error downloading blob to file {filePath}: {ex.Message}", "OK");
+                });
                 throw;
             }
         }
@@ -165,69 +178,58 @@ namespace AppSDR
                 int[][] activeCellsArray = ParseFileContent(fileContent);
                 string[] entryCellValues = await DownloadEntity(_connectionString, request.TableStorageName);
 
-                // Ensure the navigation to Page1 is awaited and on the main thread
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    string[] _cloudConfig = [_connectionString, request.DownloadBlobStorageName];
+                    string[] _cloudConfig = new string[] { _connectionString, request.DownloadBlobStorageName };
                     var page1FromUploadPage = new Page1(activeCellsArray, entryCellValues, _cloudConfig, _navigation, typeof(UploadPage));
                     await _navigation.PushModalAsync(page1FromUploadPage);
 
-                    // Wait for the screenshot to be captured and uploaded
                     await page1FromUploadPage.SaveScreenshotToBlobStorage();
-
-
                 });
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Error", $"Error downloading blob to file {filePath}: {ex.Message}", "OK");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Application.Current.MainPage.DisplayAlert("Error", $"Error processing downloaded file {filePath}: {ex.Message}", "OK");
+                });
             }
         }
 
-        // Access to Table Storage, and get Entry Cell Values
         private async Task<string[]> DownloadEntity(string ConnectionString, string TableStorageName)
         {
             try
             {
-                // Create a table client
                 TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
-
-                // Query all entities
                 Pageable<TableEntityConfiguration> queryResults = tableClient.Query<TableEntityConfiguration>();
-
-                // Convert to a list and order by Timestamp in descending order
                 List<TableEntityConfiguration> entities = queryResults.ToList();
                 var mostRecentEntity = entities.OrderByDescending(ent => ent.Timestamp).FirstOrDefault();
 
                 if (mostRecentEntity != null)
                 {
-                    // Convert the entity properties back to a string array
-                    string []EntryCellValues = new string[]
+                    return new string[]
                     {
-                        mostRecentEntity.GraphName,
-                        mostRecentEntity.MaxCycles,
-                        mostRecentEntity.HighlightTouch,
-                        mostRecentEntity.XaxisTitle,
-                        mostRecentEntity.YaxisTitle,
-                        mostRecentEntity.MinRange,
-                        mostRecentEntity.MaxRange,
-                        mostRecentEntity.SavedName
+                    mostRecentEntity.GraphName,
+                    mostRecentEntity.MaxCycles,
+                    mostRecentEntity.HighlightTouch,
+                    mostRecentEntity.XaxisTitle,
+                    mostRecentEntity.YaxisTitle,
+                    mostRecentEntity.MinRange,
+                    mostRecentEntity.MaxRange,
+                    mostRecentEntity.SavedName
                     };
-
-                    return EntryCellValues;
                 }
                 else
                 {
-                    // Handle case when no entities are found
                     throw new InvalidOperationException("No entities found in the table.");
                 }
             }
             catch (Exception ex)
             {
-                // Handle exceptions
-                throw; // Optionally rethrow the exception or return a default value
+                throw;
             }
         }
+
         private int[][] ParseFileContent(string fileContent)
         {
             string[] lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
