@@ -1,111 +1,129 @@
-# User manual for SDR representation
-This document provides detailed instructions for using the *AppSDR* in the Windows operating system. *AppSDR* is a .NET MAUI app used in Windows systems, IOS devices, and Android Emulator. The project was mainly developed on the Windows system, so the user manual contains details using steps in Windows.
-
+# User manual for new version AppSDR
+This document provides detailed instructions for using the new version of *AppSDR* in Windows. For continuous operation, and repeating steps prevention, this document shows information from the *How to run* section. *Prerequisite and Installation* can be checked on the initial [User Manual](../../MySEProject/Documentation/UserManual.md).
 ## Table of contents
-1. [Prequisite](#prequisite)
-2. [Installation](#installation)
-3. [How to run](#how-to-run)
-    * [SDR values as file](#sdr-values-as-file)
-    * [SDR values as text editor](#sdr-values-as-text-editor)
-    * [Output representation](#output-representation)
-4. [License](#license)
 
-## Prequisite
-It is advised to install the most recent versions of the IDE, text editor, and MAUI as the project incorporates the most recent update. 
-* Microsoft Visual Studio Community 2022 - v17.8.6 - https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-notes-v17.8 
-* .NET MAUI 8.0 - select .NET MAUI interface during Visual Studio installation. It will be automatically supported with version 17.8.6 for.NET MAUI 8.0.
-
-## Installation
-Before running the project, installation is made. To install and open the project, follow the following steps.
-* First, clone the project into a local device for use and testing
-```
-git clone https://github.com/tongngocminhanh/MAUI_App_SDR.git
-```
-* Second, navigate the solution directory of the app. The solution is located on *\local directory\MAUI_App_SDR\MySEProject*. 
-* Open *MySampleProject.sln* with Visual Studio.
-* To run or build the app with Visual Studio on a Windows device, create a folder named *Properties* and include the *launchSetting.json* file, content as follows.
-
-```json
-{
-    "profiles": {
-      "Windows Machine": {
-        "commandName": "MsixPackage",
-        "nativeDebugging": false
-      }
-    }
-}
-```
-Now, the app is ready to run.
+* [How to run](#how-to-run)
+  * [Parameters and multiple SDR files](#parameters-and-multiple-sdr-files)
+  * [Parameters and text editor](#sdr-values-as-text-editor)
+  * [No uploaded parameters and files](#no-uploaded-parameters-and-files)
+  * [Message generation](#message-generation)
+* [Output representation](#output-representation)
+* [License](#license)
 
 ## How to run
-After the installation step, the following screen is shown when opening the solution file. Because of the *launchSetting.json*, a state of *Windows Machine* is available for debugging. 
+AppSDR has two stages of running: Without- and With-Cloud. This document specifies the With-Cloud method, as the Without-Cloud one remains unchanged. After the installation step, the following screen is shown when opening the solution file. Because of the *launchSetting.json*, a state of *Windows Machine* is available for debugging. 
 
 <div style="text-align:center">
   <img src="./Figures/Debug.png" title="start-debugging" width=80%></img>
 </div><br>
 
-* When clicking the *Windows Machine* button, the AppSDR is loaded and the *Main Page* is shown. 
+When clicking the *Windows Machine* button, the AppSDR is loaded and the *Main Page* is shown. For Cloud-relevant functions, consider from the label *Manually add SDR values* downward.
+
 <div style="text-align:center">
   <img src="./Figures/MainPage.jpg" title="main-page-representation" width=80%></img>
 </div><br>
 
-* Only button *Choose a text file* is available for clicking, because none of the needed parameters are defined. After inserting the first 7 parameters, all button works. *Saved figure name* is optional.
+* The *Add Text* button is invalid as the parameters table above is empty. make sure to enter ALL the entities in the table to enable this button.
+* The *Cloud configuration* button is clickable whether the parameters are given or not. The differences are mentioned in the test cases below. 
+* The *Message Configuration* has three text editor spaces to handle text inputs. Only when the three blocks are not empty, can the *Upload Message* be functional.
 
-* As configuration, there are two types to define the parameters. For *Graph name, Max cycles, Highlight Touch, Min range of cell, Max range of cell*, entered values are only numbers. The rest could be entered with text and number operated as string type. 
+### Parameters and multiple SDR files
+This case requires input parameters and multiple SDR files. Therefore, users enter eight table entities and click *Cloud Configuration* to navigate to *Upload Page*. The parameters are passed to *Upload Page*.
 
-*Button *BACK TO MAINPAGE* appearing on *Page 1*, *Text Editor Page*, allows user to go back to *Main Page* from the current page. User can edit as demand, change their method of adding SDR data, configure parameters. The new inputs will be updated.
-
-* After parameter configurations, SDR data is added. There are two ways of input, with file or keyboard inputs.
-
-### SDR values as file
-
-* When clicking *Choose a text file*, the app will access the local device memory (example in the figure), pop up the choosing screen, and allow the user to choose a file. The file extension of ".txt, .csv" is supported, so on the screen, only text files and csv files are shown. After choosing the file, the pop-up screen is automatically closed. 
+* When *Upload Page* is up, Cloud information can be defined here.
+* As the app does not connect to Storage Account yet, the buttons *Manual generation* are not valid.
 
 <div style="text-align:center">
-  <img src="./Figures/ChooseTextWindow.png" title="pop-up-choose-file" width=80%></img>
+  <img src="./Figures/UploadPageNoPara.jpg" title="upload-page-no-parameters" width=80%></img>
 </div><br>
 
-* The used data includes inserted parameters and SDR values. Though all parameters are configured, the *Submit* button is available when a file chosen. The warning message is shown in that situation.  
+* When enter the Storage Account information and click "Connect, a status message on the left appeears. At the same time, the "Manual generation" functions are proccessable.
 
 <div style="text-align:center">
-  <img src="./Figures/ErrorNotPickFile.png" title="error-when-no-file-picked" width=80%></img>
+  <img src="./Figures/UploadPara.jpg" title="upload-page" width=80%></img>
 </div><br>
 
-* After both parameters and SDR data are inputted, click the *Submit* button and move to the visualization page - *Page 1*.
-
-### SDR values as text editor
-* Another way to input SDR values is add them directly from keyboards. When click *Add Text* button, screen moves to *Text Editor Page*.
-* On this page, the screen has a blank space used for entering SDR values. Instruction is also given on the screen. Each SDR representation is in one line, separated when pressing the "Enter" button on the keyboard. Each SDR value of the representation is separated by a comma ",". An example is provided in the following figure. 
+* For parameters upload, *Configure Blob Storage* should be fully filled out. After that, *Upload defined parameters* is clickable.
+* Upload the parameters by clicking that button. The status message is updated with successful notification.
 
 <div style="text-align:center">
-  <img src="./Figures/SavedEditText.png" title="saved-edited-text" width=80%></img>
+  <img src="./Figures/ParaConnect.jpg" title="upload-parameters" width=80%></img>
 </div><br>
 
-* If there is no text inserted, and *SAVE* button is clicked, error warning is shown.
+* Then, user should choose the inputs files by clicking "Select and Upload File".
+* AppSDR will access the local device memory, pop up the choosing screen, and allow the user to choose multiple file. The file extension of ".txt, .csv" is supported, so on the screen, only text files and csv files are shown. After choosing the files, the pop-up screen is automatically closed.
 
 <div style="text-align:center">
-  <img src="./Figures/ErrorNotEnterText.jpg" title="error-when-no-text-enter" width=80%></img>
+  <img src="./Figures/ChooseFiles.jpg" title="choose-files" width=80%></img>
 </div><br>
 
-* After SDR data are entered, click the *SAVE* button and move to the visualization page - *Page 1*.
+* Finally, the "Generate and upload Output Files" is chosen. Wait for the output generation.
 
-### Output representation
+### Parameters and text editor
+This test case is triggered when all the table entities are full. Then the "Add Text" button is accessible.
+* Click the "Add Text" button and move to *Text Editor Page*.
+<div style="text-align:center">
+  <img src="./Figures/MainPageText.jpg" title="main-page-text-editor" width=80%></img>
+</div><br>
 
-* Both of the cases can produce the output as follows. Each SDR representation is shown as a column, containing ticks, as active cells of that. Configurations for the graph, such as name, axis titles, horizontal division, vertical division, are illustrate on the graph. A user who defines a highlight column will notice the red block around all represented values.
+* In this page, instruction is given on the top, follow that and enter the SDR values. The click "Generate an image with Cloud"and move to *Upload Page*. 
+
+* The entered text is saved as a text file on Desktop, and when "Select and Upload File" is clicked among the following steps, the app automatically chooses the saved file to upload.
 
 <div style="text-align:center">
-  <img src="./Figures/Page1.png" title="page-1-representation" width=80%></img>
+  <img src="./Figures/TextEditor.jpg" title="text-editor-page" width=80%></img>
 </div><br>
 
-* By clicking the *Save as Picture* button, the representation is saved under the *.png* file. The figure name is defined on the UI of *Main Page*.
+* When user is on *Upload Page*, the next steps are the same as the *Upload Page* ones in [Parameters and multiple SDR files](#parameters-and-multiple-sdr-files).
+
+### No uploaded parameters and files
+If it is verified that SDR file Blob and Parameters Table Container have values, users can run the operation after connecting to the Atorage Account and specified the containers. 
+
+* Directly click *Cloud Configuration* on *Main Page*, and move to *Upload Page*. No parameter is defined.
+* When on *Upload Page*, enter the "Configure Storage' and connect to the Storage Account by clicking "Connect".
+* Enter the other container names in "Configure Blob Storage". Because no parameters are defined, the *Upload defined parameters* is not clickable.
 
 <div style="text-align:center">
-  <img src="./Figures/Example.png" title="app-sdr-example" width=120%></img>
+  <img src="./Figures/StorageConnect.jpg" title="upload-page-storage-connect" width=80%></img>
 </div><br>
 
-Further implementation information can be found [here](./README.md).
+* Click *Generate and upload Output Files* and wait for the visualization.
 
-Description of the project is accessed [here](./ML22-23-8%20Implement%20the%20SDR%20representation%20in%20the%20MAUI%20application.docx)
+### Mesage generation 
+AppSDR can give output with MESSAGE trigger. User uploads a MESSAGE to a Queue Container, being different or the same with the working Storage Account. 
+* The three *Message Configuration* spaces are filled, then the *Upload Message* button is valid.
+* After clicking *Upload Message*, a pop-up appears with the successful message. Click "OK", and choose the *Cloud Configuration* button next.
+
+<div style="text-align:center">
+  <img src="./Figures/MessageConnect.jpg" title="message-main-page" width=60%></img>
+</div><br>
+
+* Only when the message is uploaded, is the *Start Listening* button valid. 
+
+<div style="text-align:center">
+  <img src="./Figures/UploadPageMessage.jpg" title="message-upload-page" width=80%></img>
+</div><br>
+
+* Click *Start Listening* and wait for the outputs. No extra inputs are required.
+
+## Output representation
+All of the cases generate the same form of output. 
+* If there is only one SDR file, the output is the *Page 1* visualization. *Page 1* appears on top of the *Upload Page*.
+
+<div style="text-align:center">
+  <img src="./Figures/OneOutput.jpg" title="one-output-representation" width=80%></img>
+</div><br>
+
+* If there are multiple files in the Blob Containers or several parameter definitions in the Table Container, AppSDR draws all the possible combinations with *Page 1*. Each output will be over one other.
+
+<div style="text-align:center">
+  <img src="./Figures/Output.jpg" title="multiple-outputs-representation" width=120%></img>
+</div><br>
+
+* When click "OK", visualization is uploaded in the Output Blob Container as an image file. Each output will have its own "OK" pop-up message.
+* Navigation back to *Main Page* is possible with the *BACK TO MAIN PAGE* button on the final output. If it is not visible, scroll down the page a little bit.
+
+Further implementation information can be found [here](./Experiment%20Specification%20-%20Anh%20Tong%20Ngoc%20Minh%20-%20Son%20Pham%20Tien.md).
 
 ## License
 [MIT License](LICENSE)
