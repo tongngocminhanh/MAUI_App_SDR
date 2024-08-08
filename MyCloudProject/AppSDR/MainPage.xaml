@@ -178,20 +178,20 @@
                    Grid.ColumnSpan="1"
                    TextColor="{StaticResource LabelTextColor}" />
 
-            <Entry Placeholder="Connection String" 
-                   Text="{Binding MessageConnectionString}"
-                   Grid.Row="6" Grid.Column="1"
-                   Grid.ColumnSpan="3"
-                   HeightRequest="100"
-                   TextColor="{StaticResource EntryTextColor}"
-                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+            <Editor Placeholder="Connection String" 
+                    Text="{Binding MessageConnectionString}"
+                    Grid.Row="6" Grid.Column="1"
+                    Grid.ColumnSpan="3"
+                    HeightRequest="100"
+                    TextColor="{StaticResource EntryTextColor}"
+                    BackgroundColor="{StaticResource EntryBackgroundColor}"/>
 
-            <Entry Placeholder="Queue Storage Name" 
-                   Text="{Binding QueueStorageName}" 
-                   Grid.Row="7" Grid.Column="1"
-                   Grid.ColumnSpan="3"
-                   TextColor="{StaticResource EntryTextColor}"
-                   BackgroundColor="{StaticResource EntryBackgroundColor}"/>
+            <Editor Placeholder="Queue Storage Name" 
+                    Text="{Binding QueueStorageName}" 
+                    Grid.Row="7" Grid.Column="1"
+                    Grid.ColumnSpan="3"
+                    TextColor="{StaticResource EntryTextColor}"
+                    BackgroundColor="{StaticResource EntryBackgroundColor}"/>
 
             <Editor Text="{Binding MessageContent}" 
                     Placeholder="Enter your message here" 

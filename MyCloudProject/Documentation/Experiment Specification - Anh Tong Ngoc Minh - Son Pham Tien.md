@@ -8,10 +8,10 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
     * [SE Project links](#se-project-links)
     * [Cloud Project links](#cloud-project-links)
 3. [Goal of Cloud Project](#goal-of-cloud-project)
-4. [Implementation of new properties in AppSDR](#implementation-of-new-properties-in-appsdr)
+4. [Overview of the cloud architecture](#overview-of-the-cloud-architecture)
+5. [Implementation of new properties in AppSDR](#implementation-of-new-properties-in-appsdr)
     * [UI implementation](#ui-implementation)
     * [Logic implementation](#logic-implementation)
-5. [Overview of the cloud architecture](#overview-of-the-cloud-architecture)
 6. [Experiment and evaluation](#experiment-and-evaluation)
     * [How to run experiment](#how-to-run-experiment)
     * [Evaluation](#evaluation)
@@ -51,23 +51,80 @@ Microsoft Azure is an open and flexible cloud-computing platform. The scope of t
 
 AppSDR is operated locally, not dockerized, to receive the user's input interaction. The app accesses the specific cloud storage and saves the user's input. The SDR representation is saved on the storage and can be downloaded to the local machine.
 
+## Overview of the Cloud Architecture
+The Cloud Architecture describes the relationship among the object-based Cloud storages. The figure has green components illustrating the manual generation, and the orange ones for automatic generation.
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/CloudArchitecture.png" title="general-cloud-architecture" width=70%></img>
+</div><br>
+
+This project involves Azure Containers carrying the uploaded data and retrieving it using the corresponding feature from AppSDR. The storage specification for each generating method must follow:
+
+* Users can only use the manual method when *Storage Account 1* is connected. Then users' SDR parameters inputs are uploaded and stored in the *Table Container*, and the SDR files are in the *Blob Storage*. When generation is started in AppSDR, the app retrieves the most recent entity from the *Table* and the values of all files in *Blob* to draw the outputs. The outputs are stored in the *Output Blob*.
+
+* For automatic method, users provide information to connect *Storage Account 2*, and upload the *MESSAGE* to a defined *Queue Container*. This MESSAGE* contains the Connection String of *Storage Account 2*, along with its attending containers. When AppSDR listens to the MESSAGE in Queue, the output generation starts. The process includes: taking parameters, taking files, drawing outputs, and uploading outputs to Blob. 
+
+* *Storage Account 2* can be different from 1, or user can make use of *Storage Account 1* to store Queue MESSAGE.
+
 ## Implementation of new properties in AppSDR
 The primary AppSDR's architecture from the SE Project remains, adding the Cloud-configuration *Upload Page*, and additional functions in existing pages to handle Azure Cloud components. The visualization for the new application described in the figure below has black and blue components representing the original AppSDR and red components for the Cloud Project implementation.
 
 <div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/NewAppSDRStructure.png" title="general-architecture-of-app-sdr" width=70%></img>
+  <img src="./Figures/NewAppSDRStructure.png" title="general-architecture-of-app-sdr" width=90%></img>
 </div><br>
 
 The new properties are implemented with the following specifications.
+
 * Besides the specified inputs in the SE project to *Main Page*, a new handling place is created to take the *Message Configuration* used for automatic SDR visualization generation. This input is optional, so when users want to proceed with the operation manually, they can ignore this input area.
 * A New *Upload Page* is created to take *Cloud Configuration* for Cloud accession. *Upload Page* is navigable from *Main Page, Text Editor Page*, and points to *Page 1*. This page calls additional classes to proceed with the *Message* from *Main Page*.
 
-### UI implementation
+The *xaml* code for the addition is based on the original AppSDR, reviewed on the previous [Readme](../../MySEProject/Documentation/Readme.md). Details on UI and Logic implementation new configuration and steps are explained in the next subsections. 
 
+### UI implementation
+AppSDR remains the primary UI foundation, adding a new *Upload Page* defined as the following diagrams. For the initial pages, new arrangements are applied with new old and additional components.
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/NewContentAndNavigation.png" title="new-content-and-navigation" width=70%></img>
+</div><br>
+
+The content and navigation of the UI elements of *Page 1* remains as in SE Project. While the existing *Main Page* and * Text Editor Page* have added components, following the configurations below.
+* In *Main Page*, SDR picture and parameters inputs table stay the same. *Labels* are added to specify the button functions, corresponding to the same-line buttons. 
+* A block of Message Configuration is added for users to provide *Storage Account* information and *MESSAGE*, accessing and uploading to the *Queue Container*. A new button is added to handle this block.
+* Instead of *Entry*, AppSDR uses *Editor to carry this block inputs, as the content might be too long just for the *Entry* visualization.
+* In *Text Editor Page*, one button is added, carrying the navigation to *Upload Page*.
+
+The new *Upload page* contains two parts: the left one for Cloud configuration and the right parts for the actual operating functions, described in the next points: 
+* Configure Storage: This section likely provides controls (buttons, text fields) to configure storage settings, such as connection strings or storage account details for Azure.
+* Configure Blob & Table: Similar to storage configuration, but specifically for configuring Azure Blob Storage and Table Storage. This might involve selecting or creating containers and tables.
+* Status: Displays the current status of operations, such as storage configuration, upload status, or connection status.
+* Manual Generation: Controls to manually trigger the generation of messages or data that will be uploaded or processed.
+* Message Generation: Controls related to automating or managing the generation of messages that the system will process or upload.
+* Message Status: A display area showing the status of the messages being handled by the system, possibly indicating success, failure, or progress.
+
+*Upload Page* has two panels for two applications, so the *Layout* must be combined. The left panel components fit in the preview size of the AppSDR, so the *StackLayout* is used. For the right panel, the components may exist in the area, so the *ScrollView* is used, with the *StackLayout* inside. Both of the panels are on the *Grid* to restrain the UI elements and are better to modify.
+
+```xaml
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="250,*,*,*,*,*">
+        <!-- Left Panel with Storage Configuration Options -->
+        <StackLayout Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                     BackgroundColor="{StaticResource LeftPanelBackgroundColor}"
+                     Padding="10" Spacing="10">     
+        </StackLayout>
+
+        <!-- Right Panel with SDR Visualization -->
+        <ScrollView Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5"
+                    BackgroundColor="{StaticResource RightPanelBackgroundColor}"
+                    Padding="10">
+            <StackLayout Spacing="20">
+                <Label Text="GENERATE SDR VISUALIZATION" 
+                       FontAttributes="Bold" 
+                       TextColor="{StaticResource PrimaryTextColor}" />
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+```
 ### Logic implementation
 
-
-## Overview of the Cloud Architecture
 
 ## Experiment and evaluation
 
