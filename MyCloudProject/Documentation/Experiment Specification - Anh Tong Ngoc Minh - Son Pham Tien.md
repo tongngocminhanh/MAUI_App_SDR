@@ -73,11 +73,11 @@ The new properties are implemented with the following specifications.
 
 ### How to run experiment
 
-This section describes how to run the Cloud Experiment based on the input/output mentioned in the Experiment Description section.
+This section describes how to run the Cloud Experiment based on the input/output mentioned in the Experiment Description section.<br/>
 We have 3 experiments in this Maui Cloud Project:
 
 **1. Upload parameters for drawing SDR Representations**
-First, user are enable to upload parameters for drawing SDR Representation by input all of these parameter in the following image:
+First, user are enable to upload parameters for drawing SDR Representation by input all of these parameter in the following image:<br/>
 
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/Parameters.png" title="general-architecture-of-app-sdr" width=70%></img>
@@ -95,7 +95,8 @@ Specify detailed Azure Account by filling these inputs and Click “Upload defin
 
 
 **2.  Upload files to store in Blob Storage, manually generate SDR representation outputs and download output files**
-After successfully connecting to Azure Storage Account, user can select multiple .txt, .csv files to upload to Blob 
+
+After successfully connecting to Azure Storage Account, user can select multiple .txt, .csv files to upload to Blob <br/>
 
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/ManuallySDR.png" title="general-architecture-of-app-sdr" width=70%></img>
@@ -104,7 +105,8 @@ When finish uploading files, all the files are stored in Blob Storage.
 Once all files are uploaded, the user can generate the SDR representations using the files stored in Blob Storage and then download the output file.
 
 **3. Run Listening Mode**
-To run our Azure Cloud Experiment, the Queue Message specifies the name of the Uploaded Blob Storages which is storing.csv file ready to genenerate Sdr representation, the Download Blob Storage which is saving outfile and Table Storage which is storing all parameters for SDR Representation.
+
+To run our Azure Cloud Experiment, the Queue Message specifies the name of the Uploaded Blob Storages which is storing.csv file ready to genenerate Sdr representation, the Download Blob Storage which is saving outfile and Table Storage which is storing all parameters for SDR Representation.<br/>
 This is example queue message: 
 ~~~json
 {
@@ -115,13 +117,13 @@ This is example queue message:
 }
 ~~~
 
-Fill all the required information to upload message to Azure Queue, including the example queue message as described.
+Fill all the required information to upload message to Azure Queue, including the example queue message as described.<br/>
 
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/MessageQueue.png" title="general-architecture-of-app-sdr" width=70%></img>
 </div><br>
 
-When the message is in the queue, click a button for listening mode, which listens to messages and points to a container with CSV files. 
+When the message is in the queue, click a button for listening mode, which listens to messages and points to a container with CSV files. <br/>
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/StartListening.png" title="general-architecture-of-app-sdr" width=70%></img>
 </div><br>
