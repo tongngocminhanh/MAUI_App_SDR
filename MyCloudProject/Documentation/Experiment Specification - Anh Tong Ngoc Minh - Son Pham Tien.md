@@ -73,16 +73,82 @@ The new properties are implemented with the following specifications.
 
 ### How to run experiment
 
-Describe Your Cloud Experiment based on the Input/Output you gave in the Previous Section.
-### Evaluation
+This section describes how to run the Cloud Experiment based on the input/output mentioned in the Experiment Description section.
+We have 3 experiments in this Maui Cloud Project:
 
-**Describe your blob container registry:**  
-what are the blob containers you used e.g.:  
-- 'training_container' : for saving training dataset  
-  - the file provided for training:  
-  - zip, images, configs, ...  
-- 'result_container' : saving output written file  
-  - The file inside are result from the experiment, for example:  
-  - **file Example** screenshot, file, code  
+**1. Upload parameters for drawing SDR Representations**
+First, user are enable to upload parameters for drawing SDR Representation by input all of these parameter in the following image:
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/Parameters.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+  
+When finished, the Button “Cloud Configuration” allow users to specify the Azure Storage to upload parameters and choose .csv files to upload to Blob Storage.
+
+Specify detailed Azure Account by filling these inputs and Click “Upload defined parameters”.
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/SpecifyAzureStorage.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+
+
+**2.  Upload files to store in Blob Storage, manually generate SDR representation outputs and download output files**
+After successfully connecting to Azure Storage Account, user can select multiple .txt, .csv files to upload to Blob 
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/ManuallySDR.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+When finish uploading files, all the files are stored in Blob Storage. 
+Once all files are uploaded, the user can generate the SDR representations using the files stored in Blob Storage and then download the output file.
+
+**3. Run Listening Mode**
+To run our Azure Cloud Experiment, the Queue Message specifies the name of the Uploaded Blob Storages which is storing.csv file ready to genenerate Sdr representation, the Download Blob Storage which is saving outfile and Table Storage which is storing all parameters for SDR Representation.
+This is example queue message: 
+~~~json
+{
+"StorageConnectionString":"DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;",
+"UploadBlobStorageName": "sdrfiles",
+"DownloadBlobStorageName": "saveoutput",
+"TableStorageName": "parameters"
+}
+~~~
+
+Fill all the required information to upload message to Azure Queue, including the example queue message as described.
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/MessageQueue.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+When the message is in the queue, click a button for listening mode, which listens to messages and points to a container with CSV files. 
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/StartListening.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+### Blob container registry 
+Details of the blob containers :
+ - **Training Container ('sdrfiles')**
+    - Stores the input files required for running the experiments, which is .txt and .csv file for drawing SDR representations.
+    - The files is currently referenced from Queue msg.
+
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/savesdr.png" title="general-architecture-of-app-sdr" width=70%></img>
+  </div><br>
+
+ - **Result Container ('saveoutput')**
+    - Stores the output files generated after running the experiments, including the images captured after generate SDR 
+    
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/saveoutput.png" title="general-architecture-of-app-sdr" width=70%></img>
+  </div><br>
+
+ - **Parameter Table ('tmserializeresults')** 
+    - Stores all the experiment experiments inputs
+
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/ParaTable.png" title="general-architecture-of-app-sdr" width=70%></img>
+  </div><br>
+  
 
 ## References
