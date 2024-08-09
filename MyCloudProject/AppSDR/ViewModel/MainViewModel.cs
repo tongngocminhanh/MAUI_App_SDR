@@ -7,7 +7,7 @@ namespace AppSDR.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        // Start property change of parameters without Cloud
+        // Start Without-Cloud property change of parameters 
         private string _graphName;
         public string GraphName
         {
@@ -153,7 +153,7 @@ namespace AppSDR.ViewModel
         }
         // End property change of parameters without Cloud
 
-        // Without-cloud properties definition
+        // Without-Cloud commands definition
         private string _selectedFilePath;
         public string SelectedFileName => string.IsNullOrEmpty(SelectedFilePath) ? "Choose a text file" : Path.GetFileName(SelectedFilePath);
         public ICommand ChooseFileCommand { get; }
@@ -180,7 +180,7 @@ namespace AppSDR.ViewModel
         private string[] _messageConfig = null;
         private string[] _cloudConfig = null;
 
-        // Start property change of Message parameters with Cloud
+        // Start With-Cloud property change of Message parameters 
         private string _queueStorageName;
         public string QueueStorageName
         {
@@ -216,14 +216,14 @@ namespace AppSDR.ViewModel
         }
         // End property change of Message parameters with Cloud
 
-        // With-cloud properties definition
+        // With-Cloud command definition
         public ICommand NavigateToUploadPageCommand { get; }
         public ICommand UploadMessageCommand { get; }
         public MainViewModel(INavigation Navigation)
         {
             _navigation = Navigation;
 
-            // Without-cloud commands
+            // Without-Cloud command operating conditions
             ChooseFileCommand = new Command(ChooseFile);
             AddTextCommand = new Command(
                 execute: () =>
@@ -280,12 +280,12 @@ namespace AppSDR.ViewModel
 
                 canExecute: () =>
                 {
-                    // Check if the first 7 parameters are not null
+                    // Check if the follow parameters are not null
                     bool definedParaNotNull =
                         !string.IsNullOrEmpty(MessageConnectionString) &&
                         !string.IsNullOrEmpty(QueueStorageName) &&
                         !string.IsNullOrEmpty(MessageContent);
-
+                    // Return True when they are defined
                     return definedParaNotNull;
                 });
 
@@ -454,6 +454,7 @@ namespace AppSDR.ViewModel
         {
             try
             {
+                // Parse EntryCellValues, can be null, navigate to Text Editor Page
                 string[] EntryCellValues = { GraphName, MaxCycles, HighlightTouch, XaxisTitle, YaxisTitle, MinRange, MaxRange, SavedName };
                 await Navigation.PushModalAsync(new UploadPage(_assignedTextFilePath, _messageConfig, Navigation, EntryCellValues));
             }

@@ -6,6 +6,7 @@ namespace AppSDR
     {
         public MainPage()
         {
+            // Initialize for MainViewModel class, variable Navigation
             InitializeComponent();
             BindingContext = new MainViewModel(Navigation);
         }

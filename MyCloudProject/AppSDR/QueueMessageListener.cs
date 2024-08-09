@@ -22,6 +22,7 @@ namespace AppSDR
             _navigation = navigation;
         }
 
+        // Access to Queue Storage and listen to MESSAGE
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
         {
             QueueClient queueClient = new QueueClient(_connectionString, _queueName);
@@ -34,6 +35,7 @@ namespace AppSDR
                     {
                         QueueMessage[] receivedMessages = await queueClient.ReceiveMessagesAsync(maxMessages: 10, visibilityTimeout: TimeSpan.FromSeconds(30), cancellationToken: cancellationToken);
 
+                        // Handle JSON data
                         foreach (var message in receivedMessages)
                         {
                             string messageText = message.Body.ToString();
@@ -57,6 +59,7 @@ namespace AppSDR
                                 });
                             }
 
+                            // Operate only when MESSAGE has content
                             if (experimentRequestMessage != null)
                             {
                                 await ProcessExperimentRequestAsync(experimentRequestMessage);
@@ -81,6 +84,7 @@ namespace AppSDR
 
         private bool IsBase64String(string base64)
         {
+            // Handle JSON data
             Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
             return Convert.TryFromBase64String(base64, buffer, out _);
         }
@@ -89,6 +93,7 @@ namespace AppSDR
         {
             try
             {
+                // Use ExperimentRequestMessage,containing Storage Account information, access to it
                 BlobServiceClient blobServiceClient = new BlobServiceClient(request.StorageConnectionString);
                 BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(request.UploadBlobStorageName);
 
@@ -101,6 +106,7 @@ namespace AppSDR
                     return;
                 }
 
+                // Run through all files in Blob
                 await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
                 {
                     string blobName = blobItem.Name;
@@ -117,6 +123,7 @@ namespace AppSDR
 
                     try
                     {
+                        // Generating functions
                         await DownloadBlobToFileAsync(blobClient, localFilePath);
                         await ProcessDownloadedFileAsync(localFilePath, request);
                     }
@@ -144,6 +151,7 @@ namespace AppSDR
         {
             try
             {
+                // Download SDR files to Desktop
                 BlobDownloadInfo download = await blobClient.DownloadAsync();
                 using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
@@ -162,6 +170,7 @@ namespace AppSDR
 
         private string SanitizeFileName(string fileName)
         {
+            // Make the file names valid if needed
             foreach (char c in Path.GetInvalidFileNameChars())
             {
                 fileName = fileName.Replace(c, '_');
@@ -175,6 +184,7 @@ namespace AppSDR
             {
                 string fileContent = await File.ReadAllTextAsync(filePath);
 
+                // Assign SDR values, and drawing parameters
                 int[][] activeCellsArray = ParseFileContent(fileContent);
                 string[] entryCellValues = await DownloadEntity(_connectionString, request.TableStorageName);
 
@@ -200,6 +210,7 @@ namespace AppSDR
         {
             try
             {
+                // Access to Table Storage and assign EntryCellValues
                 TableClient tableClient = new TableClient(ConnectionString, TableStorageName);
                 Pageable<TableEntityConfiguration> queryResults = tableClient.Query<TableEntityConfiguration>();
                 List<TableEntityConfiguration> entities = queryResults.ToList();
@@ -232,6 +243,7 @@ namespace AppSDR
 
         private int[][] ParseFileContent(string fileContent)
         {
+            // Similar class to ParseFileContent() in MainViewModel()
             string[] lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             List<int[]> activeCellsColumn = new List<int[]>();
 

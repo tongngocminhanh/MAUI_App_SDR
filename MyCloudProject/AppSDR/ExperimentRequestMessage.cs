@@ -1,5 +1,6 @@
 ﻿namespace AppSDR
 {
+    // Class handles JSON content from Queue MESSAGE
     public class ExperimentRequestMessage
     {
         public string StorageConnectionString { get; set; }

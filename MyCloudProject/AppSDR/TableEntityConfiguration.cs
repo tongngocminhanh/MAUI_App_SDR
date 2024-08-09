@@ -3,6 +3,7 @@ using Azure.Data.Tables;
 
 namespace AppSDR
 {
+    // Class handles table entities when working with Table Storage
     public class TableEntityConfiguration : ITableEntity
     {
         public string PartitionKey { get; set; }

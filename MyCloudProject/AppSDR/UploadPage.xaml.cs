@@ -10,12 +10,14 @@ namespace AppSDR
         private string[] MessageConfig { get; set; }
         public UploadPage(string assignedTextFilePath, string[] messageConfig, INavigation navigation, string[] entryCellValue)
         {
+            // Variables added to UploadPage, some can be null
             AssignedTextFilePath = assignedTextFilePath;
             MessageConfig = messageConfig;
             Navigation = navigation;
             EntryCellValue = entryCellValue;
 
             InitializeComponent();
+            //Initialize to work with binding context
             BindingContext = new UploadViewModel(AssignedTextFilePath, MessageConfig, Navigation, EntryCellValue);
         }
         private async void OnBackToMainPageClicked(object sender, EventArgs e)

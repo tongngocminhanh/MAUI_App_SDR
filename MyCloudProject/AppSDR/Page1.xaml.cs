@@ -90,6 +90,7 @@ public partial class Page1 : ContentPage
         await SaveScreenshot();
     }
 
+    // Must-have functions to handle multiple visualization
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -103,6 +104,8 @@ public partial class Page1 : ContentPage
             await SaveScreenshotToBlobStorage();
         }
     }
+    
+    // Take screenshots and save to Blob Storage
     public async Task SaveScreenshotToBlobStorage()
     {
         // Capture the screenshot
@@ -126,6 +129,7 @@ public partial class Page1 : ContentPage
                     blobName = $"{timestamp}.png";
                 }
 
+                // Access to Blob Storage
                 BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
                 BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_downloadBlobStorage);
                 BlobClient blobClient = containerClient.GetBlobClient(blobName);
