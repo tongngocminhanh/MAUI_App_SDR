@@ -289,8 +289,9 @@ This section describes how to run the Cloud Experiment based on the input/output
 - Download Blob Storage Name": "saveoutput", storing Outputs of the operation
 - Table Storage Name: "parameters", storing the entities defining the SDR graphs (or outputs)
 ```
+The test sample could be retrieved from [Test Samples](./TestSamples/)
 
-We have four experiments in theCloud Project:
+We have four experiments in the Cloud Project:
 
 1. Upload parameters and files for drawing SDR Representations
 * The experiment requires users to handle all the neccessary data for output generation: parameters for drawing configuration, SDR files for the output content, and Cloud configuration for the Cloud operation.
