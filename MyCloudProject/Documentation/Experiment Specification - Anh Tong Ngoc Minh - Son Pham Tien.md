@@ -124,22 +124,195 @@ The new *Upload page* contains two parts: the left one for Cloud configuration a
     </Grid>
 ```
 ### Logic implementation
+First, the *MainViewModel()* is described as new functions and binding context is added. The binding context stores the information of the Queue Container and the MESSAGE used for *Message generation*. Other function is summarized as:
+* *AddText()*: Prepare and navigate to a *Text Editor Page* with the necessary configuration and user-provided values.
+* *NavigateToUploadPage()*: Navigate to the *Upload Page* with parameters, and handles any navigation errors.
+* *UploadMessage()*: Handles sending a message to an Azure queue and updates message configuration, with error handling.
+* *SendMessageToQueue()*: Manages the creation of the queue if needed, sends a message, and provides feedback on success or failure.
 
+In *TextEditorPage()*, a new function is added to transform the entered SDR values into a .txt file, and save it to Desktop. Then, AppSDR navigates to *Upload Page* with parameters taken from *Main Page* and the text file. The main property is to save values into a file, as in the code snippet below.
+
+```charp
+                // Get the path to the user's desktop directory
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                // Define the file name and full path
+                string fileName = "SavedSDR.txt";
+                string filePath = Path.Combine(desktopPath, fileName);
+
+                // Write the content to the file
+                File.WriteAllText(filePath, fileContent);
+```
+
+*UploadPage()* is defined similar to *MainPage()*. Details can be checked in SE project [Readme](../../MySEProject/Documentation/Readme.md). Relations and functions are specified in *UploadViewModel*. The important variables (or inputs) *Upload Page* must analysized are:
+```csharp
+public INavigation Navigation { get; set; }
+public string AssignedTextFilePath { get; set; }
+public string[] MessageConfig { get; set; }
+public List<string> SelectedFiles { get; set; }
+public string[] EntryCellValues { get; set; }
+public string ConnectionString { get; set; }
+public string StorageAccount { get; set; }
+public bool IsConnected { get; set; }
+public string UploadBlobStorageName { get; set; }
+public string DownloadBlobStorageName { get; set; }
+public string TableStorageName { get; set; }
+public string StatusMessage { get; set; }
+public string ListenMessage { get; set; }
+```
+
+* *SelectAndUploadFileAsync()* handles file selection and upload to Azure Blob Storage, only executable if CanExecuteCommands returns true.
+* *DownloadFilesAsync()* manages the download of files from Azure Blob Storage, enabled only when command configurations conditions are met.
+* *OnConnectAsync()* initiates the connection to Azure services and updates the connection status.
+* *UploadParameters()* uploads experiment parameters to Azure Table Storage, executable if connection parameters are valid and *EntryCellValues* are not null.
+* *GenerateOutput()* processes blobs from Azure Blob Storage and navigates to a new page for visualization, only executable if commands can be executed based on the connection status.
+* *StartListening()* starts listening for messages from an Azure Queue, enabled if MessageConfig is properly configured.
+* *StopListening()* stops the message listening process initiated by StartListeningCommand.
+
+Next, *Page1()* is discused. The foundational functions are kept, while a new task is applied to handle multiple visualizations and connect to Azure Cloud Storage.
+* The *SaveScreenshotToBlobStorage* function captures the current screen, names the file with a timestamp (optionally including an identifier), and uploads it to Azure Blob Storage. After the upload, it informs the user of success with an alert. If the screenshot capture fails, an error message is shown instead.
+```csharp
+    public async Task SaveScreenshotToBlobStorage()
+    {
+        // Capture the screenshot
+        IScreenshotResult screenshotResult = await DrawableView.CaptureAsync();
+
+        if (screenshotResult != null)
+        {
+            using (var stream = await screenshotResult.OpenReadAsync())
+            {
+                // Generate a unique file name using a timestamp
+                string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+                string blobName;
+
+                if (_entryCellValues[7] != null)
+                {
+                    blobName = $"{_entryCellValues[7]}_{timestamp}.png";
+                }
+                else
+                {
+                    blobName = $"{timestamp}.png";
+                }
+
+                BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_downloadBlobStorage);
+                BlobClient blobClient = containerClient.GetBlobClient(blobName);
+
+                await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
+                // Optional delay before the next operation
+                await DisplayAlert("Success", "Screenshot has been saved successfully.", "OK");
+            }
+        }
+        else
+        {
+            // Display a message if no screenshot was captured
+            await DisplayAlert("Error", "Failed to capture screenshot.", "OK");
+        }
+    }
+```
+
+The *Message generation* uses *QueueMessageListener.cs* with the corresponding class to access and process the MESSAGE. The class includes:
+* *ListenToMessagesAsync()* function: Continuously listens to an Azure Queue for messages, deserializes them into ExperimentRequestMessage objects, and processes each one. It handles errors and displays alerts for issues.
+* *ProcessExperimentRequestAsync()* function: Download and process blobs from Azure Blob Storage based on an experiment request. It reads and parses blob content then navigates to *Page 1* for data visualization.
+* *DownloadBlobToFileAsync()* function: Download a blob to a local file and save it. Alerts the user if any errors occur during the download.
+* *ProcessDownloadedFileAsync()* function: Read and parse the downloaded file, retrieves additional configuration from Azure Table Storage, and navigates to *Page 1* for further processing. The task uses the above downloaded files and goes through all files.
+* *DownloadEntity()* function: Retrieve all entity configurations from Azure Table Storage and return them as an array of strings.
+* *ParseFileContent()* function: Convert file content into a 2D integer array, filtering out empty or irrelevant rows, to be used for further processing.
+* *IsBase64String()* function: Checks if a string is valid Base64, useful for decoding messages.
+* *SanitizeFileName()* function: Replaces invalid characters in file names with underscores to ensure they are safe for saving locally.
+
+The *ExperimentRequestMessage()* handles the MESSAGE retrieved from the Queue Container. The following four variables must be in MESSAGE to make *QueueMessageListener()* valid.
+
+```csharp
+namespace AppSDR
+{
+    public class ExperimentRequestMessage
+    {
+        public string StorageConnectionString { get; set; }
+        public string UploadBlobStorageName { get; set; }
+        public string DownloadBlobStorageName {  get; set; }
+        public string TableStorageName { get; set; }
+    }
+}
+```
 
 ## Experiment and evaluation
 
 ### How to run experiment
 
-Describe Your Cloud Experiment based on the Input/Output you gave in the Previous Section.
+This section describes how to run the Cloud Experiment based on the input/output.Details in operating steps can also be reviewed on [User Manual](User%20Manual.md)
+
+We have 3 experiments in this Maui Cloud Project:
+
+1. Upload parameters for drawing SDR Representations**
+* First, user are enable to upload parameters for drawing SDR Representation by input all of these parameter in the following image:<br/>
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/Parameters.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+* When finished, the Button *Cloud Configuration* allow users to navigate to *Upload Page* and specify the Azure Storage to upload parameters and choose .csv files to upload to Blob Storage.
+* Specify detailed Azure Account by filling these inputs and Click *Upload defined parameters*.
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/SpecifyAzureStorage.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+2.  Upload files to store in Blob Storage, manually generate SDR representation outputs and download output files
+* After successfully connecting to Azure Storage Account, user can select multiple .txt, .csv files to upload to Blob <br/>
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/ManuallySDR.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+* When finish uploading files, all the files are stored in Blob Storage. 
+* Once all files are uploaded, the user can generate the SDR representations using the files stored in Blob Storage and then download the output file.
+
+3. Run Listening Mode
+* To run our Azure Cloud Experiment, the Queue Message specifies the name of the Uploaded Blob Storages which is storing.csv file ready to genenerate Sdr representation, the Download Blob Storage which is saving outfile and Table Storage which is storing all parameters for SDR Representation.<br/>
+* This is example queue message: 
+
+```json
+{
+"StorageConnectionString":"DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;",
+"UploadBlobStorageName": "sdrfiles",
+"DownloadBlobStorageName": "saveoutput",
+"TableStorageName": "parameters"
+}
+```
+
+* Fill all the required information to upload message to Azure Queue, including the example queue message as described.<br/>
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/MessageQueue.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+* When the message is in the queue, click a button for listening mode, which listens to messages and points to a container with CSV files. <br/>
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/StartListening.png" title="general-architecture-of-app-sdr" width=70%></img>
+</div><br>
+
+### Blob container registry 
+Details of the blob containers :
+ - **Input Container ('sdrfiles')**
+    - Stores the input files required for running the experiments, which is .txt and .csv file for drawing SDR representations.
+    - The files is currently referenced from Queue msg.
+
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/savesdr.png" title="general-architecture-of-app-sdr" width=70%></img>
+  </div><br>
+
+ - **Result Container ('saveoutput')**
+    - Stores the output files generated after running the experiments, including the images captured after generate SDR 
+    
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/saveoutput.png" title="general-architecture-of-app-sdr" width=70%></img>
+  </div><br>
+
+ - **Parameter Table ('parameters')** 
+    - Stores all the experiment experiments inputs
+
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/ParaTable.png" title="general-architecture-of-app-sdr" width=70%></img>
+  </div><br>
 ### Evaluation
-
-**Describe your blob container registry:**  
-what are the blob containers you used e.g.:  
-- 'training_container' : for saving training dataset  
-  - the file provided for training:  
-  - zip, images, configs, ...  
-- 'result_container' : saving output written file  
-  - The file inside are result from the experiment, for example:  
-  - **file Example** screenshot, file, code  
-
-## References

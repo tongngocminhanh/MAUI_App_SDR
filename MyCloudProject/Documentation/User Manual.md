@@ -1,7 +1,8 @@
 # User manual for new version AppSDR
-This document provides detailed instructions for using the new version of *AppSDR* in Windows. For continuous operation, and repeating steps prevention, this document shows information from the *How to run* section. *Prerequisite and Installation* can be checked on the initial [User Manual](../../MySEProject/Documentation/UserManual.md).
+This document provides detailed instructions for using the new version of *AppSDR* in Windows. For continuous operation, this document includes information on *Prerequisite and Installation*, *How to run*, and *Output representation* section.  Additonal information can be checked on the initial [User Manual](../../MySEProject/Documentation/UserManual.md).
 ## Table of contents
-
+* [Prequisite](#prequisite)
+* [Installation](#installation)
 * [How to run](#how-to-run)
   * [Parameters and multiple SDR files](#parameters-and-multiple-sdr-files)
   * [Parameters and text editor](#sdr-values-as-text-editor)
@@ -9,6 +10,33 @@ This document provides detailed instructions for using the new version of *AppSD
   * [Message generation](#message-generation)
 * [Output representation](#output-representation)
 * [License](#license)
+
+## Prequisite
+It is advised to install the most recent versions of the IDE, text editor, and MAUI as the project incorporates the most recent update. 
+* Microsoft Visual Studio Community 2022 - v17.8.6 - https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-notes-v17.8 
+* .NET MAUI 8.0 - select .NET MAUI interface during Visual Studio installation. It will be automatically supported with version 17.8.6 for.NET MAUI 8.0.
+
+## Installation
+Before running the project, installation is made. To install and open the project, follow the following steps.
+* First, clone the project into a local device for use and testing
+```
+git clone https://github.com/tongngocminhanh/MAUI_App_SDR.git
+```
+* Second, navigate the solution directory of the app. The solution is located on *\local directory\MAUI_App_SDR\MySEProject*. 
+* Open *MySampleProject.sln* with Visual Studio.
+* To run or build the app with Visual Studio on a Windows device, create a folder named *Properties* and include the *launchSetting.json* file, content as follows.
+
+```json
+{
+    "profiles": {
+      "Windows Machine": {
+        "commandName": "MsixPackage",
+        "nativeDebugging": false
+      }
+    }
+}
+```
+Now, the app is ready to run.
 
 ## How to run
 AppSDR has two stages of running: Without- and With-Cloud. This document specifies the With-Cloud method, as the Without-Cloud one remains unchanged. After the installation step, the following screen is shown when opening the solution file. Because of the *launchSetting.json*, a state of *Windows Machine* is available for debugging. 
