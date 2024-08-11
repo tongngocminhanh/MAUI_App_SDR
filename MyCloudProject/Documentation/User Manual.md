@@ -9,7 +9,6 @@ This document provides detailed instructions for using the new version of *AppSD
   * [No uploaded parameters and files](#no-uploaded-parameters-and-files)
   * [Message generation](#message-generation)
 * [Output representation](#output-representation)
-* [License](#license)
 
 ## Prequisite
 It is advised to install the most recent versions of the IDE, text editor, and MAUI as the project incorporates the most recent update. 
@@ -152,6 +151,3 @@ All of the cases generate the same form of output.
 * Navigation back to *Main Page* is possible with the *BACK TO MAIN PAGE* button on the final output. If it is not visible, scroll down the page a little bit.
 
 Further implementation information can be found [here](./Experiment%20Specification%20-%20Anh%20Tong%20Ngoc%20Minh%20-%20Son%20Pham%20Tien.md).
-
-## License
-[MIT License](LICENSE)

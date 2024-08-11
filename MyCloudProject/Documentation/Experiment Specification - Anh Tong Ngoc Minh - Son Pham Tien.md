@@ -8,18 +8,34 @@ This project requires the implementation of the SE Project topic "ML22-23-8 Impl
     * [SE Project links](#se-project-links)
     * [Cloud Project links](#cloud-project-links)
 3. [Goal of Cloud Project](#goal-of-cloud-project)
+    * [Connections and Elements](#connections-and-elements)
+    * [Manual method](#manual-method)
+    * [Automatic method](#automatic-method)
 4. [Overview of the cloud architecture](#overview-of-the-cloud-architecture)
 5. [Implementation of new properties in AppSDR](#implementation-of-new-properties-in-appsdr)
     * [UI implementation](#ui-implementation)
     * [Logic implementation](#logic-implementation)
 6. [Experiment and evaluation](#experiment-and-evaluation)
-    * [How to run experiment](#how-to-run-experiment)
-    * [Blob Container Registry](#blob-container-registry)
+    * [Experiment description](#experiment-description)
+    * [Container Registry](#container-registry)
     * [Evaluation](#evaluation)
 7. [Conclusion](#conclusion)
 
 ## Introduction
-AppSDR is the .NET MAUI app visualizing the Sparse Distribution Representations (SDR) with the user's SDR values and drawing specifications. The map's primary functions are taking the parameters for graph visualization, and the SDR values with local files or manually set. For Cloud implementation on the AppSDR, the following are created.
+The first version (v1.0) of AppSDR is the .NET MAUI app visualizing the Sparse Distribution Representations (SDR) with the user's SDR values and drawing specifications. The map's primary functions are taking the parameters for graph visualization, and the SDR values with local files or manually set. This version only lets users work with one file per time, and cannot share with others directly. The efficiency is not high when AppSDR visualizes a significant model. Therefore, this project proposes to upgrade AppSDR to the second version (v2.0), having the followings:
+
+1. Remaining all the properties in AppSDR v1.0: 
+    * The input table takes eight parameters: Graph Name, Max Cycles, Highlight Touch, X-Axis Title, Y-Axis Title, Min Range, and Max Range, for output graphics.
+    * The input button chooses the SDR values, taken from an SDR file (.txt, .csv) or the user's keyboard.
+    * The page visualizes the values based on the SdrDrawerLib library, table parameters, and SDR values.
+    * Images can be saved to the local machine.
+
+2. Implementing new methods for Cloud properties:
+    * Manual method: the user connects to a defined *Storage Account 1*, enters and uploads to Table Container the mentioned eight parameters, selects and uploads multiple SDR files (.txt, .csv) or a user' SDR values from the keyboard to Blob Container, generates and uploads the output images to Blob Container.
+
+    * Automatic method: the user connects to a defined *Storage Account 2*, and uploads a MESSAGE to Queue Container. The MESSAGE has all the information of participating containers in *Storage Account 2*. When the user listens to MESSAGE, AppSDR proceeds like in manual methods, without inputting or uploading anything. 
+
+For Cloud implementation on the AppSDR, the followings are created.
 
 * Modify the original pages with new variables and properties to navigate to a new page.
 * Add a new *UploadPage* to handle the cloud properties, with new UI elements to specify the pointed Azure data objects (Storage Account, Blob, Queue, and Table Storage).
@@ -46,17 +62,30 @@ The new version of AppSDR can be operated manually and automatically, depending 
 ## Goal of Cloud Project
 Microsoft Azure is an open and flexible cloud-computing platform. The scope of this project is to apply Azure Cloud to the Software Project of .NET MAUI (AppSDR), using Azure storage containers for storing inputs and outputs of the app. In general, the project involves:
 
-* Modifying the current .NET MAUI app to access the Azure storage account. The main idea is to create the *BlobStorageService* class, holding the input storage account information, and which type of storage is used. 
+* Modifying the .NET MAUI app v1.0 to access the Azure Storage Account. The main idea is to create the *BlobStorageService* class, holding the input storage account information, and which type of storage is used. 
 * Creating a new page with new functions to interact with the Azure storage account, including uploading and downloading files. Users on this page specify the storage information calling the *BlobStorageService* to access the provided storage account.
 * Adding a button for *Listening Mode* which waits for messages indicating that CSV files are ready for processing in a specified container. Users can manually upload messages, and when ready, a message can be sent programmatically. The app initiates file processing on-demand without waiting for the message, ensuring flexibility in operation.
 
 AppSDR is operated locally, not dockerized, to receive the user's input interaction. The app accesses the specific cloud storage and saves the user's input. The SDR representation is saved on the storage and can be downloaded to the local machine.
 
 ## Overview of the Cloud Architecture
+The Cloud project combines the AppSDR v2.0 functionalities and Azure Cloud storage ability; therefore, this section provides the Cloud Architecture to describe the combination and how the AppSDR works with the Cloud. There are three diagrams to be described: the connection, manual operation, and automatic operation method.
+
+### Connections and Elements 
+
+The Azure Cloud is the new implementation in this project, so the connections among the Cloud elements must be specified. The next figure only shows the connection of AppSDR with Azure Cloud Storage Accounts and Containers, not the operation. 
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/ConnectionAndElements.png" title="connection-cloud-architecture" width=80%></img>
+</div><br>
+
+
+
+### Manual method
 The Cloud Architecture describes the relationship among the object-based Cloud storages. The figure has green components illustrating the manual generation, and the orange ones for automatic generation.
 
 <div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/CloudArchitecture.png" title="general-cloud-architecture" width=70%></img>
+  <img src="./Figures/CloudArchitecture1.png" title="general-cloud-architecture" width=70%></img>
 </div><br>
 
 This project involves Azure Containers carrying the uploaded data and retrieving it using the corresponding feature from AppSDR. The storage specification for each generating method must follow:
@@ -66,6 +95,12 @@ This project involves Azure Containers carrying the uploaded data and retrieving
 * For automatic method, users provide information to connect *Storage Account 2*, and upload the *MESSAGE* to a defined *Queue Container*. This MESSAGE* contains the Connection String of *Storage Account 2*, along with its attending containers. When AppSDR listens to the MESSAGE in Queue, the output generation starts. The process includes: taking parameters, taking files, drawing outputs, and uploading outputs to Blob. 
 
 * *Storage Account 2* can be different from 1, or user can make use of *Storage Account 1* to store Queue MESSAGE.
+
+### Automatic method
+
+<div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/CloudArchitecture2.png" title="general-cloud-architecture" width=70%></img>
+</div><br>
 
 ## Implementation of new properties in AppSDR
 The primary AppSDR's architecture from the SE Project remains, adding the Cloud-configuration *Upload Page*, and additional functions in existing pages to handle Azure Cloud components. The visualization for the new application described in the figure below has black and blue components representing the original AppSDR and red components for the Cloud Project implementation.
@@ -272,13 +307,24 @@ namespace AppSDR
 ```
 
 ## Experiment and evaluation
-The four cases are considered to observe the benefit of Azure Cloud to AppSDR: 
-* Upload parameters and files for drawing SDR Representations.
-* Upload parameters and SDR values for drawing SDR Representations.
-* No parameters or files uploaded for drawing SDR Representations.
-* Run Listening Mode.
+AppSDR v2.0 is tested with its Cloud properties in this section. As mentioned, aside from running one visualization with the local machine (or without using Cloud Storage), the app has two methods for SDR visualization using the Storage Account. The manual method has three possible cases, While for the automatic one, a case is tested. 
 
-### How to run experiment
+1. Case 1: requires a high level of user participation, as the user has to configure everything and proceed with the generation step by step.
+    * Inputs: Connection String and Storage Name of *Storage Account 1*, two Blobs, one Table container name,  eight parameters, and multiple existing SDR files (.txt, .csv).
+2. Case 2: is similar to case 1, except for the existing SDR files. Instead of choosing files, users enter SDR values through the keyboard. 
+    * Inputs: Connection String and Storage Name of *Storage Account 1*, two Blobs, one Table container name,  eight parameters, and entered SDR values.
+3. Case 3: is suggested if all the SDR files Blob, and Parameters Table are not empty. The user has to configure only the information for Cloud accession. The process is made step by step.
+    * Inputs: Connection String and Storage Name of *Storage Account 1*, two Blobs, one Table container name.
+4. Case 4: is similar to case 3 in conditions, but different in the inputs and the process. Users upload a MESSAGE to a Queue Container. When they start listening to the MESSAGE in Queue, the process runs and provides the outputs, without any extra actions.
+    * Inputs: Connection String of *Storage Account 1* and Queue Container name, MESSAGE content, and listening mode.
+
+Other possibilities can be made by combining manual and automatic methods. For example: MESSAGE is used even when SDR files Blob and Parameters Table are empty. Users upload the MESSAGE but snooze the listening mode. Then they connect to *Storage Account 1* and configure the Container content. Now the containers are not empty, start the listening mode. This case is not described in this document.
+
+*Outputs*: are the same for every case, having SDR visualizations on the UI, and SDR visualization as image files on the output blob container.
+
+The test inputs used for the experiments can be found on [Test Samples](./TestSamples/). This folder has two .txt files and one .csv file. The [samplerandom.txt](./TestSamples/samplerandom.txt) and [sampleSheet.csv](./TestSamples/sampleSheet.csv) have sufficient SDR columns, and the visualizations fit the default AppSDR screen on Window machine. While [sampleZero.txt](./TestSamples/sampleZero.txt) has more than 1000 columns, and the visualization exists the default screen size.
+
+### Experiment description
 
 This section describes how to run the Cloud Experiment based on the input/output. Details in operating steps can also be reviewed on [User Manual](User%20Manual.md). The Storage Account used for testing in this project is defined with the following information. If users want to use their own Storage Account, the following keys should also be retrieved from their acccount.
 
@@ -289,7 +335,6 @@ This section describes how to run the Cloud Experiment based on the input/output
 - Download Blob Storage Name": "saveoutput", storing Outputs of the operation
 - Table Storage Name: "parameters", storing the entities defining the SDR graphs (or outputs)
 ```
-The test sample could be retrieved from [Test Samples](./TestSamples/)
 
 We have four experiments in the Cloud Project:
 
@@ -371,7 +416,7 @@ We have four experiments in the Cloud Project:
   <img src="./Figures/StartListening.png" title="general-architecture-of-app-sdr" width=70%></img>
 </div><br>
 
-### Blob Container Registry 
+### Container Registry 
 Details of the blob containers :
  - **Input Container ('sdrfiles')**
     - Stores the input files required for running the experiments, which is .txt and .csv file for drawing SDR representations.
