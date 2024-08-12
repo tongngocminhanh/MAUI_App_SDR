@@ -69,7 +69,7 @@ Microsoft Azure is an open and flexible cloud-computing platform. The scope of t
 AppSDR is operated locally, not dockerized, to receive the user's input interaction. The app accesses the specific cloud storage and saves the user's input. The SDR representation is saved on the storage and can be downloaded to the local machine.
 
 ## Overview of the Cloud Architecture
-The Cloud project combines the AppSDR v2.0 functionalities and Azure Cloud storage ability; therefore, this section provides the Cloud Architecture to describe the combination and how the AppSDR works with the Cloud. There are three diagrams to be described: the connection, manual operation, and automatic operation method.
+The Cloud project combines the AppSDR v2.0 functionalities and Azure Cloud storage ability; therefore, this section provides the Cloud Architecture to describe the combination and how the AppSDR works with the Cloud. There are three diagrams to be described: the connection, manual operation, and automatic operation methods.
 
 ### Connections and Elements 
 
@@ -79,7 +79,14 @@ The Azure Cloud is the new implementation in this project, so the connections am
   <img src="./Figures/ConnectionAndElements.png" title="connection-cloud-architecture" width=80%></img>
 </div><br>
 
+There are three main participants in the Cloud Project: users, AppSDR v2.0, and Azure Cloud. AppSDR acts as the bridge between users and Cloud Storage. Depending on the users' inputs and commands, AppSDR accesses the Azure Cloud, and uploads or retrieves data from the Cloud Containers. The two-way arrows show that data is possibly transmitted back and forth between two elements. The diagram shows two Storage Accounts in the project, but users can consider *Storage Account 1* as 2. They can upload to and listen to MESSAGE in the *Storage Account 1* Queue.
 
+* *Storage Account 1* attends to both generation methods, as its containers hold the input values and outputs of the SDR visualization process. 
+    - The *SDR files Blob* contains .txt/.csv files having the SDR values. 
+    - The *Parameters Table* has the defined entities. Each entity has 11 properties. The first three are system properties specifying a partition key, a row key, and a timestamp. The rest are the eight parameters the user defines for the SDR visualization function: Graph Name, Max Cycles, Highlight Touch, X-Axis Title, Y-Axis Title, Min Range, and Max Range. 
+    - The *Output Blob* stores the output images.
+
+* *Storage Account 2* is used in the automatic method, having one Queue Container.  The *MESSAGE Queue* stores the JSON message text - Connection String to *Storage Account 1*, the two Blobs, and the Table names. The MESSAGE is uploaded by the users to the Queue.
 
 ### Manual method
 The Cloud Architecture describes the relationship among the object-based Cloud storages. The figure has green components illustrating the manual generation, and the orange ones for automatic generation.
@@ -316,7 +323,7 @@ AppSDR v2.0 is tested with its Cloud properties in this section. As mentioned, a
 3. Case 3: is suggested if all the SDR files Blob, and Parameters Table are not empty. The user has to configure only the information for Cloud accession. The process is made step by step.
     * Inputs: Connection String and Storage Name of *Storage Account 1*, two Blobs, one Table container name.
 4. Case 4: is similar to case 3 in conditions, but different in the inputs and the process. Users upload a MESSAGE to a Queue Container. When they start listening to the MESSAGE in Queue, the process runs and provides the outputs, without any extra actions.
-    * Inputs: Connection String of *Storage Account 1* and Queue Container name, MESSAGE content, and listening mode.
+    * Inputs: Connection String of *Storage Account 2* and Queue Container name, MESSAGE content, and listening mode.
 
 Other possibilities can be made by combining manual and automatic methods. For example: MESSAGE is used even when SDR files Blob and Parameters Table are empty. Users upload the MESSAGE but snooze the listening mode. Then they connect to *Storage Account 1* and configure the Container content. Now the containers are not empty, start the listening mode. This case is not described in this document.
 

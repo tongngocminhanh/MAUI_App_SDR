@@ -166,10 +166,8 @@ namespace AppSDR.ViewModel
                 {
                     // Check if the required parameters are not null
                     bool definedParaNotNull =
-                        !string.IsNullOrEmpty(ConnectionString) &&
-                        !string.IsNullOrEmpty(TableStorageName) &&
-                        _entryCellValues != null && _entryCellValues.Length >= 7 &&
-                        !_entryCellValues.Take(7).Any(string.IsNullOrEmpty);
+                        CanExecuteCommands() &&
+                        !_entryCellValues.Take(8).Any(string.IsNullOrEmpty);
                     return definedParaNotNull;
                 });
 
