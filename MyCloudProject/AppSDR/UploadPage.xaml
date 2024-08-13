@@ -151,7 +151,7 @@
                         Padding="10"/>
 
                 <!-- Message Output generation -->
-                <Label Text="Message generatiion"
+                <Label Text="Message generation"
                        FontAttributes="Bold" 
                        TextColor="{StaticResource SecondaryTextColor}" />
 
