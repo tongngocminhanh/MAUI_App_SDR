@@ -89,25 +89,38 @@ There are three main participants in the Cloud Project: users, AppSDR v2.0, and 
 * *Storage Account 2* is used in the automatic method, having one Queue Container.  The *MESSAGE Queue* stores the JSON message text - Connection String to *Storage Account 1*, the two Blobs, and the Table names. The MESSAGE is uploaded by the users to the Queue.
 
 ### Manual method
-The Cloud Architecture describes the relationship among the object-based Cloud storages. The figure has green components illustrating the manual generation, and the orange ones for automatic generation.
+The diagram illustrates the architecture of AppSDR v2.0 in the manual method. The app interacts with Storage Account 1 to upload and retrieve parameters, SDR files, and output images, for generating and updating visualizations.
 
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/CloudArchitecture1.png" title="general-cloud-architecture" width=70%></img>
 </div><br>
 
-This project involves Azure Containers carrying the uploaded data and retrieving it using the corresponding feature from AppSDR. The storage specification for each generating method must follow:
+* User Input and Initial Connection: Users begin by providing information to the AppSDR, which includes SDR files or entered SDR values along with eight defined parameters. The app then connects to *Storage Account 1* to facilitate the upcoming data exchanges.
 
-* Users can only use the manual method when *Storage Account 1* is connected. Then users' SDR parameters inputs are uploaded and stored in the *Table Container*, and the SDR files are in the *Blob Storage*. When generation is started in AppSDR, the app retrieves the most recent entity from the *Table* and the values of all files in *Blob* to draw the outputs. The outputs are stored in the *Output Blob*.
+* Uploading Parameters and SDR Files: The app uploads the eight defined parameters to the Parameters Table Storage and the chosen SDR files or entered SDR values to the SDR Files Blob Storage in the cloud.
 
-* For automatic method, users provide information to connect *Storage Account 2*, and upload the *MESSAGE* to a defined *Queue Container*. This MESSAGE* contains the Connection String of *Storage Account 2*, along with its attending containers. When AppSDR listens to the MESSAGE in Queue, the output generation starts. The process includes: taking parameters, taking files, drawing outputs, and uploading outputs to Blob. 
+* Triggering and Accessing Visualizations: Once the necessary data is uploaded, the app triggers the SDR visualization process. It then accesses the required storage resources, including both the Parameters Table Storage and SDR Files Blob Storage, to retrieve the uploaded parameters and SDR files.
 
-* *Storage Account 2* can be different from 1, or user can make use of *Storage Account 1* to store Queue MESSAGE.
+* Data Retrieval and Interface Update: The app retrieves the uploaded parameters and SDR files, using this data to update the AppSDR interface, ensuring the necessary information is displayed to the user.
+
+* Generating and Uploading Visual Outputs: The app generates SDR visualizations based on the retrieved data. These visual outputs are displayed on the user interface and are subsequently uploaded to the Output Blob Storage within *Storage Account 1* for long-term storage.
 
 ### Automatic method
+This diagram illustrates an automated workflow where AppSDR interacts with two Azure Storage Accounts to process and generate SDR visualizations. The flow involves uploading a message to a queue, triggering automated processes, and accessing storage accounts to retrieve data and upload output images.
 
 <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/CloudArchitecture2.png" title="general-cloud-architecture" width=70%></img>
 </div><br>
+
+* User Input and Initial Connection: Users provide necessary information to the AppSDR, including a message that is uploaded to a MESSAGE Queue in *Storage Account 2* (steps 1-3).
+
+* Triggering Automation: The uploaded message triggers an automatic process within the AppSDR, which retrieves the message from the queue and updates the app with this information (steps 4-7).
+
+* Data Retrieval from Cloud Storage: The AppSDR then accesses *Storage Account 1* to retrieve the eight parameters from Parameters Table Storage and the SDR files from SDR Files Blob Storage (steps 8-10).
+
+* Interface Update and Visualization Generation: The retrieved data is used to update the AppSDR interface, after which SDR visualizations are automatically generated and displayed on the user interface (steps 11-12).
+
+* Final Output Storage: The generated visual outputs are uploaded as images to the Output Blob Storage within *Storage Account 1* for final storage and accessibility (steps 13-14).
 
 ## Implementation of new properties in AppSDR
 The primary AppSDR's architecture from the SE Project remains, adding the Cloud-configuration *Upload Page*, and additional functions in existing pages to handle Azure Cloud components. The visualization for the new application described in the figure below has black and blue components representing the original AppSDR and red components for the Cloud Project implementation.
@@ -327,81 +340,31 @@ AppSDR v2.0 is tested with its Cloud properties in this section. As mentioned, a
 
 Other possibilities can be made by combining manual and automatic methods. For example: MESSAGE is used even when SDR files Blob and Parameters Table are empty. Users upload the MESSAGE but snooze the listening mode. Then they connect to *Storage Account 1* and configure the Container content. Now the containers are not empty, start the listening mode. This case is not described in this document.
 
-*Outputs*: are the same for every case, having SDR visualizations on the UI, and SDR visualization as image files on the output blob container.
+**Outputs**:  this specification evaluates the outputs by describing their components, and compares the output forms of v2.0 to v1.0. We can view the output representations of four test cases in the "How to run" section of [User Manual](User%20Manual.md).
 
 The test inputs used for the experiments can be found on [Test Samples](./TestSamples/). This folder has two .txt files and one .csv file. The [samplerandom.txt](./TestSamples/samplerandom.txt) and [sampleSheet.csv](./TestSamples/sampleSheet.csv) have sufficient SDR columns, and the visualizations fit the default AppSDR screen on Window machine. While [sampleZero.txt](./TestSamples/sampleZero.txt) has more than 1000 columns, and the visualization exists the default screen size.
 
 ### Experiment description
 
-This section describes how to run the Cloud Experiment based on the input/output. Details in operating steps can also be reviewed on [User Manual](User%20Manual.md). The Storage Account used for testing in this project is defined with the following information. If users want to use their own Storage Account, the following keys should also be retrieved from their acccount.
+This section describes the Input components, and Experiment running conditions in detail. For the operation step of all cases, please check [User Manual](User%20Manual.md).
+
+#### Configured inputs
+* The Storage Accounts used for testing in this project are defined with the following information. If users want to use their own Storage Account, the following keys should also be retrieved from their acccount.
 
 ```
-- Connection String: "DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;",
+Storage Account 1
+- Connection String: "DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;"
 - Storage Account Name: "mauiprojectcloud-1"
 - Upload Blob Storage Name": "sdrfiles", storing SDR files containing SDR values
 - Download Blob Storage Name": "saveoutput", storing Outputs of the operation
 - Table Storage Name: "parameters", storing the entities defining the SDR graphs (or outputs)
+
+Storage Account 2
+- Connection String: "DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;"
+- Queue Storage Name: "trigger", storing the MESSAGE
 ```
 
-We have four experiments in the Cloud Project:
-
-1. Upload parameters and files for drawing SDR Representations
-* The experiment requires users to handle all the neccessary data for output generation: parameters for drawing configuration, SDR files for the output content, and Cloud configuration for the Cloud operation.
-* First, user are enable to upload parameters for drawing SDR Representation by input all of these parameter in the following image
-
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/Parameters.png" title="general-architecture-of-app-sdr" width=70%></img>
-</div><br>
-
-* When finished, the Button *Cloud Configuration* allow users to navigate to *Upload Page* and specify the Azure Storage to upload parameters and choose .csv files to upload to Blob Storage.
-* Specify detailed Azure Account by filling these inputs and Click *Upload defined parameters*.
-
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/SpecifyAzureStorage.png" title="general-architecture-of-app-sdr" width=60%></img>
-</div><br>
-
-* After successfully connecting to Azure Storage Account, user can select multiple .txt, .csv files to upload to Blob.
-
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/ManuallySDR.png" title="general-architecture-of-app-sdr" width=60%></img>
-</div><br>
-
-* When finish uploading files, all the files are stored in Blob Storage. 
-* Once all files are uploaded, the user can generate the SDR representations using the files stored in Blob Storage and then download the output file.
-
-2. Upload parameters and SDR values for drawing SDR Representations
-* The experiment requires users to handle all the neccessary data for output generation: parameters for drawing configuration, entered SDR values for the output content, and Cloud configuration for the Cloud operation.
-* When all the table entities are full, the "Add Text" button is accessible.
-* Click the "Add Text" button and move to *Text Editor Page*.
-
-<div style="text-align:center">
-  <img src="./Figures/MainPageText.jpg" title="main-page-text-editor" width=80%></img>
-</div><br>
-
-* In this page, instruction is given on the top, follow that and enter the SDR values. The click "Generate an image with Cloud"and move to *Upload Page*. 
-* The entered text is saved as a text file on Desktop, and when "Select and Upload File" is clicked among the following steps, the app automatically chooses the saved file to upload.
-
-<div style="text-align:center">
-  <img src="./Figures/TextEditor.jpg" title="text-editor-page" width=80%></img>
-</div><br>
-
-* When user is on *Upload Page*, the next steps are the same as the *Upload Page* ones in cases 1. 
-
-3. Connect to Storage Account, manually generate SDR representation outputs and download output files
-* The experiment requires users to handle only the Cloud configuration to access to the Storage Account. Only when users know that the Blobs, Table Containers have content, is this experiment suggested.
-* Move directly to *Upload Page* with *Cloud Configuration* button, and fill out the *Configure Storage* block.
-
-<div style="text-align:center">
-  <img src="./Figures/StorageConnect.jpg" title="upload-page-storage-connect" width=80%></img>
-</div><br>
-
-* Click *Generate and upload Output Files* and wait for the visualization.
-
-4. Run Listening Mode
-* To run our Azure Cloud Experiment, the Queue Message specifies the name of the Uploaded Blob Storages which is storing.csv file ready to genenerate Sdr representation, the Download Blob Storage which is saving outfile and Table Storage which is storing all parameters for SDR Representation.
-* Connection String and Queue Name are provided by user, whichever Storage Account they want to store the MESSAGE. If users use their Storage Account, replace the corresponding key content with theirs, same with the pre-defined information in this part introduction.
-* This is example MESSAGE: 
-
+* The MESSAGE is in json format, can be uploaded to Queue
 ```json
 {
 "StorageConnectionString":"DefaultEndpointsProtocol=https;AccountName=mauiprojectcloud;AccountKey=gDYct5X+8L0wUco6yIYFSvfdh/1UbwYmAAashjpETQ1czbYjS/1dtdgdhW0pjOlQoqmWqbAbXslb+AStiMasTw==;BlobEndpoint=https://mauiprojectcloud.blob.core.windows.net/;QueueEndpoint=https://mauiprojectcloud.queue.core.windows.net/;TableEndpoint=https://mauiprojectcloud.table.core.windows.net/;FileEndpoint=https://mauiprojectcloud.file.core.windows.net/;",
@@ -410,53 +373,126 @@ We have four experiments in the Cloud Project:
 "TableStorageName": "parameters"
 }
 ```
+* The eight parameters can be defined as follows.
 
-* Fill all the required information to upload message to Azure Queue, including the example queue message as described.
+```
+Parameters
+- Graph name: Sample graph
+- Max cycles: 1500
+- Highlight touch: 3
+- X axis title: SDR columns
+- Y axis title: SDR values
+- Min range of cell: 0
+- Max range of cell: 10000
+- Saved figure name: SavedSDR
+```
 
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/MessageQueue.png" title="general-architecture-of-app-sdr" width=70%></img>
-</div><br>
+Next is a detailed description of the input components and cloud storage conditions for the four test cases.
 
-* When the message is in the queue, click a button for listening mode, which listens to messages and points to a container with CSV files. 
+#### Case 1
 
-<div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/StartListening.png" title="general-architecture-of-app-sdr" width=70%></img>
-</div><br>
+* The inputs include a Connection String and Storage Name for *Storage Account 1*, along with the names of two Blobs and one Table. Users also provide eight parameters and multiple existing SDR files in .txt or .csv format.
+* This case is processable when *Storage Account 1* exists, but the SDR files Blob, Parameters Table, and Output Blob containers within it are empty and do not contain any data.
+
+#### Case 2
+
+* Users provide a Connection String and Storage Same for *Storage Account 1*, as well as the names of two Blob containers and one Table container. Additionally, they input eight parameters and manually enter SDR values, which are saved into a .txt file.
+* The condition for this case is similar to Case 1, where *Storage Account 1* exists, but the SDR files Blob, Parameters Table, and Output Blob containers are empty.
+
+#### Case 3
+
+* The inputs include a Connection String and Storage Name for Storage Account 1, along with the names of two Blob containers and one Table container.
+* *Storage Account 1* must exists, and its SDR files Blob, Parameters Table, and Output Blob containers already contain some data.
+
+#### Case 4
+
+* The inputs for this case involve a Connection String for *Storage Account 2* and the name of a Queue.
+* The condition is that both *Storage Account 1* and *Storage Account 2* exist. Additionally, Storage Account 1* already has data in its *SDR files Blob, Parameters Table*.
 
 ### Container Registry 
-Details of the blob containers :
- - **Input Container ('sdrfiles')**
-    - Stores the input files required for running the experiments, which is .txt and .csv file for drawing SDR representations.
-    - The files is currently referenced from Queue msg.
+We can tell from the experiments that AppSDR only adopts Azure Storage into the application. The storage can be categorized into: Input and Output containers. 
+
+* For test cases 1, 2, and 3, there are two Input Containers: one Blob and one Table. Test case 4 has four Input Containers: a Blob, Table, and Queue.
+* The Output Container is the same for all cases: a Blob. A detailed description of all containers is provided below.
+
+**Input Blob Container (sdrfiles)**
+
+* This container is part of *Storage Account 1*, storing the input files required for running the experiments, .txt, and .csv files for drawing SDR representations.
+* The container name is specified in MESSAGE, and retrieved when needed.
 
   <div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/savesdr.png" title="general-architecture-of-app-sdr" width=70%></img>
+  <img src="./Figures/savesdr.png" title="saved-sdr-container" width=80%></img>
   </div><br>
 
- - **Result Container ('saveoutput')**
-    - Stores the output files generated after running the experiments, including the images captured after generate SDR 
+**Parameters Table (parameters)** 
+
+* This container is part of *Storage Account 1*, storing the input parameters as a table entity, having 11 properties. 
+* The last eight properties are the parameters: Graph Name, Max Cycles, Highlight Touch, X-Axis Title, Y-Axis Title, Min Range, and Max Range.
+* The container name is specified in MESSAGE, and retrieved when needed.
+
+  <div style="background-color: #ffffff; text-align:center">
+  <img src="./Figures/ParaContainer.png" title="parameters-container" width=80%></img>
+  </div><br>
+
+**MESSAGE Queue (trigger)**
+
+* This container is part of *Storage Account 2*, storing the MESSAGE in JSON format. 
+* The MESSAGE has information on *Storage Account 1*: Connection String, Upload Blob Storage Name, Download Blob Storage Name, and Table Storage Name.
+* When MESSAGE is listened to, its content is retrieved to take the information to *Storage Account 1*. 
+
+  <div style="text-align:center">
+    <img src="./Figures/Queue.png" title="queue-storage" width=60%></img>
+  </div><br>
+
+**Result Container (saveoutput)**
+
+* This container is part of *Storage Account 1*, storing the output files in image format. 
+* The container name is specified in MESSAGE, and retrieved when needed.
     
   <div style="background-color: #ffffff; text-align:center">
   <img src="./Figures/saveoutput.png" title="general-architecture-of-app-sdr" width=70%></img>
   </div><br>
 
- - **Parameter Table ('parameters')** 
-    - Stores all the experiment experiments inputs
-
-  <div style="background-color: #ffffff; text-align:center">
-  <img src="./Figures/ParaTable.png" title="general-architecture-of-app-sdr" width=70%></img>
-  </div><br>
-
 ### Evaluation
-From the experiments, it can be concluded that:
-* Aside from normal operations like in the SE Project, AppSDR can use Cloud Storage to store the outputs and the operating values.
-* *Listening Mode* provides users with a faster alternative to visualize the SDR values.
-* This alternative helps users to use the App properties simply and on a large scale, as the new version can handle multiple visualizations in one run. 
-* The App visualization for case of multiple files does not well appear. It stacks onto one another. For case of one output, the appearance is similar to the primary AppSDR.
+After testing the experiments, and the [Readme](../../MySEProject/Documentation/Readme.md) from the SE project, the AppSDR v1.0 and 2.0 possible operations can be summarized in the table below.
+
+|Version|Input type|Inputs|Outputs|
+|-------|----------|------|-------|
+|v1.0|User's keyboard, a file (.txt, .csv)|Eight parameters, SDR file|UI visualization, saved figure on Desktop|
+||User's keyboard|Eight parameters|UI visualization, saved figure on Desktop|
+|v2.0|User's keyboard, multiple files (.txt, .csv)|*Storage Account 1* containers information, multiple existing SDR files|UI visualizations, saved figures on *Storage Account 1*|
+||User's keyboard|*Storage Account 1* containers information, entered SDR values|UI visualization, saved figure on *Storage Account 1*|
+||User's keyboard|*Storage Account 1* containers information|UI visualizations, saved figures on *Storage Account 1*|
+||User's keyboard|*Storage Account 2* Queue information, MESSAGE containing *Storage Account 1* containers information|UI visualizations, saved figures on *Storage Account 1*|
+
+**Version 1.0**: is the foundation for the AppSDR's functionality, focusing on local input and output handling.
+
+* Input: Users could provide inputs via keyboard or by uploading a file (.txt, .csv) containing eight parameters or an SDR file.
+* Output: The application generated UI visualizations and saved the resulting figures directly to the Desktop.
+
+**Version 2.0**:  significantly expanded the application's functionality by integrating Azure Storage, enhancing both input flexibility and output destinations, while introducing automated processing capabilities.
+
+* Enhanced Input Capabilities: Users can now interact with the application through the keyboard and can also manage multiple files. This version allows interaction with Azure Storage Accounts, enabling more complex workflows involving cloud storage.
+* Diverse Output Destinations: Outputs are not just saved on the Desktop but are now stored directly in specified Azure Storage Accounts, enhancing accessibility and scalability.
+* Interaction with multiple SDR files stored in *Storage Account 1* for generating UI visualizations and saving the figures back to *Storage Account 1*.
+Users can manually input SDR values into the UI, which are then visualized and saved in *Storage Account 1*.
+* The application supports scenarios where users provide only container information, and the application handles the retrieval and processing of data to generate visualizations stored in the cloud.
+* Listening mode: the integration with *Storage Account 2* enables the use of Queue MESSAGE containing references to data in *Storage Account 1*, allowing for automated processing and storage of visualization results in *Storage Account 1*.
+* The App visualization for cases of multiple files does not well appear. It stacks onto one another. For the case of one output, the appearance is similar to the primary AppSDR.
+
+The representation for one visualization.
+
+<div style="text-align:center">
+  <img src="./Figures/TextOutput1.png" title="one-file-representation" width=120%></img>
+</div><br>
+
+The representation for three visualizations.
 
 <div style="text-align:center">
   <img src="./Figures/Output.jpg" title="multiple-outputs-representation" width=120%></img>
 </div><br>
+
+
 
 ## Conclusion
 In summary, the experiments demonstrate the enhanced capabilities of AppSDR with the integration of Cloud Storage, enabling the storage of both outputs and operating values in a more efficient and scalable way. The introduced *Listening Mode* offers an improvement by allowing users to simply visualize SDR values, streamlining the process, and making the app more user-friendly for handling large-scale operations. However, the visualization feature for multiple files still requires refinement. Despite this limitation, the app remains effective for single-output cases, maintaining the reliability and functionality of the original AppSDR.
