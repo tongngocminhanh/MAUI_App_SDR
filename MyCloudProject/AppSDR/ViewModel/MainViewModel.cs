@@ -5,10 +5,21 @@ using Azure.Storage.Queues;
 
 namespace AppSDR.ViewModel
 {
+    /// <summary>
+    /// ViewModel for the Main Page. Manages commands for file selection, text addition, submission, and cloud interactions.
+    /// </summary>
     public class MainViewModel : INotifyPropertyChanged
     {
-        // Start Without-Cloud property change of parameters 
         private string _graphName;
+
+        /// <summary>
+        /// Gets or sets the name of the graph, appears on the output.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates GraphName whenever _graphName is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         public string GraphName
         {
             get => _graphName;
@@ -18,12 +29,20 @@ namespace AppSDR.ViewModel
                 {
                     _graphName = value;
                     OnPropertyChanged(nameof(GraphName)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the name file of the graph when saved.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates SavedName whenever _savedName is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _savedName;
         public string SavedName
         {
@@ -34,12 +53,20 @@ namespace AppSDR.ViewModel
                 {
                     _savedName = value;
                     OnPropertyChanged(nameof(SavedName)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum number of graph column (x-axis).
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates MaxCycles whenever _maxCycles is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _maxCycles;
         public string MaxCycles
         {
@@ -50,12 +77,20 @@ namespace AppSDR.ViewModel
                 {
                     _maxCycles = value;
                     OnPropertyChanged(nameof(MaxCycles)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the column, which is highlighted.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates HighlightTouch whenever _highlightTouch is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _highlightTouch;
         public string HighlightTouch
         {
@@ -66,12 +101,20 @@ namespace AppSDR.ViewModel
                 {
                     _highlightTouch = value;
                     OnPropertyChanged(nameof(HighlightTouch)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the y axis name of the graph.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates YaxisTitle whenever _yaxisTitle is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _yaxisTitle;
         public string YaxisTitle
         {
@@ -82,12 +125,20 @@ namespace AppSDR.ViewModel
                 {
                     _yaxisTitle = value;
                     OnPropertyChanged(nameof(YaxisTitle)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the x axis name of the graph.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates XaxisTitle whenever _xaxisTitle is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _xaxisTitle;
         public string XaxisTitle
         {
@@ -98,12 +149,20 @@ namespace AppSDR.ViewModel
                 {
                     _xaxisTitle = value;
                     OnPropertyChanged(nameof(XaxisTitle)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the minimum values of SDR values.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates MinRange whenever _minRange is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _minRange;
         public string MinRange
         {
@@ -114,12 +173,20 @@ namespace AppSDR.ViewModel
                 {
                     _minRange = value;
                     OnPropertyChanged(nameof(MinRange)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum values of SDR values.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates MaxRange whenever _maxRange is set.
+        /// Validates SubmitCommand and AddTextCommand to execute.
+        /// </return>
         private string _maxRange;
         public string MaxRange
         {
@@ -130,28 +197,43 @@ namespace AppSDR.ViewModel
                 {
                     _maxRange = value;
                     OnPropertyChanged(nameof(MaxRange)); // Raise PropertyChanged event
-                    (SubmitCommand as Command).ChangeCanExecute();
-                    (AddTextCommand as Command).ChangeCanExecute();
-
-
+                    (SubmitCommand as Command)?.ChangeCanExecute();
+                    (AddTextCommand as Command)?.ChangeCanExecute();
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets the parameters for drawing functions, used in other functions
+        /// </summary>
+        /// <return>
+        /// Updates GraphName whenever _graphName is set.
+        /// </return>
         public string[] EntryCellValues
         {
             get { return _entryCellValues; }
             set { SetProperty(ref _entryCellValues, value); }
         }
+
+        /// <summary>
+        /// Gets or sets the file directory to use.
+        /// </summary>
+        /// <return>
+        /// Updates SelectedFilePath whenever _selectedFilePath is set.
+        /// </return>
         public string SelectedFilePath
         {
             get { return _selectedFilePath; }
             set
             {
-                _selectedFilePath = value;
-                OnPropertyChanged(nameof(SelectedFilePath));
+                if (_selectedFilePath != value)
+                {
+                    _selectedFilePath = value;
+                    OnPropertyChanged(nameof(SelectedFilePath)); // Raise PropertyChanged event
+                }
             }
         }
-        // End property change of parameters without Cloud
+
 
         // Without-Cloud commands definition
         private string _selectedFilePath;
@@ -180,8 +262,15 @@ namespace AppSDR.ViewModel
         private string[] _messageConfig = null;
         private string[] _cloudConfig = null;
 
-        // Start With-Cloud property change of Message parameters 
         private string _queueStorageName;
+
+        /// <summary>
+        /// Gets or sets the name of the queue storage.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates QueueStorageName whenever _queueStorageName is set.
+        /// </return>
         public string QueueStorageName
         {
             get => _queueStorageName;
@@ -193,6 +282,14 @@ namespace AppSDR.ViewModel
             }
         }
         private string _messageConnectionString;
+
+        /// <summary>
+        /// Gets or sets the connection string for the message service.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates MessageConnectionString whenever _messageConnectionString is set.
+        /// </return>
         public string MessageConnectionString
         {
             get => _messageConnectionString;
@@ -204,6 +301,14 @@ namespace AppSDR.ViewModel
             }
         }
         private string _messageContent;
+
+        /// <summary>
+        /// Gets or sets the content of the message to be uploaded.
+        /// This property is bound to UI elements and supports change notifications.
+        /// </summary>
+        /// <return>
+        /// Updates MessageContent whenever _messageContent is set.
+        /// </return>
         public string MessageContent
         {
             get => _messageContent;
@@ -214,11 +319,15 @@ namespace AppSDR.ViewModel
                 (UploadMessageCommand as Command).ChangeCanExecute();
             }
         }
-        // End property change of Message parameters with Cloud
 
         // With-Cloud command definition
         public ICommand NavigateToUploadPageCommand { get; }
         public ICommand UploadMessageCommand { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
+        /// </summary>
+        /// <param name="navigation">The navigation service used to navigate between pages.</param>
         public MainViewModel(INavigation Navigation)
         {
             _navigation = Navigation;
@@ -291,7 +400,9 @@ namespace AppSDR.ViewModel
 
         }
 
-        // Pick a file from a local device
+        /// <summary>
+        /// Command to choose a file from the local device.
+        /// </summary>
         private async void ChooseFile()
         {
             try
@@ -329,6 +440,9 @@ namespace AppSDR.ViewModel
             }
         }
 
+        /// <summary>
+        /// Command to submit the form data and navigate to the visualization page.
+        /// </summary>
         private async void Submit()
         {
             // Done taking inputs and navigate to the visualisation page (Page1)
@@ -359,12 +473,26 @@ namespace AppSDR.ViewModel
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
+
+        /// <summary>
+        /// Navigates to the Page1 with the provided parameters and data.
+        /// </summary>
+        /// <param name="_entryCellValues">Array of graph parameters.</param>
+        /// <param name="_activeCellsArray">2D array of parsed cell values from the file.</param>
+        /// <param name="_cloudConfig">Array of cloud configuration strings.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task NavigateToPage1(string[] _entryCellValues, int[][] _activeCellsArray, string[] _cloudConfig)
         {
             // Navigate to Page1 with the updated EntryCellValues, activeCellsArray, and reference to MainViewModel
             var page1FromMainPage = new Page1(_activeCellsArray, _entryCellValues, _cloudConfig, Navigation, typeof(MainPage));
             await Navigation.PushModalAsync(page1FromMainPage);
         }
+
+        /// <summary>
+        /// Parses the content of the file into a 2D array of integers.
+        /// </summary>
+        /// <param name="fileContent">Content of the file as a string.</param>
+        /// <returns>A 2D array of integers parsed from the file content.</returns>
         private int[][] ParseFileContent(string fileContent)
         {
             // Split the content into lines
@@ -423,6 +551,11 @@ namespace AppSDR.ViewModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Raises the PropertyChanged event for data binding.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that changed.</param>
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             // Handle any changed property, here is entry parameters
@@ -439,8 +572,9 @@ namespace AppSDR.ViewModel
             return true;
         }
 
-        // Cloud-related functions
-        // Add manually SDR values
+        /// <summary>
+        /// Command to add text and navigate to the text editor page.
+        /// </summary>
         private async void AddText()
         {
             // Parse EntryCellValues, navigate to Text Editor Page
@@ -448,8 +582,10 @@ namespace AppSDR.ViewModel
             _cloudConfig = [_connectionString, _downloadBlobStorage];
             await Navigation.PushModalAsync(new TextEditorPage(EntryCellValues, _cloudConfig, _messageConfig, Navigation));
         }
-        
-        // Navigate to Upload Page
+
+        /// <summary>
+        /// Command to navigate to the upload page.
+        /// </summary>
         private async void NavigateToUploadPage()
         {
             try
@@ -465,7 +601,9 @@ namespace AppSDR.ViewModel
             }
         }
 
-        // Handle Message used for automatically generating outputs
+        /// <summary>
+        /// Command to upload a message to the cloud queue.
+        /// </summary>
         private async void UploadMessage()
         {
             try
@@ -479,6 +617,10 @@ namespace AppSDR.ViewModel
             }
         }
 
+        /// <summary>
+        /// Sends a message to the cloud queue.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task SendMessageToQueue()
         {
             // Instantiate a QueueClient which will be used to create and manipulate the queue

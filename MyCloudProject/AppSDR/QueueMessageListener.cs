@@ -15,6 +15,16 @@ namespace AppSDR
         private readonly string _queueName;
         private INavigation _navigation;
 
+        /// <summary>
+        /// Constructor for the QueueMessageListener class.
+        /// Initializes the listener with configuration parameters for accessing Azure Queue Storage and navigation instance.
+        /// </summary>
+        /// <param name="messageConfig">An array containing a connection string and a the queue name.</param>
+        /// <param name="navigation">The navigation instance for handling page navigation.</param>
+        /// <returns>
+        /// Initializes private fields with connection string, queue name, and navigation instance for 
+        /// listening to and processing messages from the queue.
+        /// </returns>
         public QueueMessageListener(string[] messageConfig, INavigation navigation)
         {
             _connectionString = messageConfig[0];
@@ -22,7 +32,13 @@ namespace AppSDR
             _navigation = navigation;
         }
 
-        // Access to Queue Storage and listen to MESSAGE
+        /// <summary>
+        /// Asynchronously listens to messages from the Azure Queue Storage and processes them.
+        /// Continuously polls the queue for new messages, handles base64 encoded messages, 
+        /// deserializes JSON data, processes experiment requests, and handles errors.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to signal the operation to stop if needed.</param>
+        /// <returns>Processes messages from the queue, handling each message, deleting processed messages from the queue.</returns>
         public async Task ListenToMessagesAsync(CancellationToken cancellationToken)
         {
             QueueClient queueClient = new QueueClient(_connectionString, _queueName);
@@ -82,6 +98,11 @@ namespace AppSDR
             }
         }
 
+        /// <summary>
+        /// Checks if a string is a valid Base64 encoded string.
+        /// </summary>
+        /// <param name="base64">The string to be checked.</param>
+        /// <returns>True if the string is a valid Base64 encoded string; otherwise, false.</returns>
         private bool IsBase64String(string base64)
         {
             // Handle JSON data
@@ -89,6 +110,12 @@ namespace AppSDR
             return Convert.TryFromBase64String(base64, buffer, out _);
         }
 
+        /// <summary>
+        /// Processes an experiment request by downloading blobs from Azure Blob Storage and performing further operations on the downloaded files.
+        /// Handles errors during blob operations and provides user feedback via alerts.
+        /// </summary>
+        /// <param name="request">An instance of ExperimentRequestMessage containing details for accessing blob storage and processing files.</param>
+        /// <returns>Processes each blob in the specified container, downloads it to the desktop, and calls other functions</returns>
         private async Task ProcessExperimentRequestAsync(ExperimentRequestMessage request)
         {
             try
@@ -147,6 +174,13 @@ namespace AppSDR
             }
         }
 
+        /// <summary>
+        /// Downloads a blob from Azure Blob Storage to a specified file path on the local filesystem.
+        /// Handles errors during the download process and provides user feedback via alerts.
+        /// </summary>
+        /// <param name="blobClient">The BlobClient instance used to download the blob.</param>
+        /// <param name="filePath">The local file path where the blob will be saved.</param>
+        /// <returns>Downloads the blob to the specified file path and handles errors during the process.</returns>
         private async Task DownloadBlobToFileAsync(BlobClient blobClient, string filePath)
         {
             try
@@ -168,6 +202,12 @@ namespace AppSDR
             }
         }
 
+        /// <summary>
+        /// Sanitizes a file name to ensure it is valid for use in the filesystem.
+        /// Replaces invalid characters with underscores.
+        /// </summary>
+        /// <param name="fileName">The original file name to be sanitized.</param>
+        /// <returns>A sanitized file name where invalid characters have been replaced with underscores.</returns>
         private string SanitizeFileName(string fileName)
         {
             // Make the file names valid if needed
@@ -178,6 +218,13 @@ namespace AppSDR
             return fileName;
         }
 
+        /// <summary>
+        /// Processes a downloaded file by reading its content, parsing it, and creating a new Page1 instance with the parsed data.
+        /// Handles errors during file processing and provides user feedback via alerts.
+        /// </summary>
+        /// <param name="filePath">The path to the file that has been downloaded and needs to be processed.</param>
+        /// <param name="request">An instance of ExperimentRequestMessage containing details for processing the file.</param>
+        /// <returns>Reads and parses the file content, creates a new Page1 instance, and navigates to it, saves a screenshot to blob storage.</returns>
         private async Task ProcessDownloadedFileAsync(string filePath, ExperimentRequestMessage request)
         {
             try
@@ -206,6 +253,12 @@ namespace AppSDR
             }
         }
 
+        /// <summary>
+        /// Downloads entity data from Azure Table Storage based on the provided connection string and table storage name.
+        /// </summary>
+        /// <param name="ConnectionString">The connection string for accessing Azure Table Storage.</param>
+        /// <param name="TableStorageName">The name of the table in Azure Table Storage from which to download data.</param>
+        /// <returns>An array of strings representing the entry cell values retrieved from the most recent entity in the table.</returns>
         private async Task<string[]> DownloadEntity(string ConnectionString, string TableStorageName)
         {
             try

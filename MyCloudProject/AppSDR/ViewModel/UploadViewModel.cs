@@ -132,9 +132,12 @@ namespace AppSDR.ViewModel
                 _listenMessage = value; OnPropertyChanged();
             }
         }
-        // End properties change
-        
-        // Binding commands initiate
+
+        /// <summary>
+        /// Initialize commands defined in UploadPage UI. 
+        /// </summary>
+        /// <param ICommand="Binding">The binding commands from UploadPage UI</param>
+        /// <returns>The commands method of UploadPage UI</returns>
         public ICommand SelectAndUploadFileCommand { get; }
         public ICommand DownloadFilesCommand { get; }
         public ICommand ConnectCommand { get; }
@@ -143,7 +146,15 @@ namespace AppSDR.ViewModel
         public ICommand StartListeningCommand { get; }
         public ICommand StopListeningCommand { get; }
 
-        // Default constructor required for XAML instantiation
+
+        /// <summary>
+        /// Initialize the parse variables . 
+        /// Initialize the commands binding from the UI - UploadPage.xaml.
+        /// </summary>
+        /// <param name="AssignedTextFilePath">The input file directory, of saved text file from Text Editor Page, or null.</param>
+        /// <param name="MessageConfig">A list contains a Connection String and Queue Storage name, if defined in Main Page, or null</param>
+        /// <param name="Navigation">The navigation method to move among pages</param>
+        /// <returns>A class behind Upload() deals with logic implementation</returns>
         public UploadViewModel(string AssignedTextFilePath, string[] MessageConfig, INavigation Navigation, string[] EntryCellValues)
         {
             // Assign navigating variables
@@ -212,7 +223,14 @@ namespace AppSDR.ViewModel
             StopListeningCommand = new Command(async () => await OnStopListening());
         }
 
-        // Connecting method to access the storage account
+        /// <summary>
+        /// Connect to Storage Account 1.
+        /// Change the required conditions for other commands to true.
+        /// </summary>
+        /// <param name="ConnectionString">The connection string use in Cloud connection</param>
+        /// <param name="StorageAccount">The storage account name, additionally to the connection string</param>
+        /// <param name="StatusMessage">A text appears on UI to show the which function the app processes</param>
+        /// <returns>A task connects the Storange Account 1 and prepares conditions for other commands</returns>
         private async Task OnConnectAsync()
         {
             StatusMessage = "Connecting...";
@@ -237,13 +255,27 @@ namespace AppSDR.ViewModel
             ((Command)DownloadFilesCommand).ChangeCanExecute();
         }
 
-        // Define the booolean value to make commands valid
+        /// <summary>
+        /// Condition check for others command.
+        /// </summary>
+        /// <param>No needed parameters</param>
+        /// <returns>The boolean value to make commands valid</returns>
         private bool CanExecuteCommands()
         {
             return IsConnected;
         }
 
-        // Choose a file or multiple files and upload to the defined blob
+        /// <summary>
+        /// Select and upload file(s) to Azure Blob Storage. The method checks if a specific text file is assigned for upload.
+        /// If no file is assigned, it allows the user to select one or multiple files for upload.
+        /// </summary>
+        /// <param name="AssignedTextFilePath">The predefined file path, if a specific file is set for upload.</param>
+        /// <param name="ConnectionString">The connection string used to connect to the Azure Storage Account.</param>
+        /// <param name="UploadBlobStorageName">The name of the Blob storage container where files will be uploaded.</param>
+        /// <param name="SelectedFiles">A list containing the paths of files selected by the user for upload.</param>
+        /// <param name="StatusMessage">A text that appears on the UI to indicate the current status of the operation, such as file selection or upload success.</param>
+        /// <returns>Uploads the selected or assigned file(s) to the defined Blob storage container in Azure.</returns>
+
         private async Task SelectAndUploadFileAsync()
         {
             try
@@ -304,7 +336,16 @@ namespace AppSDR.ViewModel
             }
         }
 
-        //Upload the parameters in MainPage to Table Storage
+        /// <summary>
+        /// Upload configuration parameters to Table Storage. This method creates a table if it doesn't exist 
+        /// Inserts a configuration entity with the provided parameters.
+        /// </summary>
+        /// <param name="ConnectionString">The connection string used to connect to the Azure Storage Account.</param>
+        /// <param name="TableStorageName">The name of the Table Storage where the configuration entity will be stored.</param>
+        /// <param name="EntryCellValues">An array containing the eight parameters entered: GraphName, MaxCycles, HighlighTouch, XaxisTitle,
+        /// YaxisTitle, MinRange, MaxRange, SavedName.</param>
+        /// <param name="StatusMessage">A text that appears on the UI to indicate the current status of the operation</param>
+        /// <returns>Uploads configuration entities in the specified Azure Table Storage.</returns>
         private async Task UploadParameters()
         {
             try
@@ -340,7 +381,14 @@ namespace AppSDR.ViewModel
             }
         }
 
-        // Proccess the output: access to Storage, take content from Blob, parameters from Table, draw in Page1, upload outputs
+        /// <summary>
+        /// Generates output by accessing the specified Blob Container, downloading each blob,and processing the downloaded files.
+        /// Handles file operations on the user's Desktop.
+        /// </summary>
+        /// <param name="ConnectionString">The connection string used to connect to the Azure Blob Storage Account.</param>
+        /// <param name="UploadBlobStorageName">The name of the Blob Storage container where the blobs are stored for processing.</param>
+        /// <param name="StatusMessage">A text that appears on the UI to indicate the current status of the operation.</param>
+        /// <returns>The Task calls Downloads blobs to the user's Desktop, processes the files methods.</returns>
         private async Task GenerateOutput()
         {
             try
@@ -390,6 +438,12 @@ namespace AppSDR.ViewModel
                 Console.WriteLine($"Error processing experiment request: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Sanitizes a file name by replacing any invalid characters with an underscore.
+        /// </summary>
+        /// <param name="fileName">The original file name that may contain invalid characters.</param>
+        /// <returns>A sanitized file name with invalid characters replaced by underscores.</returns>
         private string SanitizeFileName(string fileName)
         {
             foreach (char c in Path.GetInvalidFileNameChars())
@@ -399,7 +453,12 @@ namespace AppSDR.ViewModel
             return fileName;
         }
 
-        // From Blob stored SDR files, download files to desktop
+        /// <summary>
+        /// Downloads a blob from Azure Blob Storage and saves it to the specified local file path on the user's machine.
+        /// </summary>
+        /// <param name="blobClient">The BlobClient used to download the blob from the Azure storage container.</param>
+        /// <param name="filePath">The full local file path where the blob will be saved.</param>
+        /// <returns>Downloads the blob to a file, and saves to the Desktop.</returns>
         private async Task DownloadBlobToFileAsync(BlobClient blobClient, string filePath)
         {
             try
@@ -416,6 +475,13 @@ namespace AppSDR.ViewModel
                 throw;
             }
         }
+
+        /// <summary>
+        /// Processes a downloaded file by reading its content, parsing it, and updating the UI with the processed data.
+        /// Also, navigates to Page1 after processing the file.
+        /// </summary>
+        /// <param name="filePath">The local file path of the downloaded file that needs to be processed.</param>
+        /// <returns>Processes the file and navigates to a new page with the parsed data.</returns>
         private async Task ProcessDownloadedFileAsync(string filePath)
         {
             try
@@ -444,7 +510,12 @@ namespace AppSDR.ViewModel
             }
         }
 
-        // Helper method to parse the file content into a 2D integer array
+        /// <summary>
+        /// Parses the content of a file into a 2D integer array.
+        /// Empty lines or lines with invalid data are skipped.
+        /// </summary>
+        /// <param name="fileContent">The content of the file to be parsed.</param>
+        /// <returns>A 2D integer array representing the parsed data from the file.</returns>
         private int[][] ParseFileContent(string fileContent)
         {
             string[] lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
@@ -499,6 +570,13 @@ namespace AppSDR.ViewModel
         }
 
         // Access to Table Storage, and get Entry Cell Values
+        /// <summary>
+        /// Downloads the most recent configuration entity from Azure Table Storage and converts its properties into a string array.
+        /// </summary>
+        /// <param name="ConnectionString">The connection string used to connect to the Azure Storage Account.</param>
+        /// <param name="TableStorageName">The name of the Table Storage where the configuration entity will be stored.</param>
+        /// <returns>A string array representing the configuration entity's properties.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when no entities are found in the table.</exception>
         public async Task<string[]> DownloadEntity()
         {
             try
@@ -544,7 +622,14 @@ namespace AppSDR.ViewModel
             }
         }
 
-        // Access to Output Blob Storage, download output to desktop
+        /// <summary>
+        /// Downloads all files from a specified Blob Storage container to the user's Desktop. Each file is sanitized and saved locally.
+        /// Handles potential errors during the download process and updates the status message accordingly.
+        /// </summary>
+        /// <param name="ConnectionString">The connection string used to connect to the Azure Blob Storage Account.</param>
+        /// <param name="DownloadBlobStorageName">The name of the Blob Storage container where output images are stored.</param>
+        /// <param name="StatusMessage">A text that appears on the UI to indicate the current status of the operation.</param>
+        /// <returns>Downloads files from the Blob Storage container and saves them to the Desktop, while providing status updates.</returns>
         private async Task DownloadFilesAsync()
         {
             try
@@ -588,7 +673,12 @@ namespace AppSDR.ViewModel
             }
         }
 
-        // Start the Message generation
+        /// <summary>
+        /// Starts listening to Azure Queue Messages using the configured MessageConfig object.
+        /// Displays a status update and begins listening for messages asynchronously. Handles any exceptions that occur during the process.
+        /// </summary>
+        /// <param name="MessageConfig">A list contains a Connection String and Queue Storage name, if defined in Main Page</param>
+        /// <returns>Begins listening to messages from the queue and updates the UI with status information.</returns>
         private async Task OnStartListening()
         {
             if (MessageConfig == null)
@@ -627,20 +717,43 @@ namespace AppSDR.ViewModel
             }
         }
 
+        /// <summary>
+        /// Stops listening to Azure Queue Messages by canceling the CancellationTokenSource.
+        /// Updates the status message to indicate that listening has stopped.
+        /// </summary>
+        /// <param name="_cts">CancellationTokenSource object, provides cancellation token through its Token property.</param>
+        /// <returns>Stops the message listening operation and updates the UI with the new status.</returns>
         private async Task OnStopListening()
         {
             _cts?.Cancel();
             UpdateMessage("Status: Stopped");
         }
 
-        // Status for Message proccess
+        /// <summary>
+        /// Changes the ListenMessage on Upload Page.
+        /// </summary>
+        /// <param name="newMessage">The content is defined to be shown on Upload Page UI.</param>
+        /// <returns>Update the message on the screen so users can keep track of the process.</returns>
         public void UpdateMessage(string newMessage)
         {
             ListenMessage = newMessage;
         }
 
+        /// <summary>
+        /// Event that is raised when a property value changes, typically used for data binding.
+        /// Implemented from the INotifyPropertyChanged interface.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Invokes the PropertyChanged event handler to notify the UI or other components that a property value has changed.
+        /// This method helps in maintaining dynamic data updates within the UI when properties in the view model change.
+        /// </summary>
+        /// <param name="propertyName">
+        /// The name of the property that has changed. 
+        /// The [CallerMemberName] attribute automatically captures the name of the calling property if no argument is provided.
+        /// </param>
+        /// <return>Updates the called parameter</return>
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

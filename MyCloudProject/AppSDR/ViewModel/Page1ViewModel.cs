@@ -3,6 +3,12 @@ using AppSDR.SdrDrawerLib;
 
 namespace AppSDR.ViewModel
 {
+    /// <summary>
+    /// ViewModel for the Page1 view. Implements data binding and drawing capabilities.
+    /// </summary>
+    /// <return>
+    /// This ViewModel manages graph data and parameters, and provides functionality to draw the graph on a canvas.
+    /// </return>
     public class Page1ViewModel : BindableObject, IDrawable, INotifyPropertyChanged
     {
         int numTouch;
@@ -13,7 +19,6 @@ namespace AppSDR.ViewModel
         }
 
         public static BindableProperty VectorsProperty = BindableProperty.Create(nameof(Vectors), typeof(int[][]), typeof(Page1ViewModel));
-
         public string[] GraphPara
         {
             get => (string[])GetValue(GraphParaProperty);
@@ -21,12 +26,20 @@ namespace AppSDR.ViewModel
         }
 
         public static readonly BindableProperty GraphParaProperty = BindableProperty.Create(nameof(GraphPara), typeof(string[]), typeof(Page1ViewModel));
-
-        // Access predefined data from GraphPara
         public float rectangleWidth { get; set; }
         public float rectangleSpacing { get; set; }
         public float widthRequest { get; set; }
         public float heightRequest { get; set; }
+
+        /// <summary>
+        /// Draws the graph on the specified canvas within the given rectangular area.
+        /// </summary>
+        /// <param name="canvas">The canvas on which to draw the graph.</param>
+        /// <param name="dirtyRect">The area on the canvas to draw the graph.</param>
+        /// <return>
+        /// This method handles drawing the graph's inner border, axes, titles, and data columns.
+        /// It also applies conditional formatting based on the graph parameters and vector data.
+        /// </return>
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             // Check if all needed 7 parameters are assigned
